@@ -1,0 +1,75 @@
+<div class="dashboard">
+  <section class="hero">
+    <div>
+      <div class="scope-badge"><span>◆</span> Management &amp; Admin</div>
+      <span class="company-label">Meinhardt (Thailand) Ltd.,</span>
+      <h1>Welcome back, {{ displayName }}</h1>
+      <p>Enterprise Document Management Overview • Requests, approvals, and application access</p>
+    </div>
+    <div class="hero-actions">
+      <button class="refresh-button" type="button" (click)="approvals.refresh()"><span>⟳</span> Refresh</button>
+    </div>
+  </section>
+
+  <section class="stats-grid" aria-label="Request overview">
+    @for (stat of stats(); track stat.label) {
+      <article class="stat-card" [attr.data-tone]="stat.tone">
+        <span class="stat-icon">{{ stat.marker }}</span>
+        <div><small>{{ stat.label }}</small><strong>{{ stat.value }}</strong><p>{{ stat.helper }}</p></div>
+        <a [routerLink]="stat.link" [queryParams]="stat.query" [attr.aria-label]="'View ' + stat.label">›</a>
+      </article>
+    }
+  </section>
+
+  <section class="recent waiting panel" aria-label="Waiting for your action">
+    <div class="panel-heading"><div><h2>Waiting for your action</h2><p>Documents that need you to verify or approve</p></div></div>
+    @if (approvals.items().length) {
+      <div class="table-scroll"><table><thead><tr><th>Document</th><th>Prepared by</th><th>Form</th><th>Action</th><th class="r">Amount</th><th></th></tr></thead><tbody>
+        @for (item of approvals.items().slice(0, 8); track item.form + item.id) {
+          <tr><td><code>{{ item.voucherNo ?? 'Draft' }}</code></td><td><strong>{{ item.claimantName }}</strong></td><td>{{ approvals.formLabel(item) }}</td><td><span class="stage" [attr.data-stage]="item.stage">{{ approvals.stageLabel(item) }}</span></td><td class="r">{{ item.totalBaht | number:'1.2-2' }} {{ item.currency }}</td><td><a [routerLink]="approvals.routeFor(item)">Review</a></td></tr>
+        }
+      </tbody></table></div>
+    } @else {
+      <p class="waiting-empty">You're all caught up. Nothing is waiting for you.</p>
+    }
+  </section>
+
+  <section class="distribution-grid">
+    <article class="panel">
+      <h2>Request Status Distribution</h2>
+      <div class="distribution-row">
+        <div><small>MY ACTIONS</small><strong class="blue">{{ approvals.total() }}</strong></div>
+        <div><small>IN PROGRESS</small><strong class="purple">0</strong></div>
+        <div><small>DRAFTS</small><strong class="warning">0</strong></div>
+        <div><small>COMPLETED</small><strong class="green">0</strong></div>
+      </div>
+    </article>
+    <article class="panel">
+      <h2>Application Readiness</h2>
+      <div class="distribution-row">
+        <div><small>AVAILABLE</small><strong class="green">1</strong></div>
+        <div><small>IN MIGRATION</small><strong class="warning">7</strong></div>
+        <div><small>PLANNED</small><strong class="purple">6</strong></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="section-heading"><div><h2>Applications &amp; Workflows</h2><p>Open an application or review its migration readiness</p></div><a routerLink="/modules">View all applications →</a></section>
+  <section class="quick-grid">
+    @for (module of filteredModules().slice(0, 4); track module.id) {
+      <a class="quick-card" routerLink="/modules" [queryParams]="{ q: module.name }">
+        <span class="module-icon" [attr.data-accent]="module.accent">{{ module.code.slice(0,2) }}</span>
+        <div><strong>{{ module.name }}</strong><small>{{ module.description }}</small></div><b>›</b>
+      </a>
+    }
+  </section>
+
+  <section class="recent panel">
+    <div class="panel-heading"><div><h2>Recent Applications</h2><p>Applications available across your organization</p></div><a routerLink="/modules">View catalog →</a></div>
+    <div class="table-scroll"><table><thead><tr><th>Code</th><th>Application</th><th>Category</th><th>Status</th><th>Access</th></tr></thead><tbody>
+      @for (module of modules.slice(0, 6); track module.id) {
+        <tr><td><code>{{ module.code }}</code></td><td><strong>{{ module.name }}</strong></td><td>{{ module.category }}</td><td><span class="status" [attr.data-status]="module.status">{{ module.status === 'available' ? 'Available' : module.status === 'migration' ? 'In migration' : 'Planned' }}</span></td><td><a routerLink="/modules" [queryParams]="{ q: module.name }">Open</a></td></tr>
+      }
+    </tbody></table></div>
+  </section>
+</div>

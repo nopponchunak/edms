@@ -1,0 +1,52 @@
+.committees-page { display:grid; gap:16px; color:var(--mh-ink); }
+.page-header { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.page-header p { margin:0; color:var(--mh-muted); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.page-header h1 { margin:2px 0; font-size:24px; }
+.page-header small { color:var(--mh-muted); }
+.panel { border:1px solid var(--mh-border); border-radius:14px; background:var(--mh-surface); }
+.message { padding:10px 14px; border-radius:10px; font-size:13px; }
+.message.error { border:1px solid var(--mh-red); color:var(--mh-red); }
+.message.success { border:1px solid var(--mh-primary); color:var(--mh-primary); }
+.workspace { display:grid; grid-template-columns:280px 1fr; min-height:420px; overflow:hidden; }
+.committee-nav { display:flex; flex-direction:column; gap:4px; padding:10px; border-right:1px solid var(--mh-border); overflow-y:auto; max-height:70vh; }
+.committee-nav button { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border:0; border-radius:10px; background:transparent; color:var(--mh-ink-soft); cursor:pointer; text-align:left; font:inherit; }
+.committee-nav button:hover { background:var(--mh-surface-muted); }
+.committee-nav button.active { background:var(--mh-primary-soft); color:var(--mh-primary); }
+.committee-nav strong { display:block; font-size:13px; }
+.committee-nav small { display:block; color:var(--mh-muted); font-size:11px; }
+.committee-nav b { min-width:24px; padding:1px 7px; border:1px solid var(--mh-border); border-radius:99px; background:var(--mh-surface-muted); color:var(--mh-muted); font-size:11px; text-align:center; }
+.hint, .empty { color:var(--mh-muted); font-size:13px; padding:8px 12px; }
+.members-panel { display:grid; align-content:start; gap:14px; padding:18px; }
+.members-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.members-heading small { color:var(--mh-muted); font-size:10px; font-weight:700; letter-spacing:.1em; }
+.members-heading h2 { margin:2px 0; font-size:18px; }
+.members-heading p { margin:0; color:var(--mh-muted); font-size:13px; }
+.heading-actions { display:flex; gap:6px; }
+.search-box { display:grid; gap:4px; font-size:12px; color:var(--mh-muted); }
+.search-box input, .dialog input, .dialog textarea { padding:9px 12px; border:1px solid var(--mh-border); border-radius:10px; background:var(--mh-surface-muted); color:var(--mh-ink); font:inherit; font-size:13px; }
+h3 { margin:6px 0 0; font-size:13px; }
+.count { margin-left:6px; padding:1px 7px; border-radius:99px; background:var(--mh-surface-muted); color:var(--mh-muted); font-size:11px; }
+ul { margin:0; padding:0; list-style:none; border:1px solid var(--mh-border); border-radius:10px; overflow:hidden; }
+li { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border-bottom:1px solid var(--mh-border); font-size:13px; }
+li:last-child { border-bottom:0; }
+li small { margin-left:8px; color:var(--mh-muted); font-size:11px; }
+li em { color:var(--mh-muted); font-size:12px; }
+.candidate-list { max-height:220px; overflow-y:auto; }
+.member-list { max-height:360px; overflow-y:auto; }
+.primary-button, .ghost-button { padding:8px 14px; border-radius:10px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
+.primary-button { border:0; background:var(--mh-primary); color:#fff; }
+.primary-button:disabled { opacity:.5; cursor:not-allowed; }
+.ghost-button { border:1px solid var(--mh-border); background:transparent; color:var(--mh-ink-soft); }
+.ghost-button:hover { background:var(--mh-surface-muted); }
+.ghost-button.danger { color:var(--mh-red); }
+.save-bar { display:flex; align-items:center; gap:12px; }
+.save-bar small { color:var(--mh-muted); }
+.empty-state { display:grid; place-items:center; align-content:center; min-height:300px; color:var(--mh-muted); text-align:center; }
+.dialog-backdrop { position:fixed; z-index:300; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.5); }
+.dialog { display:grid; gap:12px; width:min(440px,92vw); padding:20px; border:1px solid var(--mh-border); border-radius:14px; background:var(--mh-surface); }
+.dialog h2 { margin:0; font-size:17px; }
+.dialog label { display:grid; gap:4px; color:var(--mh-muted); font-size:12px; }
+.dialog-actions { display:flex; justify-content:flex-end; gap:8px; }
+@media (max-width:768px) { .workspace { grid-template-columns:1fr; } .committee-nav { border-right:0; border-bottom:1px solid var(--mh-border); max-height:200px; } }
+li .who { flex:1; min-width:0; }
+li .role { flex:0 0 38%; color:var(--mh-muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

@@ -1,0 +1,33 @@
+<main class="login-page">
+  <section class="brand-panel">
+    <div class="brand-content">
+      <img src="images/meinhardt-group-logo-white.png" alt="Meinhardt" />
+      <p class="brand-kicker">Meinhardt (Thailand) Ltd.</p>
+      <h1>DOCUMENT<br /><span>MANAGEMENT</span></h1>
+      <p class="brand-description">Secure access to internal forms, approvals, compliance requests, and enterprise workflows.</p>
+      <div class="brand-metrics"><div><strong>14</strong><span>APPLICATIONS</span></div><div><strong>6</strong><span>BUSINESS GROUPS</span></div><div><strong>24/7</strong><span>SECURE ACCESS</span></div></div>
+    </div>
+  </section>
+
+  <section class="login-panel">
+    <form class="login-card" (ngSubmit)="submit()" novalidate>
+      <div class="mobile-brand"><img src="images/meinhardt-group-logo-white.png" alt="Meinhardt" /><span>EDMS</span></div>
+      <p class="eyebrow">Employee portal</p>
+      <h2>Sign in</h2>
+      <span class="red-line"></span>
+      <p class="intro">Use your Meinhardt employee account to continue.</p>
+
+      <label>Company / องค์กร<select><option>Meinhardt (Thailand) Ltd.</option></select></label>
+      <label>Username<input #usernameInput type="text" name="username" autocomplete="username" placeholder="Enter your username" [(ngModel)]="username" required /></label>
+      <label>Password
+        <span class="password-wrap"><input #passwordInput [type]="showPassword() ? 'text' : 'password'" name="password" autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password" required /><button type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">{{ showPassword() ? '◉' : '◎' }}</button></span>
+      </label>
+
+      @if (errorMessage()) { <div class="error-message" role="alert">{{ errorMessage() }}</div> }
+      <button class="submit-button" type="submit" [disabled]="loading()">{{ loginProvider() === 'ldap' ? 'SIGNING IN…' : 'SIGN IN' }}</button>
+      <div class="login-divider"><span>OR</span></div>
+      <button class="admin-button" type="button" [disabled]="loading()" (click)="submit('local')">{{ loginProvider() === 'local' ? 'SIGNING IN…' : 'LOCAL ACCOUNT LOGIN' }}</button>
+      <p class="security-note"><span>●</span> MEINHARDT INTERNAL ACCESS ONLY</p>
+    </form>
+  </section>
+</main>

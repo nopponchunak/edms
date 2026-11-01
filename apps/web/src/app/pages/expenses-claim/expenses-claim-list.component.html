@@ -1,0 +1,76 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Expenses Claim</h1>
+    <p class="page-subtitle">Submit and track employee expense claims</p>
+  </div>
+  @if (canCreate) { <a class="primary-btn" routerLink="new">+ New Claim</a> }
+</div>
+
+<app-list-filters [statuses]="statuses" [waitingCount]="approvals.expensesCount()" [initialWaiting]="waiting()" (changed)="onFilters($event)" />
+
+@if (error()) {
+  <div class="alert-error">{{ error() }}</div>
+}
+
+<div class="table-card">
+  @if (loading()) {
+    <div class="table-loading">Loading…</div>
+  } @else if (claims().length === 0) {
+    <div class="table-empty">No records found.</div>
+  } @else {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Voucher No.</th>
+          <th>Prepared by</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Verified By</th>
+          <th>Approved By</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (claim of claims(); track claim.id) {
+          <tr [class.my-turn]="isMyTurn(claim)">
+            <td class="mono">{{ claim.voucherNo ?? '—' }}</td>
+            <td>{{ claim.claimantName }}</td>
+            <td>{{ claim.claimDate }}</td>
+            <td class="text-right mono">{{ formatBaht(claim.totalBaht) }} {{ claim.currency }}</td>
+            <td>{{ claim.verifiedBy ?? '—' }}</td>
+            <td>{{ claim.approvedBy ?? '—' }}</td>
+            <td><span class="status-badge status-{{ claim.status }}">{{ statusLabel(claim.status) }}</span></td>
+            <td class="action-cell">
+              <a class="action-link" [routerLink]="[claim.id]">View</a>
+              @if (claim.status === 'draft' || claim.status === 'rejected') {
+                <a class="action-link" [routerLink]="[claim.id, 'edit']">Edit</a>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="pagination-bar">
+      <div class="pag-info">
+        Showing <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> of <strong>{{ total() }}</strong>
+        &nbsp;&nbsp;Rows:
+        <select class="select-page-size" [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)">
+          @for (s of pageSizeOptions; track s) { <option [value]="s">{{ s }}</option> }
+        </select>
+      </div>
+      @if (totalPages() > 1) {
+        <div class="pag-nav">
+          <button class="pag-btn" [disabled]="page() === 1" (click)="goToPage(1)">«</button>
+          <button class="pag-btn" [disabled]="page() === 1" (click)="goToPage(page() - 1)">‹</button>
+          @for (n of pageNumbers(); track n) {
+            <button class="pag-btn" [class.active]="n === page()" (click)="goToPage(n)">{{ n }}</button>
+          }
+          <button class="pag-btn" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">›</button>
+          <button class="pag-btn" [disabled]="page() === totalPages()" (click)="goToPage(totalPages())">»</button>
+        </div>
+      }
+    </div>
+  }
+</div>

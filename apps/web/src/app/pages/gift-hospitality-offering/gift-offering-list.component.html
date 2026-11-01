@@ -1,0 +1,85 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Gift/Hospitality Offering Requests</h1>
+    <p class="page-subtitle">4-ACGH-02&nbsp;|&nbsp;Request for offering of gift / hospitality</p>
+  </div>
+  @if (canCreate) { <a class="primary-btn" routerLink="new">+ New Request</a> }
+</div>
+
+<app-list-filters
+  [statuses]="statuses"
+  [waitingCount]="approvals.giftOfferingCount()"
+  [initialWaiting]="waiting()"
+  typeLabel="Request type"
+  [typeOptions]="typeOptions"
+  searchPlaceholder="Search requester, receiver, description or voucher no."
+  (changed)="onFilters($event)" />
+
+@if (error()) {
+  <div class="alert-error">{{ error() }}</div>
+}
+
+<div class="table-card">
+  @if (loading()) {
+    <div class="table-loading">Loading…</div>
+  } @else if (records().length === 0) {
+    <div class="table-empty">No records found.</div>
+  } @else {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th><app-sort-header label="Voucher No." key="voucher_no" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Requester" key="requester_name" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Type" key="request_type" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Description" key="description" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Receiver" key="receiver_name_company" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th class="text-right"><app-sort-header label="Amount" key="value_amount" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Proposed" key="proposed_date" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Approver" key="approver_by" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th><app-sort-header label="Status" key="status" [state]="sortState()" (sortChange)="onSort($event)" /></th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (rec of records(); track rec.id) {
+          <tr [class.my-turn]="isMyTurn(rec)">
+            <td class="mono">{{ rec.voucherNo ?? '—' }}</td>
+            <td>{{ rec.requesterName }}</td>
+            <td>{{ typeLabel(rec.requestType) }}</td>
+            <td class="desc" [title]="rec.description ?? ''">{{ rec.description ?? '—' }}</td>
+            <td>{{ rec.receiverNameCompany }}</td>
+            <td class="text-right mono">{{ formatAmount(rec.valueAmount) }} {{ rec.currency }}</td>
+            <td>{{ rec.proposedDate }}</td>
+            <td>{{ rec.approverBy ?? '—' }}</td>
+            <td><span class="status-badge status-{{ rec.status }}">{{ statusLabel(rec.status) }}</span></td>
+            <td class="action-cell">
+              <a class="action-link" [routerLink]="[rec.id]">View</a>
+              @if (canEdit(rec)) { <a class="action-link" [routerLink]="[rec.id, 'edit']">Edit</a> }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="pagination-bar">
+      <div class="pag-info">
+        Showing <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> of <strong>{{ total() }}</strong>
+        &nbsp;&nbsp;Rows:
+        <select class="select-page-size" [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)">
+          @for (s of pageSizeOptions; track s) { <option [value]="s">{{ s }}</option> }
+        </select>
+      </div>
+      @if (totalPages() > 1) {
+        <div class="pag-nav">
+          <button class="pag-btn" [disabled]="page() === 1" (click)="goToPage(1)">«</button>
+          <button class="pag-btn" [disabled]="page() === 1" (click)="goToPage(page() - 1)">‹</button>
+          @for (n of pageNumbers(); track n) {
+            <button class="pag-btn" [class.active]="n === page()" (click)="goToPage(n)">{{ n }}</button>
+          }
+          <button class="pag-btn" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">›</button>
+          <button class="pag-btn" [disabled]="page() === totalPages()" (click)="goToPage(totalPages())">»</button>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,43 @@
+<div class="role-permissions-page">
+  <section class="page-header">
+    <div><p>Administration</p><h1>Role Permissions</h1><small>Configure the permissions inherited by each role.</small></div>
+    <button type="button" class="refresh-button" [disabled]="loading()" (click)="loadAll()">↻ {{ loading() ? 'Loading…' : 'Refresh' }}</button>
+  </section>
+
+  @if (error()) { <div class="message error" role="alert">{{ error() }}</div> }
+  @if (notice()) { <div class="message success" role="status">{{ notice() }}</div> }
+
+  <section class="role-section panel">
+    <div class="role-workspace">
+      <nav class="role-nav" aria-label="Roles">
+        @for (role of roles(); track role.id) {
+          <button type="button" [class.active]="selectedRole()?.id === role.id" (click)="editRole(role)">
+            <span><strong>{{ role.name }}</strong><small>{{ role.code }}</small></span>
+            <b>{{ role.permissions.length }}</b>
+          </button>
+        }
+        @if (loading() && roles().length === 0) { <p class="loading-hint">Loading roles…</p> }
+      </nav>
+      <div class="permission-editor">
+        @if (selectedRole(); as role) {
+          <div class="permission-heading">
+            <div><small>ROLE</small><h3>{{ role.name }}</h3><p>{{ role.description || role.code }}</p></div>
+            @if (role.isSystem) { <span class="system-badge">System role</span> }
+          </div>
+          @if (role.code === 'super_admin') { <div class="locked-note">Super administrator always has full access and cannot be edited.</div> }
+          <div class="permission-grid">
+            @for (permission of permissions(); track permission.id) {
+              <label [class.disabled]="role.code === 'super_admin'">
+                <input type="checkbox" [checked]="role.code === 'super_admin' || hasDraftPermission(permission.code)" [disabled]="role.code === 'super_admin'" (change)="toggleRolePermission(permission.code, $any($event.target).checked)" />
+                <span><strong>{{ permission.name }}</strong><code>{{ permission.code }}</code><small>{{ permission.description || 'No description' }}</small></span>
+              </label>
+            }
+          </div>
+          <button class="primary-button role-save" type="button" [disabled]="saving() || role.code === 'super_admin'" (click)="saveRolePermissions()">{{ saving() ? 'Saving…' : 'Save role permissions' }}</button>
+        } @else {
+          <div class="editor-empty"><span>◇</span><h2>Select a role</h2><p>Choose a role from the list to review and configure its permission set.</p></div>
+        }
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: meinhardt-edms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-edms}
+      POSTGRES_USER: ${DB_USER:-edms}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-edms_dev_password}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - edms-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-edms} -d ${DB_NAME:-edms}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  edms-postgres-data:

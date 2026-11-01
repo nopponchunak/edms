@@ -1,0 +1,30 @@
+<div class="ss-wrap" [class.ss-open]="open()" [class.ss-disabled]="disabled">
+  <button class="ss-trigger" type="button" (click)="toggle()" [disabled]="disabled">
+    <span class="ss-value" [class.ss-placeholder]="!selectedLabel">
+      {{ selectedLabel || placeholder }}
+    </span>
+    <svg class="ss-arrow" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+
+  @if (open()) {
+    <div class="ss-dropdown">
+      <div class="ss-search-wrap">
+        <svg class="ss-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="ss-search" type="text" placeholder="Search person" [ngModel]="query()" (ngModelChange)="query.set($event)" (click)="$event.stopPropagation()" autofocus />
+      </div>
+      <ul class="ss-list">
+        @if (value) {
+          <li class="ss-option ss-clear" (click)="clear()">— Clear selection —</li>
+        }
+        @for (opt of filtered; track opt.value) {
+          <li class="ss-option" [class.ss-selected]="opt.value === value" (click)="select(opt)">
+            {{ opt.label }}
+          </li>
+        }
+        @if (filtered.length === 0) {
+          <li class="ss-option ss-empty">No results found</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

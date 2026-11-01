@@ -1,0 +1,24 @@
+<div class="catalog">
+  <section class="page-header">
+    <div><p>Overview</p><h1>Applications</h1><small>Browse enterprise workflows and review migration readiness.</small></div>
+    <div class="header-actions"><a routerLink="/dashboard">Dashboard</a><button type="button">+ New Request</button></div>
+  </section>
+
+  <section class="filter-toolbar" aria-label="Filter applications">
+    <label class="view-filter"><span>▽</span><strong>View:</strong><select aria-label="Category" [ngModel]="category()" (ngModelChange)="category.set($event)"><option value="">All applications</option>@for (item of categories; track item) { <option [value]="item">{{ item }}</option> }</select></label>
+    <label class="search-wrap"><span>⌕</span><input type="search" placeholder="Search by name, form code or description…" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" /></label>
+    <select class="status-filter" aria-label="Migration status" [ngModel]="status()" (ngModelChange)="status.set($event)"><option value="">All statuses</option><option value="available">Available</option><option value="migration">In migration</option><option value="planned">Planned</option></select>
+  </section>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Code</th><th class="sortable" (click)="sortBy('name')"><span>Application</span><b>{{ sortSymbol('name') }}</b></th><th class="sortable" (click)="sortBy('category')"><span>Category</span><b>{{ sortSymbol('category') }}</b></th><th class="sortable" (click)="sortBy('status')"><span>Status</span><b>{{ sortSymbol('status') }}</b></th><th>Description</th><th>Action</th></tr></thead>
+      <tbody>
+        @for (module of rows(); track module.id) {
+          <tr><td><code>{{ module.code }}</code></td><td><strong>{{ module.name }}</strong></td><td>{{ module.category }}</td><td><span class="badge" [attr.data-status]="module.status">{{ statusLabel(module) }}</span></td><td class="description">{{ module.description }}</td><td><button class="open-button" type="button" [disabled]="module.status !== 'available'">Open</button></td></tr>
+        } @empty { <tr><td colspan="6" class="empty-row">No applications match your search or filters.</td></tr> }
+      </tbody>
+    </table>
+  </div>
+  <footer class="pagination-bar"><p>Showing <strong>{{ rows().length ? 1 : 0 }}–{{ rows().length }}</strong> of <strong>{{ rows().length }}</strong> applications</p><label>Rows per page: <select><option>25</option></select></label></footer>
+</div>

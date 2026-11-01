@@ -1,0 +1,143 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <a class="back-link" routerLink="/anti-corruption/charitable-contribution">← Charitable Contribution Requests</a>
+    <h1 class="page-title">{{ isEdit() ? 'Edit Request' : 'New Charitable Contribution Request' }}</h1>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else {
+  @if (errors().length) {
+    <div class="alert-error">
+      <ul class="field-error-list">@for (message of errors(); track $index) { <li>{{ message }}</li> }</ul>
+    </div>
+  }
+
+  @if (rejection(); as rej) {
+    <div class="reject-banner" role="alert">
+      <strong>Rejected ({{ rej.label }}) — {{ rej.by }}</strong>
+      <span>{{ rej.comment || 'No comment was left.' }}</span>
+      <small>Fix the request and submit it again to restart the approval flow.</small>
+    </div>
+  }
+
+  <div class="form-layout">
+    <!-- Left: request details -->
+    <section class="panel">
+      <h2 class="section-title">Request Details</h2>
+      <div class="grid grid-3">
+        <div class="form-field">
+          <label class="field-label">Request Type <span class="required">*</span></label>
+          <div class="radio-row">
+            @for (type of requestTypes; track type.value) {
+              <label><input type="radio" name="requestType" [value]="type.value" [ngModel]="requestType()" (ngModelChange)="requestType.set($event)" /> {{ type.label }}</label>
+            }
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Requester Name <span class="required">*</span></label>
+          <app-searchable-select [options]="userOptions()" [value]="requesterName()" (valueChange)="onRequesterChange($event)" placeholder="— Select person —" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">Proposed Date <span class="required">*</span></label>
+          <input class="field-input" type="date" [ngModel]="proposedDate()" (ngModelChange)="proposedDate.set($event)" />
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="form-field">
+          <label class="field-label">Event Description</label>
+          <textarea class="field-area" rows="3" placeholder="Describe the event in detail…" [ngModel]="eventDescription()" (ngModelChange)="eventDescription.set($event)"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Event Purpose</label>
+          <textarea class="field-area" rows="3" placeholder="What is the purpose of this event?" [ngModel]="eventPurpose()" (ngModelChange)="eventPurpose.set($event)"></textarea>
+        </div>
+      </div>
+
+      <div class="grid grid-1">
+        <div class="form-field">
+          <label class="field-label">Name of Organizer / Sponsorship Receiver <span class="required">*</span></label>
+          <input class="field-input" type="text" [ngModel]="organizerName()" (ngModelChange)="organizerName.set($event)" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">Description of Contribution / Sponsorship</label>
+          <textarea class="field-area" rows="3" placeholder="Describe what will be contributed or sponsored…" [ngModel]="contributionDescription()" (ngModelChange)="contributionDescription.set($event)"></textarea>
+        </div>
+      </div>
+
+      <div class="grid grid-value">
+        <div class="form-field">
+          <label class="field-label">Value of Contribution or Sponsorship (including VAT) <span class="required">*</span></label>
+          <input class="field-input" type="number" min="0" step="1" [placeholder]="isThb() ? 'Minimum ' + minThb : '0'" [ngModel]="valueAmount()" (ngModelChange)="valueAmount.set($event)" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">Currency</label>
+          <select class="field-input" aria-label="Currency" [ngModel]="currency()" (ngModelChange)="currency.set($event)">
+            @for (c of currencies; track c) { <option [value]="c">{{ c }}</option> }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Attachments</label>
+        <app-file-attach [attachments]="attachments()" (attachmentsChange)="attachments.set($event)" />
+      </div>
+    </section>
+
+    <!-- Right: amount matrix, then approval flow -->
+    <aside class="side">
+      <section class="panel">
+        <h2 class="section-title">Approval Matrix (THB)</h2>
+        <table class="matrix">
+          <thead><tr><th>Amount</th><th>Prepared by</th><th>Verified by</th><th>Approved by</th></tr></thead>
+          <tbody>
+            <tr><td>≤ 20,000</td><td>Staff</td><td rowspan="2">ACSC</td><td>DI or MD</td></tr>
+            <tr><td>&gt; 20,000</td><td>Staff</td><td>2 DIs or MD</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2 class="section-title">Approval Flow</h2>
+        <div class="flow">
+          <div class="form-field">
+            <label class="field-label">Verify (ACSC) <span class="required">*</span></label>
+            <app-searchable-select [options]="verifyOptions()" [value]="verifyBy()" (valueChange)="verifyBy.set($event)" placeholder="— Select ACSC member —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Acknowledge 1 (ACSL) <span class="required">*</span></label>
+            <app-searchable-select [options]="ack1Options()" [value]="ack1By()" (valueChange)="ack1By.set($event)" placeholder="— Select ACSL member —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Approve (DI/MD) <span class="required">*</span></label>
+            <app-searchable-select [options]="approverOptions()" [value]="approverBy()" (valueChange)="approverBy.set($event)" placeholder="— Select DI or MD —" />
+            <p class="hint">{{ approverHint() }}</p>
+          </div>
+          @if (canToggleApprover2()) {
+            <label class="toggle"><input type="checkbox" [ngModel]="useApprover2()" (ngModelChange)="useApprover2.set($event)" /> Add Approver 2 (optional)</label>
+          }
+          @if (showApprover2()) {
+            <div class="form-field">
+              <label class="field-label">Approve 2 (DI) @if (needsApprover2()) { <span class="required">*</span> }</label>
+              <app-searchable-select [options]="approver2Options()" [value]="approver2By()" (valueChange)="approver2By.set($event)" placeholder="— Select DI —" />
+              @if (needsApprover2()) { <p class="hint">Required: this amount needs two different DIs when Approve is a DI.</p> }
+            </div>
+          }
+          <div class="form-field">
+            <label class="field-label">Acknowledge 2 (CA) <span class="required">*</span></label>
+            <app-searchable-select [options]="ack2Options()" [value]="ack2By()" (valueChange)="ack2By.set($event)" placeholder="— Select CA —" />
+          </div>
+        </div>
+        <p class="hint rules">A DI cannot approve their own request; an MD can.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="form-actions">
+    <a class="cancel-btn" routerLink="/anti-corruption/charitable-contribution">Cancel</a>
+    <button class="draft-btn" type="button" [disabled]="saving()" (click)="save('draft')">{{ saving() ? 'Saving…' : 'Save Draft' }}</button>
+    <button class="submit-btn" type="button" [disabled]="saving()" (click)="save('submitted')">{{ saving() ? 'Saving…' : 'Submit' }}</button>
+  </div>
+}

@@ -1,0 +1,41 @@
+<div class="filter-grid" [class.with-type]="typeOptions.length > 0">
+  <form class="fld fld-search" (ngSubmit)="submitSearch()">
+    <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" name="q" autocomplete="off" [placeholder]="searchPlaceholder" [ngModel]="q()" (ngModelChange)="onQuery($event)" />
+  </form>
+
+  <div class="fld">
+    <label class="float">Status</label>
+    <select aria-label="Status" [ngModel]="status()" (ngModelChange)="onStatus($event)">
+      @for (s of statuses; track s.value) { <option [value]="s.value">{{ s.label }}</option> }
+      @if (showWaiting) { <option [value]="waitingValue">Waiting for me{{ waitingCount > 0 ? ' (' + waitingCount + ')' : '' }}</option> }
+    </select>
+  </div>
+
+  @if (typeOptions.length) {
+    <div class="fld">
+      <label class="float">{{ typeLabel }}</label>
+      <select [attr.aria-label]="typeLabel" [ngModel]="type()" (ngModelChange)="onType($event)">
+        <option value="">All</option>
+        @for (o of typeOptions; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+      </select>
+    </div>
+  }
+
+  <div class="fld fld-approver">
+    <label class="float">Approver</label>
+    <app-searchable-select [options]="approverOptions()" [value]="approver()" placeholder="All approvers" (valueChange)="onApprover($event)" />
+  </div>
+
+  <div class="fld">
+    <label class="float">Date range</label>
+    <app-date-range-picker [from]="dateFrom()" [to]="dateTo()" placeholder="Start – end date" (rangeChange)="onRange($event)" />
+  </div>
+
+  @if (hasFilters()) {
+    <button class="clear-all" type="button" (click)="clearAll()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Clear
+    </button>
+  }
+</div>

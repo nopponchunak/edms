@@ -1,0 +1,195 @@
+<div class="access-page">
+  <section class="page-header">
+    <div><p>Administration</p><h1>User &amp; Access Management</h1><small>Assign user roles and control the permissions included in each role.</small></div>
+    <div class="header-actions">
+      @if (canSyncHris) { <button class="sync-button" type="button" [disabled]="syncingHris()" (click)="syncHris()"><span>↻</span> {{ syncingHris() ? 'Syncing HRIS…' : 'Sync HRIS' }}</button> }
+      <button type="button" class="refresh-button" [disabled]="loading()" (click)="loadAll()">↻ {{ loading() ? 'Loading…' : 'Refresh' }}</button>
+    </div>
+  </section>
+  @if (hrisSyncMessage()) { <div class="sync-result" [class.error]="hrisSyncError()" role="status">{{ hrisSyncMessage() }}</div> }
+
+  @if (error()) { <div class="message error" role="alert">{{ error() }}</div> }
+  @if (notice()) { <div class="message success" role="status">{{ notice() }}</div> }
+
+  <section class="stats" aria-label="Access summary">
+    <article><span class="stat-icon users">U</span><div><small>Users</small><strong>{{ totalUsers() }}</strong></div></article>
+    <article><span class="stat-icon roles">R</span><div><small>Roles</small><strong>{{ roles().length }}</strong></div></article>
+    <article><span class="stat-icon permissions">P</span><div><small>Permissions</small><strong>{{ permissions().length }}</strong></div></article>
+  </section>
+
+  <div class="directory panel" (click)="closePopover()">
+    <div class="panel-heading"><div><h2>Users</h2><p>LDAP and local accounts registered in EDMS</p></div>
+      <form class="search" (submit)="$event.preventDefault(); showSuggestions.set(false); searchUsers()" (click)="$event.stopPropagation()">
+        <span>⌕</span>
+        <div class="search-wrap">
+          <input type="search" placeholder="Name, username, email or code"
+            [ngModel]="search()" (ngModelChange)="onSearchChange($event)"
+            (focus)="showSuggestions.set(true)" (blur)="showSuggestions.set(false)"
+            (search)="onSearchNative($event)"
+            name="userSearch" autocomplete="off" />
+          @if (showSuggestions() && searchSuggestions().length > 0) {
+            <ul class="suggestions" role="listbox">
+              @for (s of searchSuggestions(); track s.id) {
+                <li role="option" (mousedown)="selectSuggestion(s)">
+                  <span class="sug-avatar">{{ s.displayName.slice(0,2).toUpperCase() }}</span>
+                  <span class="sug-info"><strong>{{ s.displayName }}</strong><small>{{ s.username }}{{ s.department ? ' · ' + s.department : '' }}</small></span>
+                  <span class="sug-provider">{{ s.authProvider }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th class="sortable" (click)="sortBy('username')">Username <span class="sort-icon">{{ sortColumn() === 'username' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('initial')">Initial <span class="sort-icon">{{ sortColumn() === 'initial' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('displayName')">Full Name <span class="sort-icon">{{ sortColumn() === 'displayName' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('email')">Email <span class="sort-icon">{{ sortColumn() === 'email' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('title')">Title <span class="sort-icon">{{ sortColumn() === 'title' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('level')">Level <span class="sort-icon">{{ sortColumn() === 'level' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('department')">Department <span class="sort-icon">{{ sortColumn() === 'department' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('authProvider')">Provider <span class="sort-icon">{{ sortColumn() === 'authProvider' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th class="sortable" (click)="sortBy('roles')">Roles <span class="sort-icon">{{ sortColumn() === 'roles' ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}</span></th>
+          <th>Action</th>
+        </tr></thead>
+        <tbody>
+          @for (user of sortedUsers(); track user.id) {
+            <tr>
+              <td>{{ user.username }}</td>
+              <td>{{ user.initial || '—' }}</td>
+              <td>{{ user.displayName }}</td>
+              <td>{{ user.email || '—' }}</td>
+              <td>{{ user.title || '—' }}</td>
+              <td>{{ user.level || '—' }}</td>
+              <td>{{ user.department || '—' }}</td>
+              <td><div class="provider-cell"><span class="provider">{{ user.authProvider }}</span><button class="local-edit-icon" type="button" title="Edit profile" aria-label="Edit profile" (click)="$event.stopPropagation(); openEditModal(user)">✎</button></div></td>
+              <td><div class="role-list">@for (role of user.roles; track role) { <span [class.super]="role === 'super_admin'">{{ role }}</span> }</div></td>
+              <td class="action-cell">
+                <div class="popover-anchor">
+                  <button class="manage-button" type="button" (click)="$event.stopPropagation(); togglePopover(user, $event)">
+                    Manage <span class="chevron">{{ popoverUserId() === user.id ? '▲' : '▼' }}</span>
+                  </button>
+                  @if (popoverUserId() === user.id && selectedUser()) {
+                    <div class="role-popover" [style.top.px]="popoverPos().top" [style.right.px]="popoverPos().right" [style.max-height.px]="popoverPos().maxHeight" (click)="$event.stopPropagation()">
+                      <div class="popover-header">
+                        <span class="popover-avatar">{{ user.displayName.slice(0,2).toUpperCase() }}</span>
+                        <div><strong>{{ user.displayName }}</strong><small>Assign roles</small></div>
+                      </div>
+                      @if (selectedUserIsSuperAdmin() && !isSuperAdmin) {
+                        <div class="locked-note">Only a super administrator can change this account.</div>
+                      }
+                      <div class="popover-roles">
+                        @for (role of roles(); track role.id) {
+                          <label [class.disabled]="(role.code === 'super_admin' || selectedUserIsSuperAdmin()) && !isSuperAdmin">
+                            <input type="checkbox" [checked]="hasDraftRole(role.code)" [disabled]="(role.code === 'super_admin' || selectedUserIsSuperAdmin()) && !isSuperAdmin" (change)="toggleUserRole(role.code, $any($event.target).checked)" />
+                            <span><strong>{{ role.name }}</strong><small>{{ role.description || role.code }}</small></span>
+                          </label>
+                        }
+                      </div>
+                      <div class="popover-footer">
+                        <button class="cancel-button" type="button" (click)="closePopover()">Cancel</button>
+                        <button class="primary-button" type="button" [disabled]="saving() || draftRoleCodes().length === 0 || (selectedUserIsSuperAdmin() && !isSuperAdmin)" (click)="saveUserRoles()">{{ saving() ? 'Saving…' : 'Save' }}</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty { <tr><td colspan="10" class="empty">{{ loading() ? 'Loading users…' : 'No users found.' }}</td></tr> }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <div class="pag-info">
+        Showing <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> of <strong>{{ totalUsers() }}</strong> users
+        &nbsp;&nbsp;Rows per page:
+        <select class="select-page-size" [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)">
+          @for (s of pageSizeOptions; track s) { <option [value]="s">{{ s }}</option> }
+        </select>
+      </div>
+      @if (totalPages() > 1) {
+        <div class="pag-nav">
+          <button class="pag-btn" [disabled]="page() === 1" (click)="goToPage(1)" title="First page">«</button>
+          <button class="pag-btn" [disabled]="page() === 1" (click)="goToPage(page() - 1)" title="Previous page">‹</button>
+          @for (n of pageNumbers(); track n) {
+            <button class="pag-btn" [class.active]="n === page()" (click)="goToPage(n)">{{ n }}</button>
+          }
+          <button class="pag-btn" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)" title="Next page">›</button>
+          <button class="pag-btn" [disabled]="page() === totalPages()" (click)="goToPage(totalPages())" title="Last page">»</button>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (editModalUser(); as user) {
+    <div class="modal-backdrop" (click)="closeEditModal()">
+      <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="'Edit ' + user.displayName" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div><small>{{ user.authProvider === 'local' ? 'LOCAL ACCOUNT' : 'LDAP ACCOUNT' }}</small><h2>Edit {{ user.displayName }}</h2><p>{{ user.username }}</p></div>
+          <button class="modal-close" type="button" aria-label="Close" (click)="closeEditModal()">✕</button>
+        </div>
+        @if (editError()) { <div class="message error" role="alert">{{ editError() }}</div> }
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit-displayName">Display name</label>
+            <input id="edit-displayName" type="text" [ngModel]="editForm().displayName" (ngModelChange)="patchEditForm({ displayName: $event })" name="displayName" maxlength="255" />
+          </div>
+          <div class="form-group">
+            <label for="edit-email">Email</label>
+            <input id="edit-email" type="email" [ngModel]="editForm().email" (ngModelChange)="patchEditForm({ email: $event })" name="email" maxlength="255" />
+          </div>
+          <div class="form-group">
+            <label for="edit-phone">Phone</label>
+            <input id="edit-phone" type="tel" [ngModel]="editForm().phone" (ngModelChange)="patchEditForm({ phone: $event })" name="phone" maxlength="50" placeholder="e.g. +66 81 234 5678" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <div class="status-radio-group">
+              @for (opt of statusOptions; track opt.value) {
+                <label class="status-radio" [class.active]="editForm().status === opt.value" [class]="'status-radio status-' + opt.value + (editForm().status === opt.value ? ' active' : '')">
+                  <input type="radio" name="status" [value]="opt.value" [checked]="editForm().status === opt.value" (change)="patchEditForm({ status: opt.value })" />
+                  {{ opt.label }}
+                </label>
+              }
+            </div>
+          </div>
+          @if (user.authProvider === 'local') {
+            <div class="form-divider"><span>Change password (leave blank to keep current)</span></div>
+            <div class="form-group">
+              <label for="edit-password">New password</label>
+              <input id="edit-password" type="password" [ngModel]="editForm().password" (ngModelChange)="patchEditForm({ password: $event })" name="password" minlength="8" maxlength="255" autocomplete="new-password" />
+            </div>
+            <div class="form-group">
+              <label for="edit-confirmPassword">Confirm password</label>
+              <input id="edit-confirmPassword" type="password" [ngModel]="editForm().confirmPassword" (ngModelChange)="patchEditForm({ confirmPassword: $event })" name="confirmPassword" maxlength="255" autocomplete="new-password" />
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-button" type="button" (click)="closeEditModal()">Cancel</button>
+          <button class="primary-button save-button" type="button" [disabled]="editSaving()" (click)="saveLocalUser()">{{ editSaving() ? 'Saving…' : 'Save changes' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (canViewAudit) {
+    <section class="audit-section panel">
+      <div class="panel-heading"><div><h2>Access audit log</h2><p>Immutable history of role and permission changes.</p></div><button type="button" class="refresh-button" [disabled]="auditLoading()" (click)="loadAuditLogs()">↻ {{ auditLoading() ? 'Loading…' : 'Refresh log' }}</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date &amp; time</th><th>Actor</th><th>Action</th><th>Target</th><th>Change</th></tr></thead>
+          <tbody>
+            @for (log of auditLogs(); track log.id) {
+              <tr><td class="audit-time">{{ log.createdAt | date:'dd MMM yyyy, HH:mm:ss' }}</td><td><strong>{{ log.actorUsername }}</strong></td><td><span class="audit-action">{{ auditActionLabel(log.action) }}</span></td><td><span class="audit-target">{{ log.targetType }}</span> {{ log.targetLabel || '#' + log.targetId }}</td><td><code class="audit-change">{{ auditChange(log) }}</code></td></tr>
+            } @empty { <tr><td colspan="5" class="empty">{{ auditLoading() ? 'Loading audit events…' : 'No access changes have been recorded.' }}</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>

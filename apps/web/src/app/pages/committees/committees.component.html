@@ -1,0 +1,80 @@
+<div class="committees-page">
+  <section class="page-header">
+    <div><p>Master Data</p><h1>Committee</h1><small>Create groups and choose their members. Forms use these groups to fill their approver dropdowns.</small></div>
+    <button type="button" class="primary-button" (click)="startNew()">+ New committee</button>
+  </section>
+
+  @if (error()) { <div class="message error" role="alert">{{ error() }}</div> }
+  @if (notice()) { <div class="message success" role="status">{{ notice() }}</div> }
+
+  <section class="workspace panel">
+    <nav class="committee-nav" aria-label="Committees">
+      @for (c of committees(); track c.id) {
+        <button type="button" [class.active]="selected()?.id === c.id" (click)="select(c)">
+          <span><strong>{{ c.name }}</strong>@if (c.description) { <small>{{ c.description }}</small> }</span>
+          <b>{{ c.memberCount }}</b>
+        </button>
+      } @empty {
+        @if (loading()) { <p class="hint">Loading committees…</p> } @else { <p class="hint">No committees yet. Create the first one.</p> }
+      }
+    </nav>
+
+    <div class="members-panel">
+      @if (selected(); as committee) {
+        <div class="members-heading">
+          <div><small>COMMITTEE</small><h2>{{ committee.name }}</h2>@if (committee.description) { <p>{{ committee.description }}</p> }</div>
+          <div class="heading-actions">
+            <button type="button" class="ghost-button" (click)="startEdit(committee)">Rename</button>
+            <button type="button" class="ghost-button danger" (click)="deleteCommittee(committee)">Delete</button>
+          </div>
+        </div>
+
+        <label class="search-box">
+          <span>Add members</span>
+          <input type="search" placeholder="Search by initial, code, name or title…" [ngModel]="search" (ngModelChange)="onSearch($event)" />
+        </label>
+        @if (search.trim()) {
+          <ul class="candidate-list">
+            @for (e of candidates(); track e.id) {
+              <li>
+                <span class="who">{{ e.label }}<small>{{ e.code }}</small></span><span class="role">{{ e.title || '—' }}</span>
+                @if (isMember(e)) { <em>Added</em> } @else { <button type="button" class="ghost-button" (click)="add(e)">Add</button> }
+              </li>
+            } @empty {
+              <li class="empty">{{ searching() ? 'Searching…' : 'No employee found.' }}</li>
+            }
+          </ul>
+        }
+
+        <h3>Members <span class="count">{{ members().length }}</span></h3>
+        <ul class="member-list">
+          @for (m of members(); track m.id) {
+            <li><span class="who">{{ m.label }}<small>{{ m.code }}</small></span><span class="role">{{ m.title || '—' }}</span><button type="button" class="ghost-button danger" (click)="remove(m)">Remove</button></li>
+          } @empty {
+            <li class="empty">No members yet.</li>
+          }
+        </ul>
+        <div class="save-bar">
+          <button type="button" class="primary-button" [disabled]="!dirty() || saving()" (click)="saveMembers()">{{ saving() ? 'Saving…' : 'Save members' }}</button>
+          @if (dirty()) { <small>Unsaved changes</small> }
+        </div>
+      } @else {
+        <div class="empty-state"><h2>Select a committee</h2><p>Choose a committee on the left to manage its members.</p></div>
+      }
+    </div>
+  </section>
+
+  @if (editing(); as form) {
+    <div class="dialog-backdrop" (click)="cancelEdit()">
+      <form class="dialog" (click)="$event.stopPropagation()" (ngSubmit)="saveCommittee()">
+        <h2>{{ form.id === null ? 'New committee' : 'Rename committee' }}</h2>
+        <label>Name<input name="name" required maxlength="255" [(ngModel)]="form.name" /></label>
+        <label>Description<textarea name="description" rows="3" maxlength="1000" [(ngModel)]="form.description"></textarea></label>
+        <div class="dialog-actions">
+          <button type="button" class="ghost-button" (click)="cancelEdit()">Cancel</button>
+          <button type="submit" class="primary-button" [disabled]="!form.name.trim() || saving()">Save</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

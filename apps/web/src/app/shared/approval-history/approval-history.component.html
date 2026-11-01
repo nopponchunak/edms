@@ -1,0 +1,21 @@
+<section class="history-card">
+  <h2 class="history-title">History</h2>
+  <ol class="timeline">
+    @for (event of events; track $index) {
+      <li class="timeline-item" [class]="'timeline-item tone-' + event.tone">
+        <span class="timeline-dot"></span>
+        <div class="timeline-body">
+          <div class="timeline-event">{{ event.title }}</div>
+          @if (event.username) { <div class="timeline-who">{{ nameOf(event.username) }}</div> }
+          @if (event.tone === 'pending') {
+            <div class="timeline-date">Pending</div>
+          } @else if (event.tone === 'rejected') {
+            <div class="timeline-date timeline-date--rejected">Rejected{{ event.date ? ' · ' + (event.date | date:'dd MMM yyyy, HH:mm') : '' }}</div>
+          } @else if (event.date) {
+            <div class="timeline-date">{{ event.date | date:'dd MMM yyyy, HH:mm' }}</div>
+          }
+        </div>
+      </li>
+    }
+  </ol>
+</section>

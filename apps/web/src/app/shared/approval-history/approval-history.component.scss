@@ -1,0 +1,42 @@
+.history-card {
+  padding: 20px 24px;
+  border: 1px solid var(--mh-border);
+  border-radius: 12px;
+  background: var(--mh-surface);
+}
+.history-title { margin: 0 0 18px; font-size: 16px; font-weight: 700; color: var(--mh-ink); }
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline-item {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding-bottom: 22px;
+  --dot: #10b981;
+
+  &:last-child { padding-bottom: 0; }
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background: var(--mh-border);
+  }
+}
+.timeline-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--dot);
+}
+.tone-pending { --dot: var(--mh-border-strong, #cbd5e1); }
+.tone-rejected { --dot: #ef4444; }
+
+.timeline-event { font-size: 14px; font-weight: 700; color: var(--mh-ink); }
+.timeline-who { margin-top: 2px; font-size: 13.5px; color: var(--mh-ink-soft); word-break: break-word; }
+.timeline-date { margin-top: 2px; font-size: 12.5px; color: var(--mh-muted); }
+.timeline-date--rejected { color: #ef4444; font-weight: 600; }

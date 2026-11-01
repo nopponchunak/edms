@@ -1,0 +1,151 @@
+<div class="view-header">
+  <div class="view-header-left">
+    <h1 class="view-title">EXPENSES CLAIM FORM</h1>
+    <p class="view-subtitle">GENERAL FORM&nbsp;|&nbsp;View expenses claim information</p>
+  </div>
+  <div class="view-header-actions">
+    <a class="action-btn" routerLink="/general/expenses">← Back to List</a>
+    @if (record()) { <button class="action-btn" type="button" [disabled]="pdfBusy()" (click)="openPdf()">{{ pdfBusy() ? 'Preparing PDF…' : 'Print / PDF' }}</button> }
+    @if (canCreate && isOwner() && record() && (record()!.status === 'draft' || record()!.status === 'rejected')) {
+      <a class="action-btn action-btn--primary" [routerLink]="['/general/expenses', record()!.id, 'edit']">Edit</a>
+      <button class="action-btn action-btn--danger" type="button" (click)="delete()" [disabled]="deleting()">
+        {{ deleting() ? 'Deleting…' : 'Delete' }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (pdfError()) { <div class="alert-error" style="margin-bottom:12px">{{ pdfError() }}</div> }
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else if (error()) {
+  <div class="alert-error">{{ error() }}</div>
+} @else if (record()) {
+  <div class="view-layout">
+
+    <!-- Main document -->
+    <div class="doc-card">
+      <div class="doc-card-header">
+        <div class="doc-header-left">
+          <div class="doc-company">MEINHARDT (THAILAND) LTD.</div>
+          <h2 class="doc-form-title">Expenses Claim</h2>
+          <p class="doc-form-desc">Detail view in document format</p>
+        </div>
+        <div class="doc-meta-right">
+          <div class="doc-form-no">EXPENSES CLAIM</div>
+          <div class="doc-voucher">
+            Voucher # <span class="doc-voucher-no">{{ record()!.voucherNo ?? '—' }}</span>
+          </div>
+          <span class="status-badge status-{{ record()!.status }}">{{ statusLabel(record()!.status) }}</span>
+        </div>
+      </div>
+      <div class="doc-section">
+        <div class="doc-section-heading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>Form Details</span>
+        </div>
+        <div class="field-grid">
+          <div class="field-item">
+            <label class="field-label">Voucher #</label>
+            <div class="field-box field-box--link">{{ record()!.voucherNo ?? '—' }}</div>
+          </div>
+          <div class="field-item">
+            <label class="field-label">Date</label>
+            <div class="field-box">{{ record()!.claimDate }}</div>
+          </div>
+          <div class="field-item">
+            <label class="field-label">Prepared by</label>
+            <div class="field-box">{{ record()!.claimantName }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-heading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span>Expense Items</span>
+          <span class="item-count">{{ record()!.items.length }} item(s)</span>
+        </div>
+        <div class="items-table-wrap">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Project Code</th>
+                <th>Details</th>
+                <th class="text-right">Amount ({{ record()!.currency }})</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of record()!.items; track item.id) {
+                <tr>
+                  <td class="seq-cell">{{ $index + 1 }}</td>
+                  <td>{{ item.itemDate }}</td>
+                  <td>{{ item.projectCode ?? '—' }}</td>
+                  <td>{{ item.details }}</td>
+                  <td class="text-right mono">{{ formatBaht(item.baht) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="summary-box">
+          <div class="summary-row">
+            <span class="summary-label">Summary</span>
+            <span class="summary-count">{{ record()!.items.length }} item(s)</span>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span class="mono">{{ formatBaht(record()!.totalBaht) }} {{ record()!.currency }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      @if (actionStage(); as stage) {
+        <div class="sidebar-card action-card">
+          <div class="action-card-title">{{ stage === 'verify' ? 'Waiting for your verification' : 'Waiting for your approval' }}</div>
+          <p class="action-card-hint">Review the details, then take action.</p>
+          @if (actionError()) { <div class="alert-error">{{ actionError() }}</div> }
+          <div class="action-card-buttons">
+            <button class="action-btn action-btn--primary" type="button" [disabled]="acting()" (click)="act('approved')">{{ stage === 'verify' ? 'Verify' : 'Approve' }}</button>
+            <button class="action-btn action-btn--danger" type="button" [disabled]="acting()" (click)="act('rejected')">Reject</button>
+          </div>
+        </div>
+      }
+      <app-approval-history [events]="history()" />
+
+      @if (attachments.length > 0) {
+        <div class="sidebar-card">
+          <div class="sidebar-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            <span>Attachments</span>
+            <span class="att-count">{{ attachments.length }} file(s)</span>
+          </div>
+          <ul class="att-list">
+            @for (att of attachments; track att.id) {
+              <li class="att-item">
+                <div class="att-file-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div class="att-info">
+                  <a class="att-name" href="#" (click)="openAttachment(att, $event)">{{ att.originalName }}</a>
+                  <span class="att-size">{{ formatSize(att.size) }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </aside>
+
+  </div>
+}
+
+@if (pdf(); as p) {
+  <app-pdf-preview-dialog [title]="p.title" [filename]="p.filename" [url]="p.url" [image]="!!p.image" (closed)="closePdf()" />
+}

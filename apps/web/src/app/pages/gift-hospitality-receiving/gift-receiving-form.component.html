@@ -1,0 +1,124 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <a class="back-link" routerLink="/anti-corruption/gift-hospitality-receiving">← Gift/Hospitality Receiving Requests</a>
+    <h1 class="page-title">{{ isEdit() ? 'Edit Request' : 'New Gift/Hospitality Receiving Request' }}</h1>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else {
+  @if (errors().length) {
+    <div class="alert-error">
+      <ul class="field-error-list">@for (message of errors(); track $index) { <li>{{ message }}</li> }</ul>
+    </div>
+  }
+
+  @if (rejection(); as rej) {
+    <div class="reject-banner" role="alert">
+      <strong>Rejected ({{ rej.label }}) — {{ rej.by }}</strong>
+      <span>{{ rej.comment || 'No comment was left.' }}</span>
+      <small>Fix the request and submit it again to restart the approval flow.</small>
+    </div>
+  }
+
+  <div class="form-layout">
+    <!-- Left: request details -->
+    <section class="panel">
+      <h2 class="section-title">Request Details</h2>
+      <div class="grid grid-3">
+        <div class="form-field">
+          <label class="field-label">Request Type <span class="required">*</span></label>
+          <div class="radio-row">
+            @for (type of requestTypes; track type.value) {
+              <label><input type="radio" name="requestType" [value]="type.value" [ngModel]="requestType()" (ngModelChange)="requestType.set($event)" /> {{ type.label }}</label>
+            }
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Requester Name <span class="required">*</span></label>
+          <app-searchable-select [options]="userOptions()" [value]="requesterName()" (valueChange)="onRequesterChange($event)" placeholder="— Select person —" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">Proposed Date <span class="required">*</span></label>
+          <input class="field-input" type="date" [ngModel]="proposedDate()" (ngModelChange)="proposedDate.set($event)" />
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="form-field">
+          <label class="field-label">Description of Gift/Hospitality</label>
+          <textarea class="field-area" rows="3" placeholder="Describe the gift or hospitality…" [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Purpose of receiving</label>
+          <textarea class="field-area" rows="3" placeholder="Why is it being given to MTL?" [ngModel]="purpose()" (ngModelChange)="purpose.set($event)"></textarea>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="form-field">
+          <label class="field-label">Company of Giver <span class="required">*</span></label>
+          <input class="field-input" type="text" [ngModel]="companyOfGiver()" (ngModelChange)="companyOfGiver.set($event)" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">MTL's receiving Staff <span class="required">*</span></label>
+          <app-searchable-select [options]="userOptions()" [value]="receivingStaff()" (valueChange)="receivingStaff.set($event)" placeholder="— Select person —" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Value of Gift/Hospitality (THB, including VAT) <span class="required">*</span></label>
+        <input class="field-input" type="number" min="0" step="1" [placeholder]="'Minimum ' + minValue" [ngModel]="valueAmount()" (ngModelChange)="valueAmount.set($event)" />
+        <p class="hint">Gifts or hospitality worth {{ minValue.toLocaleString('en-US') }} THB or more must be requested, at any staff level.</p>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Attachments</label>
+        <app-file-attach [attachments]="attachments()" (attachmentsChange)="attachments.set($event)" />
+      </div>
+    </section>
+
+    <!-- Right: amount matrix, then approval flow -->
+    <aside class="side">
+      <section class="panel">
+        <h2 class="section-title">Approval Matrix</h2>
+        <table class="matrix">
+          <thead><tr><th>Amount</th><th>Prepared by</th><th>Verified by</th><th>Approved by</th></tr></thead>
+          <tbody>
+            <tr><td>≥ {{ minValue.toLocaleString('en-US') }}</td><td>Any staff</td><td>ACSC</td><td>TL / DI / MD</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2 class="section-title">Approval Flow</h2>
+        <div class="flow">
+          <div class="form-field">
+            <label class="field-label">Verify (ACSC) <span class="required">*</span></label>
+            <app-searchable-select [options]="verifyOptions()" [value]="verifyBy()" (valueChange)="verifyBy.set($event)" placeholder="— Select ACSC member —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Acknowledge 1 (ACSL) <span class="required">*</span></label>
+            <app-searchable-select [options]="ack1Options()" [value]="ack1By()" (valueChange)="ack1By.set($event)" placeholder="— Select ACSL member —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Approve (TL/DI/MD) <span class="required">*</span></label>
+            <app-searchable-select [options]="approverOptions()" [value]="approverBy()" (valueChange)="approverBy.set($event)" placeholder="— Select TL, DI or MD —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Acknowledge 2 (CA) <span class="required">*</span></label>
+            <app-searchable-select [options]="ack2Options()" [value]="ack2By()" (valueChange)="ack2By.set($event)" placeholder="— Select CA —" />
+          </div>
+        </div>
+        <p class="hint rules">The requester cannot approve their own request.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="form-actions">
+    <a class="cancel-btn" routerLink="/anti-corruption/gift-hospitality-receiving">Cancel</a>
+    <button class="draft-btn" type="button" [disabled]="saving()" (click)="save('draft')">{{ saving() ? 'Saving…' : 'Save Draft' }}</button>
+    <button class="submit-btn" type="button" [disabled]="saving()" (click)="save('submitted')">{{ saving() ? 'Saving…' : 'Submit' }}</button>
+  </div>
+}

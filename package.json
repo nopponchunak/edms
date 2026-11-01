@@ -1,0 +1,27 @@
+{
+  "name": "meinhardt-edms-next",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev:web": "npm --prefix apps/web start",
+    "dev:api": "npm --prefix apps/api run start:dev",
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "npm --prefix apps/web run build",
+    "build:api": "npm --prefix apps/api run build",
+    "test": "npm run test:web && npm run test:api",
+    "test:web": "npm --prefix apps/web test -- --watch=false",
+    "test:api": "npm --prefix apps/api test -- --runInBand"
+  },
+  "devDependencies": {
+    "@types/multer": "^2.3.0",
+    "@types/pdfmake": "^0.3.3"
+  },
+  "dependencies": {
+    "@expo-google-fonts/sarabun": "^0.4.1",
+    "pdfmake": "^0.3.13"
+  }
+}

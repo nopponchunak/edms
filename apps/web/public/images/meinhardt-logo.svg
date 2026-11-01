@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" width="200" height="40">
+  <defs>
+    <style>
+      .meinhardt-text {
+        font-family: 'Arial', 'Helvetica', sans-serif;
+        font-weight: bold;
+        font-size: 24px;
+        letter-spacing: 0.5px;
+      }
+      .meinhardt-blue {
+        fill: #1e3a8a;
+      }
+      .meinhardt-orange {
+        fill: #ea580c;
+      }
+    </style>
+  </defs>
+  
+  <!-- MEINHARDT Text -->
+  <text x="0" y="28" class="meinhardt-text meinhardt-blue">MEINHARDT</text>
+  
+  <!-- Special I dot (orange square) -->
+  <rect x="24" y="8" width="6" height="6" class="meinhardt-orange"/>
+</svg>
+
+
+
+
+

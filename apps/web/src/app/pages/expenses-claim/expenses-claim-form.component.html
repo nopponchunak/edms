@@ -1,0 +1,109 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <a class="back-link" routerLink="/general/expenses">← Expenses Claim</a>
+    <h1 class="page-title">{{ isEdit() ? 'Edit Claim' : 'New Expenses Claim' }}</h1>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else {
+  <div class="form-card">
+    @if (error()) { <div class="alert-error">{{ error() }}</div> }
+
+    <section class="form-section">
+      <h2 class="section-title">Header Information</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="field-label">Prepared by <span class="required">*</span></label>
+          <app-searchable-select [options]="userOptions()" [value]="claimantName()" (valueChange)="claimantName.set($event)" placeholder="— Select person —" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">Date <span class="required">*</span></label>
+          <input class="field-input" type="date" [ngModel]="claimDate()" (ngModelChange)="claimDate.set($event)" />
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="section-title">Approval Flow</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="field-label">Verified By</label>
+          <app-searchable-select [options]="approverOptions()" [value]="verifiedBy()" (valueChange)="verifiedBy.set($event)" placeholder="— Select person —" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">Approved By</label>
+          <app-searchable-select [options]="approverOptions()" [value]="approvedBy()" (valueChange)="approvedBy.set($event)" placeholder="— Select person —" />
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-header">
+        <h2 class="section-title">Expense Items</h2>
+        <div class="section-actions">
+          <label class="currency-inline">
+            <span>Currency</span>
+            <select class="currency-select" [ngModel]="currency()" (ngModelChange)="currency.set($event)">
+              @for (c of currencies; track c) { <option [value]="c">{{ c }}</option> }
+            </select>
+          </label>
+          <button class="add-btn" type="button" (click)="addItem()">+ Add Row</button>
+        </div>
+      </div>
+      <div class="items-table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date *</th>
+              <th>Project Code</th>
+              <th>Details *</th>
+              <th>Amount ({{ currency() }}) *</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track $index) {
+              <tr>
+                <td class="seq-cell">{{ $index + 1 }}</td>
+                <td><input class="cell-input" type="date" [ngModel]="item.itemDate" (ngModelChange)="updateItem($index, 'itemDate', $event)" /></td>
+                <td><input class="cell-input" type="text" [ngModel]="item.projectCode" (ngModelChange)="updateItem($index, 'projectCode', $event)" placeholder="Code" /></td>
+                <td><input class="cell-input wide" type="text" [ngModel]="item.details" (ngModelChange)="updateItem($index, 'details', $event)" placeholder="Description" /></td>
+                <td><input class="cell-input amount" type="number" min="0" step="0.01" [ngModel]="item.baht" (ngModelChange)="updateItem($index, 'baht', $event)" placeholder="0.00" /></td>
+                <td>
+                  @if (items().length > 1) {
+                    <button class="remove-btn" type="button" (click)="removeItem($index)" title="Remove row">✕</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="total-label">Total</td>
+              <td class="total-amount"><div class="total-box">{{ formatBaht(total()) }}</div></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="section-title">Attachments</h2>
+      <app-file-attach [attachments]="attachments()" (attachmentsChange)="attachments.set($event)" />
+    </section>
+
+    <div class="form-actions">
+      <a class="cancel-btn" routerLink="/general/expenses">Cancel</a>
+      <button class="draft-btn" type="button" [disabled]="saving()" (click)="save('draft')">
+        {{ saving() ? 'Saving…' : 'Save Draft' }}
+      </button>
+      <button class="submit-btn" type="button" [disabled]="saving()" (click)="save('submitted')">
+        {{ saving() ? 'Saving…' : 'Submit' }}
+      </button>
+    </div>
+  </div>
+}
