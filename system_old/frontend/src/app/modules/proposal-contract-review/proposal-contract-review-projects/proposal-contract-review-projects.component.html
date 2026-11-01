@@ -1,0 +1,169 @@
+<div class="mt-project-page">
+  <div class="mt-project-shell">
+    <div class="mt-project-header">
+      <div>
+        <h1>MT Project Numbers</h1>
+        <p>Create and manage child MT project numbers from an approved proposal.</p>
+      </div>
+      <button type="button" mat-button class="header-button" (click)="onBack()">
+        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        <span>Back to Review</span>
+      </button>
+    </div>
+
+    <fuse-alert
+      *ngIf="alert"
+      class="mb-6"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null">
+      {{ alert.message }}
+    </fuse-alert>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <mat-spinner [diameter]="42"></mat-spinner>
+    </div>
+
+    <ng-container *ngIf="!isLoading && review">
+      <section class="summary-band">
+        <div>
+          <span class="summary-label">Proposal</span>
+          <strong>{{ review.proposal_number || review.proposalNumber || '-' }}</strong>
+        </div>
+        <div>
+          <span class="summary-label">Project</span>
+          <strong>{{ review.project_name || review.projectName || '-' }}</strong>
+        </div>
+        <div>
+          <span class="summary-label">Client</span>
+          <strong>{{ review.client_name || review.clientName || '-' }}</strong>
+        </div>
+        <div>
+          <span class="summary-label">Status</span>
+          <strong>{{ review.status || '-' }}</strong>
+        </div>
+      </section>
+
+      <div *ngIf="!canCreateProject()" class="blocked-note">
+        <mat-icon [svgIcon]="'heroicons_outline:lock-closed'"></mat-icon>
+        <span>MT project numbers can be created after Contract Review is proceeded.</span>
+      </div>
+
+      <div class="content-grid">
+        <section class="existing-section">
+          <div class="section-heading">
+            <div>
+              <h2>Existing MT Projects</h2>
+              <p>{{ projects.length }} project{{ projects.length === 1 ? '' : 's' }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="projects.length === 0" class="empty-state">
+            <mat-icon [svgIcon]="'heroicons_outline:tag'"></mat-icon>
+            <span>No MT project numbers have been created yet.</span>
+          </div>
+
+          <div *ngIf="projects.length > 0" class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Seq.</th>
+                  <th>MT No.</th>
+                  <th>Project Name</th>
+                  <th>Discipline</th>
+                  <th>Fees</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let project of projects">
+                  <td>{{ project.sequenceNo || '-' }}</td>
+                  <td class="mono">{{ project.mtProjectNo }}</td>
+                  <td>{{ project.projectName }}</td>
+                  <td>{{ project.primaryDiscipline }}</td>
+                  <td>{{ formatCurrency(project.estimatedTotalFees, project.currency) }}</td>
+                  <td>{{ formatDateTime(project.convertedAt || project.createdAt) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <div>
+              <h2>Create MT Project</h2>
+              <p>Leave MT No. blank to generate the next {{ disciplinePrefix }} number.</p>
+            </div>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="createProject()" class="project-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Project Name</mat-label>
+              <input matInput formControlName="project_name" />
+              <mat-error *ngIf="form.get('project_name')?.hasError('required')">Project name is required</mat-error>
+            </mat-form-field>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Discipline</mat-label>
+                <mat-select formControlName="primary_discipline">
+                  <mat-option *ngFor="let discipline of disciplines" [value]="discipline.value">
+                    {{ discipline.label }} ({{ discipline.prefix }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Sequence</mat-label>
+                <input matInput type="number" formControlName="sequence_no" />
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>MT No. Override</mat-label>
+              <input matInput formControlName="mt_project_no" [placeholder]="disciplinePrefix + '0001'" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Project Type</mat-label>
+              <mat-select formControlName="project_type">
+                <mat-option value="">-</mat-option>
+                <mat-option *ngFor="let type of projectTypes" [value]="type.code">
+                  {{ type.code }} - {{ type.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Currency</mat-label>
+                <mat-select formControlName="currency">
+                  <mat-option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Estimated Fees</mat-label>
+                <input matInput type="number" formControlName="estimated_total_fees" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" mat-button class="secondary-button" (click)="loadData()" [disabled]="isSaving">
+                Refresh
+              </button>
+              <button type="submit" mat-flat-button color="primary" [disabled]="isSaving || !canCreateProject()">
+                <mat-spinner *ngIf="isSaving" [diameter]="18"></mat-spinner>
+                <mat-icon *ngIf="!isSaving" class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span>Create MT</span>
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </ng-container>
+  </div>
+</div>

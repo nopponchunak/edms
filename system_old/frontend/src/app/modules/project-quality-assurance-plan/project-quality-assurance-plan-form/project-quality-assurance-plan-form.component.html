@@ -1,0 +1,794 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <div class="mb-8">
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 uppercase">
+          PROJECT QUALITY PLAN
+        </h1>
+        <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          Form MTQP-01
+        </span>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        {{ isEditMode ? 'Update plan information' : 'Meinhardt (Thailand) Ltd.' }}
+      </p>
+
+      <!-- Actions -->
+      <app-view-actions *ngIf="isView"
+          [backPath]="'/project-quality-assurance-plan'"
+          [navId]="'project-quality-assurance-plan'"
+          (edit)="onEdit()"
+      ></app-view-actions>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <div *ngIf="!isView" class="mb-6 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-900 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+        <mat-icon class="mt-0.5 shrink-0" [svgIcon]="'heroicons_outline:information-circle'"></mat-icon>
+        <div>
+          <p class="font-semibold">Complete the required document control information before submitting.</p>
+          <p class="mt-1 text-sm">Fields marked with <span class="font-bold text-red-600">*</span> are required.</p>
+        </div>
+      </div>
+
+      <!-- ==================== CARD 1: Document Control ==================== -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+              Document Control
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">19 - FORM MTQP-01</p>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <!-- Revision Table -->
+          <div class="overflow-x-auto" [formGroup]="form">
+            <table class="w-full border border-gray-200 dark:border-gray-600 text-sm border-collapse table-fixed">
+              <colgroup>
+                <col class="w-[20%]" />
+                <col class="w-[20%]" />
+                <col class="w-[20%]" />
+                <col class="w-[20%]" />
+                <col class="w-[20%]" />
+              </colgroup>
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                  <th class="py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold">Revision <span class="text-red-600">*</span></th>
+                  <th class="py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold">Date <span class="text-red-600">*</span></th>
+                  <th class="py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold">Prepared by (TL) <span class="text-red-600">*</span></th>
+                  <th class="py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold">Approved by (DI) <span class="text-red-600">*</span></th>
+                  <th class="py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold">Acknowledged by <span class="text-red-600">*</span><br/>BM/TL of Project Co./SC/IMS</th>
+                </tr>
+              </thead>
+              <tbody formArrayName="headerRows">
+                <tr *ngFor="let row of headerRows.controls; let i = index; trackBy: trackByHeaderRow"
+                    [formGroupName]="i"
+                    class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                  <!-- Revision -->
+                  <td class="px-2 py-2 border border-gray-200 dark:border-gray-600 text-center">
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <input matInput formControlName="revision" placeholder="Rev. 01" [readonly]="isView" />
+                      <mat-error *ngIf="row.get('revision')?.hasError('required')">Revision is required</mat-error>
+                    </mat-form-field>
+                  </td>
+                  <!-- Date -->
+                  <td class="px-2 py-2 border border-gray-200 dark:border-gray-600 text-center">
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <input matInput [matDatepicker]="headerDate" formControlName="date" placeholder="mm/dd/yyyy" [readonly]="isView" />
+                      <mat-datepicker-toggle matSuffix [for]="headerDate"></mat-datepicker-toggle>
+                      <mat-datepicker #headerDate></mat-datepicker>
+                      <mat-error *ngIf="row.get('date')?.hasError('required')">Date is required</mat-error>
+                    </mat-form-field>
+                  </td>
+                  <!-- Prepared by -->
+                  <td class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="preparedBy" [disabled]="isView">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="preparedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngIf="headerEmployeeSearchLoading.prepared" disabled>Searching...</mat-option>
+                        <mat-option *ngFor="let user of filteredPreparedUsers" [value]="user.id">{{ user.displayLabel }}</mat-option>
+                      </mat-select>
+                      <mat-error *ngIf="row.get('preparedBy')?.hasError('required')">Prepared by is required</mat-error>
+                    </mat-form-field>
+                  </td>
+                  <!-- Approved by -->
+                  <td class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="approvedBy" [disabled]="isView">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="approvedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngIf="headerEmployeeSearchLoading.approved" disabled>Searching...</mat-option>
+                        <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.id">{{ user.displayLabel }}</mat-option>
+                      </mat-select>
+                      <mat-error *ngIf="row.get('approvedBy')?.hasError('required')">Approved by is required</mat-error>
+                    </mat-form-field>
+                  </td>
+                  <!-- Acknowledged by -->
+                  <td class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="acknowledgedBy" [disabled]="isView">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="acknowledgedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngIf="headerEmployeeSearchLoading.acknowledged" disabled>Searching...</mat-option>
+                        <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.id">{{ user.displayLabel }}</mat-option>
+                      </mat-select>
+                      <mat-error *ngIf="row.get('acknowledgedBy')?.hasError('required')">Acknowledged by is required</mat-error>
+                    </mat-form-field>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Add Row Button -->
+          <div *ngIf="!isView" class="flex justify-end mt-4">
+            <button mat-stroked-button type="button" (click)="addHeaderRow()" class="rounded-full border-gray-300 dark:border-gray-600">
+              <mat-icon class="mr-1">add</mat-icon> Add Row
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== CARD 2: Sections A–D ==================== -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6">
+
+          <!-- ========== SECTION A: Project Details ========== -->
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">A</span>
+              Project Details
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="document-field">
+                <label>Project Name <span class="text-red-600">*</span></label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)" *ngIf="!isView; else viewProjectName">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="projectSearchCtrl"
+                        placeholderLabel="Search Project..."
+                        noEntriesFoundLabel="No projects found">
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                      {{ project.name }} ({{ project.code }})
+                    </mat-option>
+                  </mat-select>
+                  <ng-template #viewProjectName>
+                    <input matInput formControlName="projectName" readonly>
+                  </ng-template>
+                  <mat-error *ngIf="form.get('projectId')?.hasError('required')">Project is required</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Project No. <span class="text-red-600">*</span></label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="projectNo" placeholder="Enter project number" readonly>
+                  <mat-error *ngIf="form.get('projectNo')?.hasError('required')">Project number is required</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Scope of Services -->
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Scope of Services</label>
+              <div class="document-check-grid">
+                <mat-checkbox formControlName="scope_cs">C&amp;S</mat-checkbox>
+                <mat-checkbox formControlName="scope_me">MEP</mat-checkbox>
+                <mat-checkbox formControlName="scope_leed_esd">LEED/ESD</mat-checkbox>
+                <mat-checkbox formControlName="scope_facade">Facade</mat-checkbox>
+                <mat-checkbox formControlName="scope_lighting">Lighting</mat-checkbox>
+                <mat-checkbox formControlName="scope_transport">Transportation</mat-checkbox>
+                <mat-checkbox formControlName="scope_geotechnical">Geotechnical</mat-checkbox>
+                <mat-checkbox formControlName="scope_engineering_audit">Engineering Audit</mat-checkbox>
+                <mat-checkbox formControlName="scope_pm">PM</mat-checkbox>
+                <mat-checkbox formControlName="scope_cm">CM</mat-checkbox>
+                <mat-checkbox formControlName="scope_qs">QS</mat-checkbox>
+                <mat-checkbox formControlName="scope_others_flag">Others</mat-checkbox>
+              </div>
+              <mat-form-field class="w-full dense-field mt-4" *ngIf="form.get('scope_others_flag')?.value" subscriptSizing="dynamic">
+                <mat-label>Others</mat-label>
+                <input matInput formControlName="scope_others_text" placeholder="Please specify">
+              </mat-form-field>
+            </div>
+          </section>
+
+          <!-- ========== SECTION B: Project Team ========== -->
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">B</span>
+              Project Team
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div class="document-field">
+                <label>DI</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="di" placeholder="Select DI" [disabled]="isView">
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="diSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredDiUsers" [value]="user.displayLabel">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>TL</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="TL" placeholder="Select TL" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="tlSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredTlUsers" [value]="user.displayLabel">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>BM</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="bm" placeholder="Select BM" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="bmSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredBmUsers" [value]="user.displayLabel">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>PM/CM/RE</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="pmCmRe" placeholder="Select PM/CM/RE" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="pmSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredPmUsers" [value]="user.displayLabel">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">Project Coordinator</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="document-field">
+                <label>C&amp;S</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="csCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>MEP</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="mepCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>LEED/ESD</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="leedCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Façade</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="facadeCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Transport</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="transportCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>BCO</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="bcoCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Others</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="othersCoordinator" placeholder="Select" [disabled]="isView" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="coordinatorSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let user of filteredCoordinatorUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========== SECTION C: Quality Plan (PQP) ========== -->
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">C</span>
+              Quality Plan (PQP) — Design Review, Verification, Validation Schedule
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border border-gray-200 dark:border-gray-600 table-fixed">
+                <colgroup>
+                  <col class="w-[18%]" />
+                  <col class="w-[12%]" />
+                  <col class="w-[5%]" />
+                  <col class="w-[5%]" />
+                  <col class="w-[10%]" />
+                  <col class="w-[10%]" />
+                  <col class="w-[12%]" />
+                  <col class="w-[12%]" />
+                  <col class="w-[16%]" />
+                </colgroup>
+                <thead>
+                  <!-- Row 1: top-level groups -->
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs uppercase">
+                    <th class="px-2 py-2 font-semibold text-left border border-gray-200 dark:border-gray-600" rowspan="3">Item</th>
+                    <th class="px-2 py-2 font-semibold text-center border border-gray-200 dark:border-gray-600" rowspan="3">Proposed Schedule</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600" colspan="2" rowspan="2">Review-Required<br/>Stage (✓)</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600" colspan="5">Review &amp; Approval Schedule</th>
+                  </tr>
+                  <!-- Row 2: sub-groups under Review & Approval -->
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs uppercase">
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600" colspan="2">Reviewer</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600" colspan="2">Initial</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600" rowspan="2">Review<br/>Date</th>
+                  </tr>
+                  <!-- Row 3: leaf columns -->
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs uppercase">
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600">Review</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600 leading-tight">Verification/<br/>Validation</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600">C&amp;S</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600">MEP</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600">C&amp;S</th>
+                    <th class="px-1 py-1.5 font-semibold text-center border border-gray-200 dark:border-gray-600">MEP</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="qualityPlanSchedules">
+                  <!-- 1. Concept / Preliminary Stage -->
+                  <tr [formGroupName]="0" class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Concept / Preliminary Stage</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched0" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched0"></mat-datepicker-toggle>
+                        <mat-datepicker #sched0></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">TL/VVE</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">DL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev0" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev0"></mat-datepicker-toggle>
+                        <mat-datepicker #rev0></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 2. Peer Review -->
+                  <tr [formGroupName]="1" class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Peer Review</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched1" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched1"></mat-datepicker-toggle>
+                        <mat-datepicker #sched1></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">VVE</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">DL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev1" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev1"></mat-datepicker-toggle>
+                        <mat-datepicker #rev1></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 3. DCR / Schematic Design Stage -->
+                  <tr [formGroupName]="2" class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">DCR / Schematic Design Stage</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched2" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched2"></mat-datepicker-toggle>
+                        <mat-datepicker #sched2></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">TL</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">DL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev2" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev2"></mat-datepicker-toggle>
+                        <mat-datepicker #rev2></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 4. Submission Stage -->
+                  <tr [formGroupName]="3" class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Submission Stage</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched3" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched3"></mat-datepicker-toggle>
+                        <mat-datepicker #sched3></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">Endorsed Eng or<br/>Wutthi or TL or PE</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">Endorsed Eng or<br/>Wutthi or SE</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev3" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev3"></mat-datepicker-toggle>
+                        <mat-datepicker #rev3></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 5. Tender Stage -->
+                  <tr [formGroupName]="4" class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Tender Stage (Review / Verification)</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched4" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched4"></mat-datepicker-toggle>
+                        <mat-datepicker #sched4></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">EE/VVE</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">SE/DL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev4" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev4"></mat-datepicker-toggle>
+                        <mat-datepicker #rev4></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 6. Construction Stage -->
+                  <tr [formGroupName]="5" class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Construction Stage (Review / Validation)</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched5" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched5"></mat-datepicker-toggle>
+                        <mat-datepicker #sched5></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">EE/TL</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">SE/TL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev5" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev5"></mat-datepicker-toggle>
+                        <mat-datepicker #rev5></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 7. Final Design (Transportation) -->
+                  <tr [formGroupName]="6" class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Final Design (Transportation)</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched6" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched6"></mat-datepicker-toggle>
+                        <mat-datepicker #sched6></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">-</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">TL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev6" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev6"></mat-datepicker-toggle>
+                        <mat-datepicker #rev6></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <!-- 8. Engineering Audit / Report -->
+                  <tr [formGroupName]="7" class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">Engineering Audit / Report</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="sched7" formControlName="proposedSchedule" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="sched7"></mat-datepicker-toggle>
+                        <mat-datepicker #sched7></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isReview"></mat-checkbox></td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600"><mat-checkbox formControlName="isVerification"></mat-checkbox></td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">TL</td>
+                    <td class="px-2 py-2 text-center text-xs border border-gray-200 dark:border-gray-600">TL</td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialCs" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="initialMep" placeholder="Select">
+                          <mat-option>
+                            <ngx-mat-select-search [formControl]="initialSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let user of filteredInitialUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td class="px-1 py-1 text-center border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [matDatepicker]="rev7" formControlName="reviewDate" placeholder="dd/mm/yyyy" />
+                        <mat-datepicker-toggle matSuffix [for]="rev7"></mat-datepicker-toggle>
+                        <mat-datepicker #rev7></mat-datepicker>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Construction Stage Validation -->
+            <div class="mt-6">
+              <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">Construction Stage Documents Validation to be done:</p>
+              <div class="document-check-grid">
+                <mat-checkbox formControlName="beforeDocumentsIssued">Before Documents Issued</mat-checkbox>
+                <mat-checkbox formControlName="within14DaysAfterDocumentsIssued">Within 14 Days After Documents Issued</mat-checkbox>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========== SECTION D: Documents Required ========== -->
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">D</span>
+              Documents Required
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border border-gray-200 dark:border-gray-600">
+                <thead>
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                    <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-left font-semibold w-[18%]">Document</th>
+                    <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-left font-semibold w-[32%]">Detail</th>
+                    <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold w-[10%]">Required</th>
+                    <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold w-[18%]">Completion Stage</th>
+                    <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold w-[22%]">Responsible Personnel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of documentsRequiredItems" class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                    <td class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-sm">{{ item.document }}</td>
+                    <td class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-sm">{{ item.detail }}</td>
+                    <td class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center">
+                      <mat-icon
+                        *ngIf="item.required"
+                        [svgIcon]="'heroicons_outline:check'"
+                        class="mx-auto text-gray-700 dark:text-gray-300"
+                      ></mat-icon>
+                    </td>
+                    <td class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center text-sm">{{ item.completionStage }}</td>
+                    <td class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center text-sm">
+                      {{ item.responsiblePersonnel }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div *ngIf="!isView" class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
+        <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" class="bg-primary text-on-primary" [disabled]="isSubmitting">
+          <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Submitting...') : (isEditMode ? 'Update Plan' : 'Submit Plan') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

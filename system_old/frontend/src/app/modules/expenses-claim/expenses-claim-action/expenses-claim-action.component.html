@@ -1,0 +1,296 @@
+<div class="h-full bg-gray-50">
+  <div class="bg-white shadow-sm border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ getActionTitle() }}
+          </h1>
+          <p class="text-base text-gray-600 dark:text-gray-400 mt-1">
+            {{ getActionDescription() }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/expenses-claim/list'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+        >
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <div *ngIf="loading && !claim" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <div *ngIf="claim" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="document-card bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="document-header p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div class="space-y-1">
+                <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase">
+                  Meinhardt (Thailand) Ltd.
+                </div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Expenses Claim
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  GENERAL FORM 105
+                </p>
+              </div>
+
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium self-start"
+                [class]="getStatusBadgeClass(claim.status)">
+                {{ getStatusText(claim.status) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-8">
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                Claim Details
+              </h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="document-field">
+                  <label>Voucher #</label>
+                  <div class="document-value">{{ claim.voucher_no || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Date</label>
+                  <div class="document-value">{{ formatDate(claim.claim_date) }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Name</label>
+                  <div class="document-value">{{ getEmployeeLabelWithTitle(claim.claimant_name) }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Total</label>
+                  <div class="document-value font-semibold">{{ formatAmount(claim.total_baht) }} THB</div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                <h3 class="section-title mb-0">
+                  <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:table-cells'"></mat-icon>
+                  Expense Items
+                </h3>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  {{ (claim.items || []).length }} item(s)
+                </span>
+              </div>
+
+              <ng-container *ngIf="claim.items?.length; else emptyItems">
+                <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-slate-50 dark:bg-gray-900/40">
+                      <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 w-36">Date</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 w-48">Project</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Details</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300 w-36">Baht</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                      <tr *ngFor="let item of claim.items" class="odd:bg-white even:bg-slate-50/60 dark:odd:bg-gray-800 dark:even:bg-gray-900/30">
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {{ formatDate(item.item_date) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
+                          {{ formatProject(item) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
+                          {{ item.details || '-' }}
+                        </td>
+                        <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                          {{ formatAmount(item.baht) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                  <div class="lg:col-span-7 text-xs text-gray-500 dark:text-gray-400">
+                    Amounts are shown in Thai Baht.
+                  </div>
+
+                  <div class="lg:col-span-5">
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-xl bg-slate-50 dark:bg-gray-900/30 p-4">
+                      <div class="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-400">
+                        <span>Summary</span>
+                        <span class="tabular-nums">{{ (claim.items || []).length }} item(s)</span>
+                      </div>
+                      <div class="pt-3 mt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <span class="text-gray-900 dark:text-white font-semibold">Total</span>
+                        <span class="text-gray-900 dark:text-white font-semibold tabular-nums">
+                          {{ formatAmount(claim.total_baht) }} THB
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-template #emptyItems>
+                <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 px-6 py-8 text-center">
+                  <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-gray-400 text-3xl"></mat-icon>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No expense items in this claim</p>
+                </div>
+              </ng-template>
+            </section>
+          </div>
+        </div>
+
+        <mat-card class="shadow-sm rounded-xl mt-6">
+          <mat-card-header>
+            <mat-card-title class="text-lg font-medium text-gray-900">{{ getActionTitle() }}</mat-card-title>
+            <mat-card-subtitle class="text-sm text-gray-500">
+              You are updating the status for this expenses claim
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="pt-4">
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-sm text-blue-800 mb-2">
+                  <strong>{{ getCurrentActionLabel() }}:</strong>
+                </p>
+                <p class="text-base font-semibold text-blue-900">
+                  {{ getEmployeeLabel(getCurrentActionEmployee()) }}
+                </p>
+              </div>
+
+              <div class="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  (click)="router.navigate(['/expenses-claim/list'])"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+            Approval Workflow
+          </h2>
+
+          <div class="space-y-4">
+            <div class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(claim.verified_by_status)">
+                <mat-icon class="text-sm">{{ getStatusIcon(claim.verified_by_status) }}</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Verified by: <strong>{{ getEmployeeLabelWithTitle(claim.verified_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(claim.verified_by_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(claim.verified_by_status)">
+                    {{ getStatusText(claim.verified_by_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(claim.approved_by_status)">
+                <mat-icon class="text-sm">{{ getStatusIcon(claim.approved_by_status) }}</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Approved by: <strong>{{ getEmployeeLabelWithTitle(claim.approved_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(claim.approved_by_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(claim.approved_by_status)">
+                    {{ getStatusText(claim.approved_by_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+            Attachment(s)
+          </h2>
+
+          <div *ngIf="claim.attachments && claim.attachments.length > 0; else emptyAttachments" class="space-y-3">
+            <a *ngFor="let attachment of claim.attachments" 
+              [href]="getAttachmentHref(attachment.file_path)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/40">
+              <mat-icon class="mt-0.5 text-gray-400" [svgIcon]="attachment.type === 'link' ? 'heroicons_outline:link' : 'heroicons_outline:document-text'"></mat-icon>
+              <span class="min-w-0">
+                <span class="block truncate text-sm font-medium text-gray-900 dark:text-white">{{ attachment.file_name || attachment.file_path }}</span>
+                <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                  {{ attachment.type === 'link' ? 'Shared link' : (formatAttachmentSize(attachment.file_size) || 'Uploaded file') }}
+                </span>
+              </span>
+            </a>
+          </div>
+
+          <ng-template #emptyAttachments>
+            <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 px-6 py-8 text-center">
+              <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-gray-400 text-3xl"></mat-icon>
+              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No attachments uploaded</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

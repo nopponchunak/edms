@@ -1,0 +1,417 @@
+<div class="h-full bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div class="w-full border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="w-full px-4 py-4 sm:px-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                    <h1 class="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl dark:text-white">
+                        User Settings
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600 sm:text-base dark:text-gray-400">
+                        Manage users and system access permissions
+                    </p>
+                </div>
+
+                <button *ngIf="type === 'local'" type="button"
+                    class="inline-flex w-full shrink-0 items-center justify-center rounded-lg border border-transparent bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:text-base"
+                    [routerLink]="['/settings/users/new']">
+                    <mat-icon class="mr-2 text-white" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                    Add New User
+                </button>
+
+                <button *ngIf="type === 'sync_ad'" type="button"
+                    class="inline-flex w-full shrink-0 items-center justify-center rounded-lg border border-transparent bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-blue-600 sm:w-auto sm:px-6 sm:text-base"
+                    [disabled]="isSyncingEmployees" [attr.aria-busy]="isSyncingEmployees" (click)="onSyncEmployees()">
+                    <mat-icon class="mr-2 text-white" [ngClass]="{ 'animate-spin': isSyncingEmployees }"
+                        [svgIcon]="'heroicons_outline:arrow-path'"></mat-icon>
+                    {{ isSyncingEmployees ? 'Syncing...' : 'Sync Employees' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="h-full w-full bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 dark:bg-gray-900">
+
+        <!-- Tabs by type: Local | Active Directory -->
+        <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                <nav class="flex min-w-max space-x-6 sm:space-x-8" aria-label="Tabs">
+                    <button type="button" (click)="onTabChange(0)"
+                        class="whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold transition-colors duration-200 sm:text-base"
+                        [ngClass]="tabIndex === 0
+                            ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600'">
+                        {{ typeLabels['local'] }}
+                    </button>
+                    <button type="button" (click)="onTabChange(1)"
+                        class="whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold transition-colors duration-200 sm:text-base"
+                        [ngClass]="tabIndex === 1
+                            ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600'">
+                        {{ typeLabels['sync_ad'] }}
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+            [dismissible]="'true'" (dismissed)="alert = null" class="mb-6">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Filter / Search card -->
+        <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <ng-container *ngIf="type === 'sync_ad'; else localUserSearch">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Status
+                        </label>
+                        <mat-form-field appearance="outline" class="sync-ad-filter-field w-full">
+                            <mat-select [(ngModel)]="filters.status" aria-label="Status"
+                                (selectionChange)="onFilterChange()">
+                                <mat-option [value]="''">All Statuses</mat-option>
+                                <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                                    {{ option.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Employee Type
+                        </label>
+                        <mat-form-field appearance="outline" class="sync-ad-filter-field w-full">
+                            <mat-select [(ngModel)]="filters.employee_type_name" [disabled]="isLoadingFilters"
+                                aria-label="Employee Type" (selectionChange)="onFilterChange()">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="employeeTypeSearchCtrl"
+                                        placeholderLabel="Search Employee Type" noEntriesFoundLabel="No results">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="''">&nbsp;</mat-option>
+                                <mat-option *ngFor="let option of filteredFilterOptions.employee_type_name"
+                                    [value]="option">
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Title
+                        </label>
+                        <mat-form-field appearance="outline" class="sync-ad-filter-field w-full">
+                            <mat-select [(ngModel)]="filters.title_name" [disabled]="isLoadingFilters"
+                                aria-label="Title" (selectionChange)="onFilterChange()">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="titleSearchCtrl"
+                                        placeholderLabel="Search Title" noEntriesFoundLabel="No results">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="''">&nbsp;</mat-option>
+                                <mat-option *ngFor="let option of filteredFilterOptions.title_name" [value]="option">
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Level
+                        </label>
+                        <mat-form-field appearance="outline" class="sync-ad-filter-field w-full">
+                            <mat-select [(ngModel)]="filters.level_name" [disabled]="isLoadingFilters"
+                                aria-label="Level" (selectionChange)="onFilterChange()">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="levelSearchCtrl"
+                                        placeholderLabel="Search Level" noEntriesFoundLabel="No results">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="''">&nbsp;</mat-option>
+                                <mat-option *ngFor="let option of filteredFilterOptions.level_name" [value]="option">
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Department
+                        </label>
+                        <mat-form-field appearance="outline" class="sync-ad-filter-field w-full">
+                            <mat-select [(ngModel)]="filters.department_name" [disabled]="isLoadingFilters"
+                                aria-label="Department" (selectionChange)="onFilterChange()">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="departmentSearchCtrl"
+                                        placeholderLabel="Search Department" noEntriesFoundLabel="No results">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="''">&nbsp;</mat-option>
+                                <mat-option *ngFor="let option of filteredFilterOptions.department_name"
+                                    [value]="option">
+                                    {{ option }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div class="mt-5 border-t border-gray-200 pt-5 dark:border-gray-700">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                            <span>Show</span>
+                            <select class="sync-ad-page-size-select" [ngModel]="pageSize" [disabled]="isLoading"
+                                aria-label="Show entries" (ngModelChange)="onPageSizeSelectChange($event)">
+                                <option [ngValue]="10">10</option>
+                                <option [ngValue]="25">25</option>
+                                <option [ngValue]="50">50</option>
+                                <option [ngValue]="100">100</option>
+                            </select>
+                            <span>entries</span>
+                        </label>
+
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                <span>Search:</span>
+                                <input type="search" class="sync-ad-search-input" [(ngModel)]="searchTerm"
+                                    aria-label="Search" (ngModelChange)="onSearchTermChange($event)" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-template #localUserSearch>
+                <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <mat-form-field appearance="outline" class="w-full sm:max-w-xs">
+                        <mat-label>Search Users</mat-label>
+                        <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onSearch()"
+                            placeholder="Search by name, code, or email" />
+                        <button *ngIf="searchTerm" matSuffix mat-icon-button type="button" (click)="clearSearch()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                        <button matSuffix mat-icon-button type="button" (click)="onSearch()">
+                            <mat-icon>search</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+            </ng-template>
+        </div>
+
+        <!-- CONTENT CARD + TABLE -->
+        <div class="relative overflow-visible rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <!-- Title -->
+            <div class="relative flex flex-col gap-2 rounded-t-lg border-b border-gray-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-gray-700 dark:bg-gray-800">
+                <h2 class="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
+                    User List
+                </h2>
+                <span class="text-xs font-medium text-gray-500 sm:text-sm dark:text-gray-400">
+                    {{ totalRecords }} users
+                </span>
+            </div>
+
+            <div class="p-0">
+                <!-- Loading -->
+                <div class="flex flex-col items-center justify-center py-12" *ngIf="isLoading">
+                    <mat-progress-spinner mode="indeterminate" diameter="48" class="mb-4"></mat-progress-spinner>
+                    <p class="text-base text-gray-500 dark:text-gray-400">Loading users...</p>
+                </div>
+
+                <!-- Empty state -->
+                <div *ngIf="!isLoading && users.length === 0"
+                    class="flex flex-col items-center justify-center py-10 text-center sm:py-12">
+                    <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 sm:h-24 sm:w-24">
+                        <mat-icon class="h-10 w-10 text-blue-600 sm:h-12 sm:w-12"
+                            [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
+                    </div>
+                    <div class="mb-3 text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">No user data available</div>
+                    <div class="max-w-lg text-sm text-gray-500 sm:text-base dark:text-gray-400">
+                        Try adjusting your search or add a new user
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div *ngIf="!isLoading && users.length > 0" class="overflow-x-auto">
+                    <table mat-table [dataSource]="users" matSort [matSortActive]="sortActive"
+                        [matSortDirection]="sortDirection" [matSortDisableClear]="true"
+                        (matSortChange)="onSortChange($event)"
+                        class="user-table user-data-table w-full min-w-[1420px] text-left">
+                        <!-- No -->
+                        <ng-container matColumnDef="No">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="No" class="whitespace-nowrap">
+                                #
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                {{ user.No }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Username -->
+                        <ng-container matColumnDef="username">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="username" class="whitespace-nowrap">
+                                Username
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <div class="max-w-[160px] truncate font-medium text-gray-800 dark:text-gray-100"
+                                    [title]="user.username">
+                                    {{ user.username }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Initial -->
+                        <ng-container matColumnDef="initial">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="initial" class="whitespace-nowrap">
+                                Initial
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                {{ user.initial || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Name -->
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="name" class="whitespace-nowrap">
+                                Full Name
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <div class="max-w-[240px] truncate" [title]="user.name || '-'">
+                                    {{ user.name || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Email -->
+                        <ng-container matColumnDef="email">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="email" class="whitespace-nowrap">
+                                Email
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <div class="max-w-[240px] truncate" [title]="user.email || '-'">
+                                    {{ user.email || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Title -->
+                        <ng-container matColumnDef="title_name">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="title_name" class="whitespace-nowrap">
+                                Title
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <div class="max-w-[180px] truncate" [title]="user.title_name || '-'">
+                                    {{ user.title_name || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Level -->
+                        <ng-container matColumnDef="level_name">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="level_name" class="whitespace-nowrap">
+                                Level
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                {{ user.level_name || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Department -->
+                        <ng-container matColumnDef="department_name">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="department_name" class="whitespace-nowrap">
+                                Department
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <div class="max-w-[220px] truncate" [title]="user.department_name || '-'">
+                                    {{ user.department_name || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Permission -->
+                        <ng-container matColumnDef="permission">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="permission" class="whitespace-nowrap">
+                                Permission
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <select
+                                    class="user-inline-select min-w-[180px]"
+                                    [disabled]="isLoadingPermissions || permissions.length === 0 || isSavingPermission(user.id)"
+                                    [ngModel]="user.permission_id"
+                                    (change)="onPermissionChange(user, $any($event.target).value)">
+                                    <option *ngFor="let p of permissions" [value]="p.id">
+                                        {{ p.name }}
+                                    </option>
+                                </select>
+                            </td>
+                        </ng-container>
+
+                        <!-- Status -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="status" class="whitespace-nowrap">
+                                Status
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                <select
+                                    class="user-inline-select min-w-[120px]"
+                                    [disabled]="isLoading || isSavingStatus(user.id)" [ngModel]="user.status"
+                                    (change)="onStatusChange(user, $any($event.target).value)">
+                                    <option *ngFor="let s of statusOptions" [value]="s.value">
+                                        {{ s.label }}
+                                    </option>
+                                </select>
+                            </td>
+                        </ng-container>
+
+                        <!-- Created at -->
+                        <ng-container matColumnDef="created_at">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="created_at" class="whitespace-nowrap">
+                                Created At
+                            </th>
+                            <td mat-cell *matCellDef="let user">
+                                {{ user.created_at || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Action -->
+                        <ng-container matColumnDef="action">
+                            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-right">
+                                Actions
+                            </th>
+                            <td mat-cell *matCellDef="let user" class="text-right">
+                                <div class="flex items-center justify-end">
+                                    <button type="button"
+                                        [matMenuTriggerFor]="userMenu"
+                                        class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                                        aria-label="More actions">
+                                        <mat-icon class="text-gray-600 dark:text-gray-300">more_vert</mat-icon>
+                                    </button>
+                                </div>
+
+                                <mat-menu #userMenu="matMenu">
+                                    <button mat-menu-item (click)="onEditUser(user)">
+                                        <mat-icon>edit</mat-icon>
+                                        <span>Edit</span>
+                                    </button>
+                                </mat-menu>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginator -->
+        <mat-paginator *ngIf="!isLoading && users.length > 0" [length]="totalRecords" [pageIndex]="pageIndex"
+            [pageSize]="pageSize" [pageSizeOptions]="[10, 25, 50, 100]" [hidePageSize]="type === 'sync_ad'"
+            (page)="onPageChange($event)" showFirstLastButtons class="user-list-paginator mt-4">
+        </mat-paginator>
+    </div>
+</div>

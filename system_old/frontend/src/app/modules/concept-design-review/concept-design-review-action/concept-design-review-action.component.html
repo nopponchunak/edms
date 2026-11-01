@@ -1,0 +1,598 @@
+<div class="h-full bg-gray-50">
+    <!-- Header -->
+    <div class="border-b border-gray-200 bg-white shadow-sm">
+        <div class="w-full px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        {{ getActionTitle() }}
+                    </h1>
+                    <p class="mt-1 text-base text-gray-600">
+                        {{ getActionDescription() }}
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    (click)="router.navigate(['/concept-design-review'])"
+                    class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    <mat-icon class="mr-2">arrow_back</mat-icon>
+                    Back to List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full px-6 py-6" *ngIf="loading && !recordData">
+        <div class="flex flex-col items-center justify-center py-12">
+            <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+            <p class="text-lg text-gray-500">Loading record details...</p>
+        </div>
+    </div>
+
+    <div class="w-full px-6 py-6" *ngIf="recordData">
+        <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-4">
+            <div class="space-y-6 lg:col-span-3">
+                <!-- Section A: Project Information (Read Only) -->
+                <mat-card class="ims-card">
+                    <div class="ims-card-header">
+                        <h2
+                            class="flex items-center text-xl font-semibold text-gray-900"
+                        >
+                            <span
+                                class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm text-blue-600"
+                                >A</span
+                            >
+                            Project & Document Information
+                        </h2>
+                    </div>
+                    <div class="ims-card-body">
+                        <div
+                            class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                        >
+                            <div class="document-field">
+                                <label>Project Name</label>
+                                <div class="view-field-box">
+                                    {{
+                                        recordData.project_name ||
+                                            recordData.projectName ||
+                                            '-'
+                                    }}
+                                </div>
+                            </div>
+                            <div class="document-field">
+                                <label>Project No.</label>
+                                <div class="view-field-box font-semibold">
+                                    {{
+                                        recordData.project_number ||
+                                            recordData.projectNumber ||
+                                            '-'
+                                    }}
+                                </div>
+                            </div>
+                            <div class="document-field">
+                                <label>Prepared By</label>
+                                <div class="view-field-box">
+                                    {{
+                                        getEmployeeLabel(
+                                            recordData.prepared_by ||
+                                                recordData.preparedBy
+                                        )
+                                    }}
+                                </div>
+                            </div>
+                            <div class="document-field">
+                                <label>Discipline</label>
+                                <div class="view-field-box">
+                                    {{
+                                        recordData.discipline ||
+                                            recordData.discipline_other ||
+                                            recordData.disciplineOther ||
+                                            '-'
+                                    }}
+                                </div>
+                            </div>
+                            <div class="document-field">
+                                <label>Document(s) Reviewed</label>
+                                <div class="view-field-box">
+                                    {{ getDocumentTypesDisplay() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card>
+
+                <app-project-review-attachments-card
+                    class="block lg:hidden"
+                    [recordData]="recordData"
+                    [attachments]="
+                        recordData.attachments ||
+                        recordData.attachment ||
+                        recordData.files
+                    "
+                    [drivePaths]="
+                        recordData.drive_paths || recordData.drivePaths
+                    "
+                ></app-project-review-attachments-card>
+
+                <!-- Action Form -->
+                <form [formGroup]="actionForm" (ngSubmit)="onSubmit()">
+                    <div class="space-y-6">
+                        <!-- Section B: Checklist (Editable in Action) -->
+                        <mat-card class="ims-card">
+                            <div class="ims-card-header">
+                                <h2
+                                    class="flex items-center text-xl font-semibold text-gray-900"
+                                >
+                                    <span
+                                        class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm text-blue-600"
+                                        >B</span
+                                    >
+                                    Concept Design Review Checklist
+                                </h2>
+                            </div>
+                            <div class="ims-card-body">
+                                <div
+                                    class="overflow-x-auto rounded-xl border"
+                                    [class.opacity-70]="isChecklistLocked()"
+                                >
+                                    <table
+                                        class="checklist-table w-full border-collapse text-sm"
+                                    >
+                                        <thead>
+                                            <tr
+                                                class="bg-gray-50 text-gray-700"
+                                            >
+                                                <th
+                                                    class="border-b px-4 py-3 text-left font-semibold"
+                                                >
+                                                    Checklist Item
+                                                </th>
+                                                <th
+                                                    class="w-24 border-b px-4 py-3 text-center font-semibold"
+                                                >
+                                                    Yes
+                                                </th>
+                                                <th
+                                                    class="w-24 border-b px-4 py-3 text-center font-semibold"
+                                                >
+                                                    No
+                                                </th>
+                                                <th
+                                                    class="w-24 border-b px-4 py-3 text-center font-semibold"
+                                                >
+                                                    N/A
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody
+                                            formArrayName="checklistResponses"
+                                        >
+                                            <tr
+                                                *ngFor="
+                                                    let item of conceptDesignChecklist;
+                                                    let i = index
+                                                "
+                                                class="transition-colors hover:bg-gray-50"
+                                            >
+                                                <td
+                                                    class="align-top border-b px-4 py-4"
+                                                >
+                                                    <div
+                                                        class="flex items-start"
+                                                    >
+                                                        <span
+                                                            class="mr-3 w-4 font-bold text-blue-600"
+                                                            >{{ i + 1 }}</span
+                                                        >
+                                                        <span
+                                                            class="text-gray-900"
+                                                            >{{
+                                                                item.question
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                </td>
+                                                <td
+                                                    class="border-b px-1 py-4"
+                                                    colspan="3"
+                                                >
+                                                    <mat-radio-group
+                                                        [formControlName]="i"
+                                                        class="flex justify-around"
+                                                    >
+                                                        <mat-radio-button
+                                                            value="yes"
+                                                            class="dense-radio"
+                                                        ></mat-radio-button>
+                                                        <mat-radio-button
+                                                            value="no"
+                                                            class="dense-radio"
+                                                        ></mat-radio-button>
+                                                        <mat-radio-button
+                                                            value="na"
+                                                            class="dense-radio"
+                                                        ></mat-radio-button>
+                                                    </mat-radio-group>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Comments -->
+                                <div class="document-field mt-8">
+                                    <label
+                                        class="mb-2 block font-semibold text-gray-900"
+                                        >Reviewer Comments</label
+                                    >
+                                    <mat-form-field
+                                        class="w-full"
+                                        appearance="outline"
+                                    >
+                                        <textarea
+                                            matInput
+                                            formControlName="comments"
+                                            rows="5"
+                                            placeholder="Enter your detailed comments here..."
+                                        ></textarea>
+                                    </mat-form-field>
+                                    <!-- Redesigned Detailed Discussion Link (Left Aligned) -->
+                                    <div
+                                        *ngIf="canShowDetailedDiscussion()"
+                                        class="mt-6 flex justify-start"
+                                    >
+                                        <div
+                                            (click)="openCommentDialog()"
+                                            class="group flex cursor-pointer items-center gap-4 rounded-2xl border p-3 pr-6 transition-all duration-300"
+                                            [ngClass]="hasDiscussionComments
+                                                ? 'border-orange-200 bg-orange-50/60 hover:border-orange-300 hover:bg-orange-50'
+                                                : 'border-blue-100 bg-blue-50/30 hover:border-blue-200 hover:bg-blue-50'"
+                                        >
+                                            <div
+                                                class="flex h-12 w-12 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-110"
+                                                [ngClass]="hasDiscussionComments ? 'bg-orange-500' : 'bg-blue-600'"
+                                            >
+                                                <mat-icon class="text-white"
+                                                    >forum</mat-icon
+                                                >
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <span
+                                                        class="text-base font-bold leading-tight"
+                                                        [ngClass]="hasDiscussionComments ? 'text-orange-700' : 'text-blue-700'"
+                                                        >Detailed Discussion & Items
+                                                        tracking</span
+                                                    >
+                                                    <span *ngIf="hasDiscussionComments" class="design-review-comment-badge--pulse rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700">Has comments</span>
+                                                </div>
+                                                <span
+                                                    class="mt-0.5 text-xs"
+                                                    [ngClass]="hasDiscussionComments ? 'text-orange-500' : 'text-blue-400'"
+                                                    >Track itemized reviewer
+                                                    comments and team
+                                                    responses</span
+                                                >
+                                            </div>
+                                            <mat-icon
+                                                class="transition-transform group-hover:translate-x-1"
+                                                [ngClass]="hasDiscussionComments ? 'text-orange-300' : 'text-blue-300'"
+                                                >chevron_right</mat-icon
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </mat-card>
+
+                        <!-- Section C: Recommended Actions (Only for TL Action) -->
+                        <mat-card class="ims-card" *ngIf="isTLAction()">
+                            <div class="ims-card-header">
+                                <h2
+                                    class="flex items-center text-xl font-semibold text-gray-900"
+                                >
+                                    <span
+                                        class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm text-blue-600"
+                                        >C</span
+                                    >
+                                    Recommended Actions Tracking
+                                </h2>
+                            </div>
+                            <div class="ims-card-body">
+                                <div class="space-y-6">
+                                    <div>
+                                        <label
+                                            class="mb-4 block font-semibold text-gray-900"
+                                            >Recommended action(s) have been
+                                            satisfactorily taken</label
+                                        >
+                                        <mat-radio-group
+                                            formControlName="recommendedActionsSatisfactorilyTaken"
+                                            class="flex gap-8"
+                                        >
+                                            <mat-radio-button
+                                                value="yes"
+                                                class="dense-radio"
+                                                >Yes</mat-radio-button
+                                            >
+                                            <mat-radio-button
+                                                value="no"
+                                                class="dense-radio"
+                                                >No</mat-radio-button
+                                            >
+                                        </mat-radio-group>
+                                    </div>
+
+                                    <div class="document-field">
+                                        <label
+                                            class="mb-2 block font-medium text-gray-700"
+                                            >Note</label
+                                        >
+                                        <mat-form-field
+                                            class="w-full"
+                                            appearance="outline"
+                                        >
+                                            <textarea
+                                                matInput
+                                                formControlName="recommendedActionsNote"
+                                                rows="4"
+                                                placeholder="Describe outstanding actions"
+                                            ></textarea>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </mat-card>
+
+                        <!-- Action Status -->
+                        <!-- Action Status Section (Matched with Screenshot) -->
+                        <mat-card class="ims-card action-footer-card">
+                            <div
+                                class="ims-card-body p-6 md:p-8"
+                                *ngIf="recordData"
+                            >
+                                <div class="mb-6">
+                                    <h3
+                                        class="text-2xl font-bold text-gray-900"
+                                    >
+                                        {{ getStepLabel() }}
+                                    </h3>
+                                    <p class="text-gray-500">
+                                        You are updating the status for this
+                                        request
+                                    </p>
+                                </div>
+
+                                <div
+                                    *ngIf="!isReviewedApproved()"
+                                    class="grid grid-cols-1 gap-6"
+                                >
+                                    <!-- Status Dropdown -->
+                                    <mat-form-field
+                                        *ngIf="shouldShowManualStatusFields()"
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-label>Status</mat-label>
+                                        <mat-select
+                                            *ngIf="
+                                                !isSafari;
+                                                else safariStatusSelect
+                                            "
+                                            formControlName="status"
+                                            panelClass="concept-design-status-panel"
+                                        >
+                                            <mat-option value="pending"
+                                                >Pending</mat-option
+                                            >
+                                            <mat-option value="approved"
+                                                >Approved</mat-option
+                                            >
+                                            <mat-option value="rejected"
+                                                >Rejected</mat-option
+                                            >
+                                        </mat-select>
+                                        <ng-template #safariStatusSelect>
+                                            <select
+                                                matNativeControl
+                                                formControlName="status"
+                                            >
+                                                <option value=""></option>
+                                                <option value="pending">
+                                                    Pending
+                                                </option>
+                                                <option value="approved">
+                                                    Approved
+                                                </option>
+                                                <option value="rejected">
+                                                    Rejected
+                                                </option>
+                                            </select>
+                                        </ng-template>
+                                        <mat-error
+                                            *ngIf="
+                                                actionForm.get('status')
+                                                    ?.invalid &&
+                                                actionForm.get('status')
+                                                    ?.touched
+                                            "
+                                        >
+                                            Status is required
+                                        </mat-error>
+                                    </mat-form-field>
+
+                                    <!-- Action Date -->
+                                    <div
+                                        *ngIf="shouldShowManualStatusFields()"
+                                        class="document-field"
+                                    >
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-label>Action Date</mat-label>
+                                            <input
+                                                matInput
+                                                [matDatepicker]="
+                                                    actionDatePicker
+                                                "
+                                                formControlName="signedDate"
+                                                placeholder="Select date"
+                                            />
+                                            <mat-datepicker-toggle
+                                                matSuffix
+                                                [for]="actionDatePicker"
+                                            ></mat-datepicker-toggle>
+                                            <mat-datepicker
+                                                #actionDatePicker
+                                            ></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <!-- Verified By Block (Blue Style) -->
+                                    <div class="verified-by-container">
+                                        <p class="verified-by-label">
+                                            {{ getStepLabel() }}:
+                                        </p>
+                                        <p class="verified-by-name">
+                                            {{
+                                                getEmployeeLabel(
+                                                    recordData[
+                                                        actionType?.replace(
+                                                            '_status',
+                                                            ''
+                                                        ) || ''
+                                                    ] || recordData.reviewedBy
+                                                )
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div
+                                    *ngIf="!isReviewedApproved()"
+                                    class="mt-10 flex justify-end gap-3"
+                                >
+                                    <button
+                                        type="button"
+                                        (click)="
+                                            router.navigate([
+                                                '/concept-design-review',
+                                            ])
+                                        "
+                                        class="min-w-[120px] rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-base font-medium text-gray-700 transition-all hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        [disabled]="
+                                            actionForm.invalid || loading
+                                        "
+                                        class="flex min-w-[160px] items-center justify-center rounded-lg bg-blue-600 px-6 py-2.5 text-base font-medium text-white shadow-sm transition-all hover:bg-blue-700 disabled:opacity-50"
+                                    >
+                                        <span *ngIf="!loading">{{
+                                            getButtonLabel()
+                                        }}</span>
+                                        <mat-spinner
+                                            *ngIf="loading"
+                                            diameter="20"
+                                            class="ml-2"
+                                        ></mat-spinner>
+                                    </button>
+                                </div>
+
+                                <ng-template #approvedBlock>
+                                    <div class="space-y-6">
+                                        <div
+                                            class="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4"
+                                        >
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
+                                                <mat-icon
+                                                    class="text-emerald-600"
+                                                    >check_circle</mat-icon
+                                                >
+                                                <div>
+                                                    <p
+                                                        class="text-sm font-bold text-emerald-800"
+                                                    >
+                                                        Review Approved
+                                                    </p>
+                                                    <p
+                                                        class="text-sm text-emerald-700"
+                                                    >
+                                                        This action is
+                                                        completed. Discussion
+                                                        remains available for
+                                                        reference only.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="verified-by-container">
+                                            <p class="verified-by-label">
+                                                {{ getStepLabel() }}:
+                                            </p>
+                                            <p class="verified-by-name">
+                                                {{
+                                                    getEmployeeLabel(
+                                                        recordData[
+                                                            actionType?.replace(
+                                                                '_status',
+                                                                ''
+                                                            ) || ''
+                                                        ] ||
+                                                            recordData.reviewedBy
+                                                    )
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-10 flex justify-end gap-3">
+                                        <button
+                                            type="button"
+                                            (click)="
+                                                router.navigate([
+                                                    '/concept-design-review',
+                                                ])
+                                            "
+                                            class="min-w-[120px] rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-base font-medium text-gray-700 transition-all hover:bg-gray-50"
+                                        >
+                                            Back
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </mat-card>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6 lg:col-span-1">
+                <app-project-review-attachments-card
+                    class="hidden lg:block"
+                    [recordData]="recordData"
+                    [attachments]="
+                        recordData.attachments ||
+                        recordData.attachment ||
+                        recordData.files
+                    "
+                    [drivePaths]="
+                        recordData.drive_paths || recordData.drivePaths
+                    "
+                ></app-project-review-attachments-card>
+
+                <app-approval-workflow
+                    [steps]="workflowSteps"
+                ></app-approval-workflow>
+            </div>
+        </div>
+    </div>
+</div>

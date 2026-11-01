@@ -1,0 +1,564 @@
+<ng-container *ngIf="isPrintDocumentMode">
+  <div
+    id="frontend-print-ready"
+    [attr.data-ready]="printDocumentReady ? 'true' : 'false'"
+    style="display: none;"
+  ></div>
+  <div *ngIf="isLoading" class="p-6 text-sm text-gray-500">Loading purchase requisition print document...</div>
+  <div *ngIf="!isLoading && printDocumentHtml" [innerHTML]="printDocumentHtml"></div>
+</ng-container>
+
+<div *ngIf="!isPrintDocumentMode" class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+
+    <!-- HEADER: Title -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 uppercase">
+          PURCHASE REQUISITION FORM
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          View purchase requisition information and details
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          *ngIf="isDraftDocument()"
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="onSubmitDraft()"
+          [disabled]="!canSubmitDraft()"
+          class="!h-10 !rounded-full !px-4 !bg-blue-600 !text-white hover:!bg-blue-700 disabled:!opacity-60"
+          style="background-color: #2563eb; color: #ffffff;"
+        >
+          <mat-spinner *ngIf="isSubmittingDraft" [diameter]="18" class="mr-2"></mat-spinner>
+          <mat-icon *ngIf="!isSubmittingDraft" class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+          <span class="font-medium">{{ isSubmittingDraft ? 'Submitting...' : 'Submit' }}</span>
+        </button>
+
+        <button
+          *ngIf="!isDraftDocument()"
+          mat-stroked-button
+          type="button"
+          (click)="onResendEmail()"
+          [disabled]="isResendingEmail || !requisition"
+          class="!h-10 !rounded-full !border-slate-200 !px-4 !text-slate-700 hover:!bg-slate-50 disabled:!opacity-60"
+        >
+          <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+          <span class="font-medium">{{ isResendingEmail ? 'Sending...' : 'Resend Email' }}</span>
+        </button>
+
+        <!-- Standardized Actions -->
+        <app-view-actions
+          [backPath]="'/purchase-requisition'"
+          [navId]="'purchase-requisition'"
+          [showEdit]="false"
+          printLabel="Print Document"
+          [showSecondaryPrint]="true"
+          secondaryPrintLabel="Preview"
+          (print)="onOpenPrintPdf()"
+          (secondaryPrint)="onOpenCombinedPdf()"
+          (edit)="onEdit()"
+        ></app-view-actions>
+      </div>
+
+
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-16">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- Not found -->
+    <div
+      *ngIf="!isLoading && !requisition"
+      class="bg-white rounded-xl shadow border border-gray-200 py-16 text-center">
+      <mat-icon class="text-5xl text-gray-400 mb-4">receipt_long</mat-icon>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">
+        Purchase requisition not found
+      </h3>
+      <p class="text-gray-500 mb-6">
+        The purchase requisition you are looking for doesn't exist or has been deleted.
+      </p>
+      <button mat-flat-button color="primary" (click)="onBack()">
+        Back to List
+      </button>
+    </div>
+
+    <!-- DOCUMENT VIEW -->
+    <div *ngIf="!isLoading && requisition && prDocument" class="max-w-7xl mx-auto grid grid-cols-1 gap-6 items-start lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <!-- Left Column: Details -->
+        <div class="space-y-4 lg:min-w-0">
+
+      <!-- PURCHASE REQUISITION DOCUMENT -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+        <!-- Header bar -->
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+            Requisition Details
+          </h2>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+            Requisition No: {{ prDocument.requisitionNo }}
+          </span>
+        </div>
+
+        <div class="p-4">
+          <div class="space-y-3">
+
+          <!-- Purchase Requisition Details / Header Information -->
+          <section class="rounded-xl border border-blue-200 bg-blue-50/80 p-3 dark:border-blue-900/40 dark:bg-blue-950/20">
+            <div class="flex items-center gap-2 mb-2.5">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white text-blue-600 shadow-sm dark:bg-gray-900/70">
+                <mat-icon svgIcon="heroicons_outline:document-text" class="text-base"></mat-icon>
+              </span>
+              <div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                  Purchase Requisition Details
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  Header Information
+                </p>
+              </div>
+            </div>
+
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-0 rounded-lg border border-blue-100 bg-white/55 px-3 py-1 dark:border-blue-900/40 dark:bg-gray-900/35">
+              <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">To</dt>
+                <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                  {{ prDocument.header.to }}
+                </dd>
+              </div>
+
+              <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Date</dt>
+                <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                  {{ prDocument.header.date }}
+                </dd>
+              </div>
+
+              <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Deadline (if any)</dt>
+                <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                  {{ prDocument.header.deadline || '-' }}
+                </dd>
+              </div>
+
+              <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Recommended By</dt>
+                <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                  {{ prDocument.header.recommendedBy || '-' }}
+                </dd>
+              </div>
+
+              <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Received From</dt>
+                <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                  {{ prDocument.header.receivedFrom || '-' }}
+                </dd>
+              </div>
+
+              <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 py-1.5 md:col-span-2">
+                <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Reasons</dt>
+                <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                {{ prDocument.header.reasonsForPurchase }}
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <!-- Items -->
+          <section class="rounded-xl border border-yellow-200 bg-yellow-50/70 p-4 dark:border-yellow-900/40 dark:bg-yellow-950/10">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white text-amber-600 shadow-sm dark:bg-gray-900/70 dark:text-amber-300">
+                  <mat-icon svgIcon="heroicons_outline:list-bullet" class="text-base"></mat-icon>
+                </span>
+                <div>
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">Items</h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ prDocument.items?.length || 0 }} item(s)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <ng-container *ngIf="prDocument.items?.length; else emptyItems">
+              <div class="overflow-x-auto border border-gray-200 rounded-lg bg-white dark:border-gray-700 dark:bg-gray-900">
+                <table class="min-w-full table-fixed text-sm">
+                  <thead class="bg-slate-50 dark:bg-gray-800">
+                    <tr class="border-b border-gray-200">
+                      <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 md:w-16 md:min-w-[4rem] md:max-w-[4rem] dark:text-gray-300">Item</th>
+                      <th class="hidden md:table-cell px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Description</th>
+                      <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 w-24">Asset Code?</th>
+                      <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-20">Qty</th>
+                      <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-32">Unit Price</th>
+                      <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-32">Amount</th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="divide-y divide-gray-200">
+                    <tr
+                      *ngFor="let item of prDocument.items"
+                      class="odd:bg-white even:bg-slate-50/60 hover:bg-blue-50/40 transition-colors dark:odd:bg-gray-900 dark:even:bg-gray-800/60 dark:hover:bg-blue-950/20"
+                    >
+                      <td class="px-3 py-2 text-gray-900 md:w-16 md:min-w-[4rem] md:max-w-[4rem] dark:text-gray-100">
+                        <div class="font-medium leading-5">
+                          {{ item.name }}
+                        </div>
+                        <div class="mt-0.5 text-xs text-gray-500 md:hidden leading-4">
+                          {{ item.description || '-' }}
+                        </div>
+                      </td>
+
+                      <td class="hidden md:table-cell px-3 py-2 text-gray-900 dark:text-gray-100">
+                        <div class="max-w-[560px]">
+                          {{ item.description || '-' }}
+                        </div>
+                      </td>
+
+                      <td class="px-3 py-2 text-center text-gray-700 dark:text-gray-300">
+                        {{ item.needAssetCodeRegistration ? 'Yes' : '-' }}
+                      </td>
+
+                      <td class="px-3 py-2 text-right text-gray-700 tabular-nums dark:text-gray-300">
+                        {{ item.qty }}
+                      </td>
+
+                      <td class="px-3 py-2 text-right text-gray-700 tabular-nums whitespace-nowrap dark:text-gray-300">
+                        {{ formatCurrency(item.unitPrice) }}
+                      </td>
+
+                      <td class="px-3 py-2 text-right font-semibold text-gray-900 tabular-nums whitespace-nowrap dark:text-gray-100">
+                        {{ formatCurrency(item.amount) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-3 grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                <div class="lg:col-span-7 text-xs text-gray-500 dark:text-gray-400">
+                  Prices are shown in the document currency. VAT is calculated at 7% (as per document).
+                </div>
+
+                <div class="lg:col-span-5">
+                  <div class="border border-gray-200 rounded-lg bg-slate-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      <span>Summary</span>
+                      <span class="tabular-nums">{{ prDocument.items?.length || 0 }} item(s)</span>
+                    </div>
+
+                    <div class="mt-2 space-y-1.5 text-sm">
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-600 dark:text-gray-300">Discount</span>
+                        <span class="text-red-600 tabular-nums dark:text-red-300">{{ formatCurrency(prDocument.totals.discount) }}</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-600 dark:text-gray-300">Sub-total</span>
+                        <span class="text-gray-900 tabular-nums dark:text-gray-100">{{ formatCurrency(prDocument.totals.subTotal) }}</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-600 dark:text-gray-300">VAT (7%)</span>
+                        <span class="text-gray-900 tabular-nums dark:text-gray-100">{{ formatCurrency(prDocument.totals.vat) }}</span>
+                      </div>
+
+                      <div class="pt-2 mt-2 border-t border-gray-200 flex items-center justify-between dark:border-gray-700">
+                        <span class="text-gray-900 font-semibold dark:text-white">Grand total</span>
+                        <span class="text-gray-900 font-semibold tabular-nums dark:text-white">{{ formatCurrency(prDocument.totals.grandTotal) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #emptyItems>
+              <div class="border border-dashed border-gray-300 rounded-lg bg-white px-4 py-6 text-center dark:border-gray-700 dark:bg-gray-900">
+                <mat-icon svgIcon="heroicons_outline:inbox" class="text-gray-400 text-3xl"></mat-icon>
+                <p class="mt-2 text-sm text-gray-500">No items in this requisition</p>
+              </div>
+            </ng-template>
+          </section>
+
+	          <!-- Attached Documents -->
+	          <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/40">
+	            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
+	              <div class="flex items-center gap-2">
+	                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-300">
+                  <mat-icon svgIcon="heroicons_outline:paper-clip" class="text-base"></mat-icon>
+                </span>
+	                <div>
+	                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">Attached Documents</h3>
+	                  <p class="text-xs text-gray-500 dark:text-gray-400">
+	                    {{ attachmentLinks.length || 0 }} file(s)
+	                  </p>
+	                </div>
+	              </div>
+	            </div>
+	
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 dark:bg-gray-800">
+                  <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">File</th>
+                    <th class="hidden sm:table-cell px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 w-24">Type</th>
+                    <th class="hidden sm:table-cell px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-28">Size</th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-28">Action</th>
+                  </tr>
+	                </thead>
+	                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+	                  <tr
+	                    *ngFor="let doc of attachmentLinks"
+	                    class="odd:bg-white even:bg-slate-50/60 dark:odd:bg-gray-900 dark:even:bg-gray-800/60"
+	                    [ngClass]="isAttachmentSelected(doc) ? 'ring-1 ring-inset ring-blue-200 dark:ring-blue-800' : ''"
+	                  >
+	                    <td class="px-3 py-2">
+	                      <div class="flex min-w-0 items-center gap-2">
+	                        <mat-icon class="flex-shrink-0 text-base text-teal-500" [svgIcon]="getAttachmentIcon(doc)"></mat-icon>
+	                        <div class="min-w-0">
+	                          <button
+	                            type="button"
+	                            (click)="selectAttachment(doc)"
+	                            class="block max-w-full truncate text-left text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+	                          >
+	                            {{ doc.fileName }}
+	                          </button>
+	                        </div>
+	                      </div>
+	                    </td>
+	                    <td class="hidden sm:table-cell px-3 py-2 text-xs text-gray-600 dark:text-gray-300">
+	                      {{ getAttachmentTypeLabel(doc) }}
+	                    </td>
+	                    <td class="hidden sm:table-cell px-3 py-2 text-right text-xs text-gray-600 tabular-nums dark:text-gray-300">
+	                      {{ doc.fileSize || '-' }}
+	                    </td>
+	                    <td class="px-3 py-2 text-right">
+	                      <button
+	                        type="button"
+	                        (click)="selectAttachment(doc)"
+	                        mat-stroked-button
+	                        color="primary"
+	                        class="text-xs"
+	                      >
+	                        {{ isAttachmentSelected(doc) ? 'Viewing' : 'View' }}
+	                      </button>
+	                    </td>
+	                  </tr>
+	                  <tr *ngIf="!attachmentLinks.length">
+	                    <td colspan="4" class="px-3 py-5 text-center text-sm text-gray-500 dark:text-gray-400">
+	                      No documents attached.
+	                    </td>
+	                  </tr>
+	                </tbody>
+	              </table>
+	            </div>
+
+	            <div
+	              *ngIf="selectedAttachment as attachment"
+	              class="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-slate-50 dark:border-gray-700 dark:bg-gray-900"
+	            >
+	              <div class="flex flex-col gap-3 border-b border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between">
+	                <div class="flex min-w-0 items-center gap-3">
+	                  <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-300">
+	                    <mat-icon class="text-base" [svgIcon]="getAttachmentIcon(attachment)"></mat-icon>
+	                  </span>
+	                  <div class="min-w-0">
+	                    <h4 class="truncate text-sm font-semibold text-gray-900 dark:text-white">
+	                      {{ attachment.fileName }}
+	                    </h4>
+	                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+	                      {{ getAttachmentTypeLabel(attachment) }}<span *ngIf="attachment.fileSize"> · {{ attachment.fileSize }}</span>
+	                    </p>
+	                  </div>
+	                </div>
+
+	                <button
+	                  type="button"
+	                  mat-icon-button
+	                  (click)="clearSelectedAttachment()"
+	                  aria-label="Close document preview"
+	                >
+	                  <mat-icon>close</mat-icon>
+	                </button>
+	              </div>
+
+	              <ng-container [ngSwitch]="getAttachmentPreviewType(attachment)">
+	                <div *ngSwitchCase="'pdf'" class="h-[640px] min-h-[420px] bg-gray-100 dark:bg-gray-950">
+	                  <iframe
+	                    *ngIf="selectedAttachmentResourceUrl"
+	                    class="h-full w-full"
+	                    [src]="selectedAttachmentResourceUrl"
+	                    [attr.title]="attachment.fileName"
+	                  ></iframe>
+	                </div>
+
+	                <div *ngSwitchCase="'image'" class="flex justify-center bg-gray-100 p-4 dark:bg-gray-950">
+	                  <img
+	                    class="max-h-[640px] w-full object-contain"
+	                    [src]="attachment.href"
+	                    [alt]="attachment.fileName"
+	                  />
+	                </div>
+
+	                <div *ngSwitchDefault class="flex flex-col items-center justify-center gap-3 px-4 py-10 text-center">
+	                  <mat-icon class="text-4xl text-gray-400" [svgIcon]="getAttachmentIcon(attachment)"></mat-icon>
+	                  <div>
+	                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+	                      Preview not available
+	                    </h4>
+	                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+	                      Inline preview supports PDF and image files.
+	                    </p>
+	                  </div>
+	                  <a
+	                    [href]="attachment.href"
+	                    download
+	                    mat-stroked-button
+	                    color="primary"
+	                  >
+	                    Download file
+	                  </a>
+	                </div>
+	              </ng-container>
+	            </div>
+	          </section>
+
+          <!-- General Information -->
+          <section class="rounded-xl border border-gray-200 bg-transparent p-4 dark:border-gray-700">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 text-gray-600 shadow-sm dark:bg-gray-900/70 dark:text-gray-300">
+                <mat-icon svgIcon="heroicons_outline:information-circle" class="text-base"></mat-icon>
+              </span>
+              <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                General Information
+              </h3>
+            </div>
+
+            <div class="mb-3">
+              <div class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Other conditions (if any)</div>
+              <div class="border border-gray-200 rounded-lg bg-white px-3 py-1.5 text-sm text-gray-900 min-h-11 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                {{ prDocument.general.otherConditions || '-' }}
+              </div>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-100 p-3 rounded-lg text-sm text-yellow-800 mb-3 dark:border-yellow-900/40 dark:bg-yellow-950/20 dark:text-yellow-100">
+              <strong>Note:</strong> In case of purchasing software and/or IT equipment, this request must be verified
+              by IT department to confirm our existing hardware is adequate and doesn't need any further upgrading.
+            </div>
+
+            <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg text-sm text-blue-800 mb-3 dark:border-blue-900/40 dark:bg-blue-950/20 dark:text-blue-100">
+              <strong>Payment Term:</strong> {{ prDocument.general.paymentTerm || defaultPaymentTerm }}
+            </div>
+
+            <div class="flex items-start text-sm text-gray-800 dark:text-gray-100">
+              <mat-icon class="mr-2 text-green-600" svgIcon="heroicons_outline:check-circle"></mat-icon>
+              <span>
+                *Please fill in the price and attach quotation (if any):
+                <span class="font-semibold">
+                  {{ prDocument.general.quotationAttached ? 'Quotation attached' : 'No quotation attached' }}
+                </span>
+              </span>
+            </div>
+          </section>
+          
+          <!-- Admin Action -->
+          <section class="rounded-xl border border-gray-200 bg-transparent p-4 dark:border-gray-700">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 text-gray-600 shadow-sm dark:bg-gray-900/70 dark:text-gray-300">
+                <mat-icon svgIcon="heroicons_solid:cog" class="text-base"></mat-icon>
+              </span>
+              <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                Admin Action
+              </h3>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-3 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+              <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Need asset code registration?
+                </div>
+                <div class="flex items-center gap-5">
+                  <div class="document-check-row">
+                    <span class="document-check-box">{{ prDocument.approval.needAssetCodeRegistration === 'yes' ? '✓' : '' }}</span>
+                    <span class="text-sm font-medium">Yes</span>
+                  </div>
+                  <div class="document-check-row">
+                    <span class="document-check-box">{{ prDocument.approval.needAssetCodeRegistration === 'no' ? '✓' : '' }}</span>
+                    <span class="text-sm font-medium">No</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          </div>
+        </div>
+      </div>
+
+        </div> <!-- Left Column -->
+
+        <!-- Right Column: Status -->
+        <div class="pr-workflow-sidebar space-y-6 sticky top-6 self-start lg:w-[22rem]">
+          <!-- Approval Workflow Timeline -->
+          <div class="pr-workflow-card w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <h2 class="flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                <mat-icon class="mr-2 text-emerald-400" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+                Approval Workflow
+              </h2>
+              <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                {{ getWorkflowSteps().length }} steps
+              </span>
+            </div>
+
+            <div class="space-y-0">
+              <div
+                *ngFor="let step of getWorkflowSteps(); let last = last"
+                class="relative flex gap-2.5 pb-2.5 last:pb-0"
+              >
+                <div class="flex w-5 flex-shrink-0 flex-col items-center">
+                  <span
+                    class="z-10 flex h-5 w-5 items-center justify-center rounded-full ring-2 ring-white dark:ring-gray-800"
+                    [ngClass]="getWorkflowDotClass(step.status)"
+                  >
+                    <mat-icon class="!h-3 !w-3 !text-xs leading-none">
+                      {{ getWorkflowStepIcon(step.status) }}
+                    </mat-icon>
+                  </span>
+                  <span
+                    *ngIf="!last"
+                    class="mt-1 min-h-5 w-px flex-1"
+                    [ngClass]="getWorkflowLineClass(step.status)"
+                  ></span>
+                </div>
+
+                <div class="min-w-0 flex-1 border-b border-gray-100 pb-2.5 last:border-b-0 last:pb-0 dark:border-gray-700">
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="text-xs font-semibold leading-5 text-gray-900 dark:text-white">
+                      {{ step.title }}
+                    </p>
+                    <span
+                      class="inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      [ngClass]="getByStatusColor(step.status)"
+                    >
+                      {{ getWorkflowStatusText(step) }}
+                    </span>
+                  </div>
+                  <p class="mt-0.5 truncate text-[11px] text-gray-500 dark:text-gray-400">
+                    <span class="font-medium text-gray-700 dark:text-gray-200">{{ getWorkflowActorLabel(step) }}</span>
+                    <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
+                    <span>{{ formatDateTime(step.date) }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      </div> <!-- Right Column -->
+    </div>
+  </div>
+</div>

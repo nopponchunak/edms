@@ -1,0 +1,431 @@
+<ng-container *ngIf="isPrintDocumentMode">
+  <div
+    id="frontend-print-ready"
+    [attr.data-ready]="printDocumentReady ? 'true' : 'false'"
+    style="display: none;"
+  ></div>
+  <div *ngIf="isLoading" class="p-6 text-sm text-gray-500">Loading expenses claim print document...</div>
+</ng-container>
+
+<div *ngIf="!isPrintDocumentMode" class="screen-view h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+          EXPENSES CLAIM
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          GENERAL FORM 105 | View expenses claim information
+        </p>
+      </div>
+
+      <app-view-actions
+        [backPath]="'/expenses-claim/list'"
+        [navId]="'expenses-claim'"
+        [showEdit]="false"
+        printLabel="Print Document"
+        [showSecondaryPrint]="true"
+        secondaryPrintLabel="Preview"
+        (print)="onPrint()"
+        (secondaryPrint)="onOpenCombinedPdf()"
+      ></app-view-actions>
+    </div>
+
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading && claim" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="document-card bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div class="space-y-1">
+                <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase">
+                  Meinhardt (Thailand) Ltd.
+                </div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Expenses Claim
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  Detail view in document format
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3 self-start">
+                <div class="text-right text-sm text-gray-500 dark:text-gray-400">
+                  <div>GENERAL FORM 105</div>
+                  <div>Voucher # {{ claim.voucher_no || '-' }}</div>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                  [class]="getOverallStatusBadgeClass()">
+                  {{ getOverallStatusLabel() }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-8">
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                Claim Details
+              </h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="document-field">
+                  <label>Voucher #</label>
+                  <div class="document-value">{{ claim.voucher_no || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Date</label>
+                  <div class="document-value">{{ formatDate(claim.claim_date) }}</div>
+                </div>
+                <div class="document-field md:col-span-2">
+                  <label>Name</label>
+                  <div class="document-value">{{ getEmployeeLabelWithoutTitle(claim.claimant_name) }}</div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                <h3 class="section-title mb-0">
+                  <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:table-cells'"></mat-icon>
+                  Expense Items
+                </h3>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  {{ itemCount }} item(s)
+                </span>
+              </div>
+
+              <ng-container *ngIf="claim.items && claim.items.length > 0; else emptyItems">
+                <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-slate-50 dark:bg-gray-900/40">
+                      <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 w-36">Date</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 w-48">Project</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Details</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300 w-36">Baht</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                      <tr *ngFor="let item of claim.items" class="odd:bg-white even:bg-slate-50/60 dark:odd:bg-gray-800 dark:even:bg-gray-900/30">
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {{ formatDate(item.item_date) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
+                          {{ formatProject(item) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
+                          {{ item.details || '-' }}
+                        </td>
+                        <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                          {{ formatAmount(item.baht) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                  <div class="lg:col-span-7 text-xs text-gray-500 dark:text-gray-400">
+                    Amounts are shown in Thai Baht.
+                  </div>
+
+                  <div class="lg:col-span-5">
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-xl bg-slate-50 dark:bg-gray-900/30 p-4">
+                      <div class="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-400">
+                        <span>Summary</span>
+                        <span class="tabular-nums">{{ itemCount }} item(s)</span>
+                      </div>
+                      <div class="pt-3 mt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <span class="text-gray-900 dark:text-white font-semibold">Total</span>
+                        <span class="text-gray-900 dark:text-white font-semibold tabular-nums">
+                          {{ formatAmount(claim.total_baht) }} THB
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-template #emptyItems>
+                <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 px-6 py-8 text-center">
+                  <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-gray-400 text-3xl"></mat-icon>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No expense items in this claim</p>
+                </div>
+              </ng-template>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+            Approval Workflow
+          </h2>
+
+          <div class="space-y-4">
+            <div class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(claim.verified_by_status)">
+                <mat-icon class="text-sm">verified</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Verified by: <strong>{{ getEmployeeLabelWithoutTitle(claim.verified_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(claim.verified_by_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(claim.verified_by_status)">
+                    {{ getStatusText(claim.verified_by_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(claim.approved_by_status)">
+                <mat-icon class="text-sm">approval</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Approved by: <strong>{{ getEmployeeLabelWithoutTitle(claim.approved_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(claim.approved_by_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(claim.approved_by_status)">
+                    {{ getStatusText(claim.approved_by_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+            Attachment(s)
+          </h2>
+
+          <div *ngIf="attachmentItems.length > 0; else emptyAttachments" class="space-y-3">
+            <a *ngFor="let attachment of attachmentItems" 
+              [href]="attachment.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/40">
+              <mat-icon class="mt-0.5 text-gray-400" [svgIcon]="attachment.type === 'link' ? 'heroicons_outline:link' : 'heroicons_outline:document-text'"></mat-icon>
+              <span class="min-w-0">
+                <span class="block truncate text-sm font-medium text-gray-900 dark:text-white">{{ attachment.fileName }}</span>
+                <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                  {{ attachment.type === 'link' ? 'Shared link' : (attachment.fileSize || 'Uploaded file') }}
+                </span>
+              </span>
+            </a>
+          </div>
+
+          <ng-template #emptyAttachments>
+            <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 px-6 py-8 text-center">
+              <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-gray-400 text-3xl"></mat-icon>
+              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No attachments uploaded</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && !claim" class="text-center py-12">
+      <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Expenses claim not found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">The expenses claim you're looking for doesn't exist or has been deleted.</p>
+      <button mat-flat-button color="primary" (click)="onBack()" class="px-6 py-2">
+        <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        Back to List
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="claim" class="expenses-claim-row-measurement" aria-hidden="true">
+    <table>
+      <colgroup>
+        <col class="date-col">
+        <col class="project-col">
+        <col>
+        <col class="baht-col">
+      </colgroup>
+      <tbody>
+        <tr class="print-row-height-probe"><td colspan="4">&nbsp;</td></tr>
+        <tr *ngFor="let item of claim.items; let itemIndex = index" [attr.data-print-row-index]="itemIndex">
+          <td class="center">{{ formatDate(item.item_date) }}</td>
+          <td>{{ formatProject(item) }}</td>
+          <td>{{ item.details || '' }}</td>
+          <td class="right">{{ formatAmount(item.baht) }}</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+
+<div
+  *ngIf="claim"
+  class="expenses-claim-print-root"
+  [class.print-only]="!isPrintDocumentMode"
+  [class.print-document-render]="isPrintDocumentMode">
+  <ng-container *ngFor="let printPage of printableExpensesClaimPages; let pageIndex = index; let isLast = last">
+    <div
+      class="print-document"
+      [class.print-document--continuation]="pageIndex > 0">
+      <div class="print-circ-header">
+        Circ: Accts /<span class="circ-dots circ-tl">{{ getVerifiedInitials() }}</span>/<span class="circ-dots circ-di">{{ getApprovedInitials() }}</span>/Accts
+        <div class="circ-labels">
+          <span class="lbl-tl">(TL)</span>
+          <span class="lbl-di">(DI)</span>
+        </div>
+      </div>
+
+      <div class="print-form-border">
+        <div class="print-form-header">
+          <div class="print-company-name">Meinhardt (Thailand) Ltd.</div>
+          <div class="print-logo-section">
+            <img src="/images/logo/general-form-105-logo.png" alt="Meinhardt logo">
+            <div class="print-form-number">GENERAL FORM 105</div>
+          </div>
+        </div>
+
+        <div class="print-title-row">
+          <div class="print-form-title">EXPENSES CLAIM</div>
+          <div class="print-voucher-field">
+            <span>VOUCHER #</span>
+            <span class="solid-line">{{ claim.voucher_no || '' }}</span>
+          </div>
+        </div>
+
+        <div class="print-meta-row">
+          <div class="print-name-field">
+            <span class="field-label">NAME:</span>
+            <span class="field-value-line">{{ getEmployeeLabelWithoutTitle(claim.claimant_name) }}</span>
+          </div>
+          <div class="print-date-field">
+            <span class="field-label">DATE:</span>
+            <span class="field-value-line">{{ formatDate(claim.claim_date) }}</span>
+          </div>
+        </div>
+
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th class="date-col">DATE</th>
+              <th class="project-col">PROJECT</th>
+              <th>DETAILS</th>
+              <th class="baht-col">BAHT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of printPage.items" class="print-data-row" [style.height.mm]="getPrintRowHeightMm(item)">
+              <td class="center">{{ formatDate(item.item_date) }}</td>
+              <td>{{ formatProject(item) }}</td>
+              <td>{{ item.details || '' }}</td>
+              <td class="right font-semibold">{{ formatAmount(item.baht) }}</td>
+            </tr>
+            <tr *ngFor="let row of printPage.blankRows" class="print-blank-row">
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="3" class="total-label">TOTAL</td>
+              <td class="total-value right">{{ formatAmount(printPage.totalBaht) }}</td>
+            </tr>
+            <tr *ngIf="isLast && printableExpensesClaimPages.length > 1" class="total-row grand-total-row">
+              <td colspan="3" class="total-label">GRAND TOTAL</td>
+              <td class="total-value right">{{ formatAmount(grandTotalBaht) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="print-signatures-section">
+          <div class="sig-row-top">
+            <div class="sig-block">
+              <span>Verified by:</span>
+              <span class="sig-line" [innerHTML]="getPrintVerifiedBy()"></span>
+              <span class="sig-sub-label">(TL/ AD/ DI/ MD)</span>
+            </div>
+            <div class="sig-block">
+              <span>Approved by:</span>
+              <span class="sig-line" [innerHTML]="getPrintApprovedBy()"></span>
+              <span class="sig-sub-label">(DI/ MD)</span>
+            </div>
+          </div>
+          <div class="sig-row-bottom">
+            <div class="sig-block-bottom">
+              <span>Received by:</span>
+              <span class="sig-line-short">{{ getPrintReceivedBy() }}</span>
+            </div>
+            <div class="sig-block-bottom">
+              <span>Date:</span>
+              <span class="sig-line-short"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="print-footer-footnote">
+        <div>M:/MTL_INDEX/GENERAL FORMS/GENERAL FORM 105 (EXPENSES CLAIM).DOC/NPP/NK</div>
+        <div>DATE:&nbsp;&nbsp;30 OCTOBER 2012</div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div *ngIf="!isPrintDocumentMode && printableAttachmentItems.length" class="print-attachments">
+    <section *ngFor="let attachment of printableAttachmentItems; let i = index" class="print-attachment-page">
+      <div class="print-attachment-header">
+        <div>
+          <h2>Attachment {{ i + 1 }}</h2>
+          <div>{{ attachment.fileName }}</div>
+        </div>
+        <div class="print-attachment-meta">
+          <div>GENERAL FORM 105</div>
+          <div>Voucher # {{ claim.voucher_no || '-' }}</div>
+        </div>
+      </div>
+
+      <div class="print-attachment-body">
+        <img *ngIf="attachment.isImage"
+          class="print-attachment-image"
+          [src]="attachment.href"
+          [alt]="attachment.fileName">
+
+        <iframe *ngIf="attachment.isPdf"
+          class="print-attachment-frame print-attachment-pdf"
+          [src]="attachment.resourceUrl"
+          title="Attachment PDF">
+        </iframe>
+
+        <div *ngIf="!attachment.isImage && !attachment.isPdf" class="print-attachment-fallback">
+          <div class="fallback-file-icon">FILE</div>
+          <h3>{{ attachment.fileName }}</h3>
+          <p>{{ attachment.fileSize || 'Attached file' }}</p>
+          <p class="fallback-path">{{ attachment.filePath }}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

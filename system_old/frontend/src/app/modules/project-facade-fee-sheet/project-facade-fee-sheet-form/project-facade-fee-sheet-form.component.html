@@ -1,0 +1,769 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <div class="mb-8">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 uppercase">
+            Project Fee Sheet (For Façade Projects)
+          </h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            {{ isRevisionMode ? 'Create a full-page revision snapshot' : (isEditMode ? 'Update latest façade fee sheet revision' : 'Meinhardt (Thailand) Ltd.') }}
+          </p>
+        </div>
+        <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          18 - FORM MTPR-03
+        </span>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6">
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">A</span>
+              Project Information
+            </h3>
+
+            <div class="section-brief">
+              <div class="brief-item">
+                <span class="brief-title">Facade Format</span>
+                <span class="brief-text">Use façade document references and keep discipline fixed to Facade.</span>
+              </div>
+              <div class="brief-item">
+                <span class="brief-title">Recommended</span>
+                <span class="brief-text">Complete project details first, then apply the façade standard costing split below.</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="document-field md:col-span-2">
+                <label>Select Project</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select
+                    formControlName="projectReferenceId"
+                    (selectionChange)="onProjectSelectedById($event.value)"
+                    placeholder="Search and select project"
+                  >
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="projectSearchCtrl"
+                        placeholderLabel="Search project..."
+                        noEntriesFoundLabel="No projects found"
+                      >
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option
+                      *ngFor="let project of filteredProjectOptions"
+                      [value]="project.id"
+                    >
+                      {{ project.project_name }} ({{ project.mt_project_no || project.project_no }})
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+              <div class="document-field">
+                <label>Project "P No."</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input
+                    matInput
+                    formControlName="projectPNo"
+                    placeholder="P No."
+                  />
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Project No.</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input
+                    matInput
+                    formControlName="projectNo"
+                    placeholder="MFT"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Project Name</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <textarea
+                    matInput
+                    formControlName="projectName"
+                    rows="2"
+                    placeholder="Project name"
+                  ></textarea>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Date</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput [matDatepicker]="datePicker" formControlName="date" placeholder="mm/dd/yyyy">
+                  <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #datePicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="document-field">
+                <label>Team</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="team" placeholder="Team / TL" multiple>
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="teamSearchCtrl"
+                        placeholderLabel="Search employee..."
+                        noEntriesFoundLabel="No results">
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngIf="employeeSearchLoading.team" disabled>Searching...</mat-option>
+                    <mat-option *ngFor="let employee of filteredTeamEmployees" [value]="employee.code">
+                      {{ employee.displayLabel }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+              <label>Director In Charge</label>
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <mat-select formControlName="directorInCharge" placeholder="Select director">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="directorSearchCtrl"
+                        placeholderLabel="Search director..."
+                        noEntriesFoundLabel="No results">
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngIf="employeeSearchLoading.director" disabled>Searching...</mat-option>
+                    <mat-option [value]="null">-- Select --</mat-option>
+                    <mat-option *ngFor="let employee of filteredDirectorEmployees" [value]="getDirectorOptionValue(employee)">
+                      {{ employee.displayLabel }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Discipline</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="discipline" readonly>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="document-field">
+                <label>Location</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="location" placeholder="Project location">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="document-field md:col-span-2">
+                <label>Client</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <textarea matInput formControlName="client" rows="2" placeholder="Client name"></textarea>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Contact Name</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="contactName" placeholder="Contact person">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="document-field mt-4">
+              <label>MTL Scope</label>
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <textarea matInput formControlName="mtlScope" rows="3" placeholder="Scope / service details"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="document-field mt-4">
+              <label>Comments</label>
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <textarea matInput formControlName="comments" rows="4" placeholder="Additional comments"></textarea>
+              </mat-form-field>
+            </div>
+          </section>
+
+          <section class="document-section borderless section-divider-top">
+            <div class="flex items-start justify-between gap-4 mb-4">
+              <h3 class="document-section-title mb-0">
+                <span class="section-number">B</span>
+                Fee Agreement
+              </h3>
+            </div>
+
+            <div class="section-table-note">
+              Nett fee is calculated automatically from gross fee, subconsultants and other expenses. Revisions are handled as full-page snapshots.
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full border border-gray-200 dark:border-gray-600 text-sm border-collapse fee-revision-table">
+                <colgroup>
+                  <col class="fee-label-col" />
+                  <col *ngIf="showPreviousRevisionTables" class="fee-revision-col previous-revision-col" />
+                  <col *ngFor="let revision of revisionsArray.controls" class="fee-revision-col" />
+                </colgroup>
+                <thead>
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                    <th class="py-3 px-3 border border-gray-200 dark:border-gray-600 text-left font-semibold"></th>
+                    <th *ngIf="showPreviousRevisionTables"
+                        class="py-3 px-3 border border-gray-200 dark:border-gray-600 align-top previous-snapshot-head">
+                      Previous Revision
+                    </th>
+                    <th *ngFor="let revision of revisionsArray.controls; let i = index"
+                        class="py-3 px-3 border border-gray-200 dark:border-gray-600 align-top">
+                      {{ isRevisionMode ? 'New Revision' : 'Current Snapshot' }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-600 font-medium">Fee Agreement Received?</td>
+                    <td *ngIf="showPreviousRevisionTables"
+                        class="px-3 py-2 border border-gray-200 dark:border-gray-600 previous-snapshot-cell">
+                      <div class="previous-snapshot-value">
+                        {{ formatPreviousSnapshotText(previousRevisionTables?.feeAgreement?.feeAgreementReceived) }}
+                      </div>
+                    </td>
+                    <td *ngFor="let revision of revisionsArray.controls"
+                        class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput [formControl]="revision.get('feeAgreementReceived')">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-600 font-medium">Gross Fee (excl VAT)</td>
+                    <td *ngIf="showPreviousRevisionTables"
+                        class="px-3 py-2 border border-gray-200 dark:border-gray-600 previous-snapshot-cell">
+                      <div class="previous-snapshot-value">
+                        {{ formatPreviousSnapshotAmount(previousRevisionTables?.feeAgreement?.grossFee) }}
+                      </div>
+                    </td>
+                    <td *ngFor="let revision of revisionsArray.controls"
+                        class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput type="number" [formControl]="revision.get('grossFee')" (input)="calculateNettFee()">
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                  <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-600 font-medium">Less Subconsultants</td>
+                    <td *ngIf="showPreviousRevisionTables"
+                        class="px-3 py-2 border border-gray-200 dark:border-gray-600 previous-snapshot-cell">
+                      <div class="previous-fee-items">
+                        <ng-container *ngIf="getPreviousFeeItems('subconsultantsItems').length; else noPreviousSubconsultants">
+                          <div class="previous-fee-item" *ngFor="let item of getPreviousFeeItems('subconsultantsItems')">
+                            <span>{{ formatPreviousSnapshotText(item.name) }}</span>
+                            <strong>{{ formatPreviousSnapshotAmount(item.amount) }}</strong>
+                          </div>
+                          <div class="previous-fee-total">
+                            <span>Total</span>
+                            <strong>{{ formatPreviousSnapshotAmount(previousRevisionTables?.feeAgreement?.subconsultantsAmount) }}</strong>
+                          </div>
+                        </ng-container>
+                        <ng-template #noPreviousSubconsultants>
+                          <div class="previous-snapshot-value">-</div>
+                        </ng-template>
+                      </div>
+                    </td>
+                    <td *ngFor="let revision of revisionsArray.controls; let revisionIndex = index"
+                        class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                      <div class="fee-items-editor" [formGroup]="asFormGroup(revision)">
+                        <div formArrayName="subconsultantsItems" class="fee-items-editor-list">
+                          <div class="fee-line-editor"
+                              *ngFor="let item of getFeeLineItems(revision, 'subconsultantsItems').controls; let itemIndex = index"
+                              [formGroupName]="itemIndex">
+                            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                              <input matInput formControlName="name" placeholder="Name">
+                            </mat-form-field>
+                            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                              <input matInput type="number" formControlName="amount" placeholder="Amount" (input)="calculateNettFee()">
+                            </mat-form-field>
+                            <button type="button"
+                                    mat-icon-button
+                                    class="fee-line-remove-btn"
+                                    aria-label="Remove subconsultant"
+                                    (click)="removeFeeAgreementItem(revisionIndex, 'subconsultantsItems', itemIndex)">
+                              <mat-icon>delete_outline</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="fee-line-actions">
+                          <button type="button"
+                                  mat-stroked-button
+                                  class="rounded-full"
+                                  (click)="addFeeAgreementItem(revisionIndex, 'subconsultantsItems')">
+                            <mat-icon>add</mat-icon>
+                            Add
+                          </button>
+                          <span class="fee-line-total">
+                            Total: {{ formatPreviousSnapshotAmount(sumFeeAgreementLineItems(asFormGroup(revision).get('subconsultantsItems')?.value)) }}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-600 font-medium">Less Other Expenses</td>
+                    <td *ngIf="showPreviousRevisionTables"
+                        class="px-3 py-2 border border-gray-200 dark:border-gray-600 previous-snapshot-cell">
+                      <div class="previous-fee-items">
+                        <ng-container *ngIf="getPreviousFeeItems('otherExpensesItems').length; else noPreviousOtherExpenses">
+                          <div class="previous-fee-item" *ngFor="let item of getPreviousFeeItems('otherExpensesItems')">
+                            <span>{{ formatPreviousSnapshotText(item.name) }}</span>
+                            <strong>{{ formatPreviousSnapshotAmount(item.amount) }}</strong>
+                          </div>
+                          <div class="previous-fee-total">
+                            <span>Total</span>
+                            <strong>{{ formatPreviousSnapshotAmount(previousRevisionTables?.feeAgreement?.otherExpenses) }}</strong>
+                          </div>
+                        </ng-container>
+                        <ng-template #noPreviousOtherExpenses>
+                          <div class="previous-snapshot-value">-</div>
+                        </ng-template>
+                      </div>
+                    </td>
+                    <td *ngFor="let revision of revisionsArray.controls; let revisionIndex = index"
+                        class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                      <div class="fee-items-editor" [formGroup]="asFormGroup(revision)">
+                        <div formArrayName="otherExpensesItems" class="fee-items-editor-list">
+                          <div class="fee-line-editor"
+                              *ngFor="let item of getFeeLineItems(revision, 'otherExpensesItems').controls; let itemIndex = index"
+                              [formGroupName]="itemIndex">
+                            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                              <input matInput formControlName="name" placeholder="Name">
+                            </mat-form-field>
+                            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                              <input matInput type="number" formControlName="amount" placeholder="Amount" (input)="calculateNettFee()">
+                            </mat-form-field>
+                            <button type="button"
+                                    mat-icon-button
+                                    class="fee-line-remove-btn"
+                                    aria-label="Remove other expense"
+                                    (click)="removeFeeAgreementItem(revisionIndex, 'otherExpensesItems', itemIndex)">
+                              <mat-icon>delete_outline</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="fee-line-actions">
+                          <button type="button"
+                                  mat-stroked-button
+                                  class="rounded-full"
+                                  (click)="addFeeAgreementItem(revisionIndex, 'otherExpensesItems')">
+                            <mat-icon>add</mat-icon>
+                            Add
+                          </button>
+                          <span class="fee-line-total">
+                            Total: {{ formatPreviousSnapshotAmount(sumFeeAgreementLineItems(asFormGroup(revision).get('otherExpensesItems')?.value)) }}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="bg-blue-50 dark:bg-slate-700/60">
+                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-600 font-semibold text-blue-700 dark:text-blue-300">Nett Fee (excl VAT)</td>
+                    <td *ngIf="showPreviousRevisionTables"
+                        class="px-3 py-2 border border-gray-200 dark:border-gray-600 previous-snapshot-cell">
+                      <div class="previous-snapshot-value previous-snapshot-value--strong">
+                        {{ formatPreviousSnapshotAmount(previousRevisionTables?.feeAgreement?.nettFee) }}
+                      </div>
+                    </td>
+                    <td *ngFor="let revision of revisionsArray.controls"
+                        class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput type="number" [formControl]="revision.get('nettFee')" readonly>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <div class="p-6">
+            <section class="document-section borderless">
+              <div class="flex items-start justify-between gap-4 mb-4">
+                <h3 class="document-section-title mb-0">
+                  <span class="section-number">C</span>
+                  Job Costing Allocation
+                </h3>
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                  <button type="button" mat-stroked-button (click)="applyStandardPercentages()" class="rounded-full border-gray-300 dark:border-gray-600">
+                    Apply Standard
+                  </button>
+                </div>
+              </div>
+
+              <div class="section-table-note mb-4">
+                Allocate percentage and timing by phase. New document revisions are created from the page-level Add Revision action.
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full border border-gray-200 dark:border-gray-600 text-sm border-collapse fee-revision-table">
+                  <colgroup>
+                    <col class="jc-label-col" />
+                    <col *ngIf="showPreviousRevisionTables" class="fee-revision-col previous-revision-col" />
+                    <col *ngFor="let jcRev of jobCostingRevisionsArray.controls" class="fee-revision-col" />
+                  </colgroup>
+                  <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                      <th class="py-3 px-3 border border-gray-200 dark:border-gray-600 text-left font-semibold"></th>
+                      <th *ngIf="showPreviousRevisionTables"
+                          class="py-3 px-3 border border-gray-200 dark:border-gray-600 align-top previous-snapshot-head">
+                        Previous Revision
+                      </th>
+                      <th *ngFor="let jcRev of jobCostingRevisionsArray.controls; let ri = index"
+                          class="py-3 px-3 border border-gray-200 dark:border-gray-600 align-top">
+                        {{ isRevisionMode ? 'New Revision' : 'Current Snapshot' }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let phase of ['P', 'D', 'T', 'C']; let pi = index"
+                        class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                      <td class="px-3 py-2 border border-gray-200 dark:border-gray-600 text-center font-semibold align-middle bg-gray-50/50 dark:bg-gray-700/50">
+                        {{ getFacadePhaseLabel(phase) }}
+                      </td>
+                      <td *ngIf="showPreviousRevisionTables"
+                          class="px-3 py-2 border border-gray-200 dark:border-gray-600 previous-snapshot-cell">
+                        <div class="flex items-center gap-1.5">
+                          <div class="w-16 flex-shrink-0">
+                            <div class="text-[11px] text-gray-500 font-medium mb-0.5">% Fee</div>
+                            <div class="previous-snapshot-value">
+                              {{ formatPreviousSnapshotAmount(getPreviousJobCostingPhase(phase)?.percentage) }}
+                            </div>
+                          </div>
+                          <div class="flex-1 min-w-[85px]">
+                            <div class="text-[11px] text-gray-500 font-medium mb-0.5">Start</div>
+                            <div class="previous-snapshot-value">
+                              {{ formatPreviousSnapshotDate(getPreviousJobCostingPhase(phase)?.startDate) }}
+                            </div>
+                          </div>
+                          <div class="flex-1 min-w-[85px]">
+                            <div class="text-[11px] text-gray-500 font-medium mb-0.5">End</div>
+                            <div class="previous-snapshot-value">
+                              {{ formatPreviousSnapshotDate(getPreviousJobCostingPhase(phase)?.endDate) }}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td *ngFor="let jcRev of jobCostingRevisionsArray.controls; let ri = index"
+                          class="px-2 py-2 border border-gray-200 dark:border-gray-600">
+                        <div class="flex items-center gap-1.5">
+                          <!-- % Fee -->
+                          <div class="w-16 flex-shrink-0">
+                            <div class="text-[11px] text-gray-500 font-medium mb-0.5">% Fee</div>
+                            <mat-form-field class="w-full compact-dense-field text-center" subscriptSizing="dynamic">
+                              <input matInput type="number" [formControl]="getJobCostingAllocations(ri)?.at(pi)?.get('percentage')" min="0" max="100">
+                            </mat-form-field>
+                          </div>
+                          <!-- Start Date -->
+                          <div class="flex-1 min-w-[85px]">
+                            <div class="text-[11px] text-gray-500 font-medium mb-0.5">Start</div>
+                            <mat-form-field class="w-full compact-dense-field" subscriptSizing="dynamic">
+                              <input matInput [matDatepicker]="jcStartPicker" [formControl]="getJobCostingAllocations(ri)?.at(pi)?.get('startDate')">
+                              <mat-datepicker-toggle matSuffix [for]="jcStartPicker"></mat-datepicker-toggle>
+                              <mat-datepicker #jcStartPicker></mat-datepicker>
+                            </mat-form-field>
+                          </div>
+                          <!-- End Date -->
+                          <div class="flex-1 min-w-[85px]">
+                            <div class="text-[11px] text-gray-500 font-medium mb-0.5">End</div>
+                            <mat-form-field class="w-full compact-dense-field" subscriptSizing="dynamic">
+                              <input matInput [matDatepicker]="jcEndPicker" [formControl]="getJobCostingAllocations(ri)?.at(pi)?.get('endDate')">
+                              <mat-datepicker-toggle matSuffix [for]="jcEndPicker"></mat-datepicker-toggle>
+                              <mat-datepicker #jcEndPicker></mat-datepicker>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="standard-reference mt-4">
+                <div class="standard-projects-sheet">
+                  <div class="standard-projects-title">Standard Projects:</div>
+                  <div class="standard-projects-grid">
+                    <div class="standard-projects-head">P</div>
+                    <div class="standard-projects-head">D</div>
+                    <div class="standard-projects-head">T</div>
+                    <div class="standard-projects-head">C</div>
+
+                    <div class="standard-projects-value">40%</div>
+                    <div class="standard-projects-value">15%</div>
+                    <div class="standard-projects-value">30%</div>
+                    <div class="standard-projects-value">15%</div>
+                  </div>
+                </div>
+                <div class="standard-projects-report">
+                  <div class="standard-projects-report-label">Report</div>
+                  <div class="standard-projects-report-grid">
+                    <div class="standard-projects-value">100%</div>
+                    <div class="standard-projects-value">0</div>
+                    <div class="standard-projects-value">0</div>
+                    <div class="standard-projects-value">0</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <div class="p-6">
+            <section class="document-section borderless">
+              <div class="flex items-start justify-between gap-4 mb-4">
+                <h3 class="document-section-title mb-0">
+                  <span class="section-number">D</span>
+                  Billing Forecast
+                </h3>
+              </div>
+
+              <div class="section-table-note mb-4">
+                Maintain the billing forecast for the current document snapshot.
+              </div>
+
+              <div class="flex flex-row overflow-x-auto gap-6 pb-4 w-full" formArrayName="billingForecast">
+                <div *ngIf="showPreviousRevisionTables"
+                     class="flex-none w-[460px] p-4 previous-billing-card rounded-xl border shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                      <div class="text-sm font-semibold previous-snapshot-title">
+                        Previous Revision
+                      </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-sm border-collapse table-fixed billing-forecast-table previous-billing-table">
+                        <colgroup>
+                          <col class="billing-forecast-date-col" />
+                          <col class="billing-forecast-amount-col" />
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th class="py-2 px-3 text-center font-semibold rounded-l-lg">1st of Month</th>
+                            <th class="py-2 px-3 text-center font-semibold rounded-r-lg">Amount (approx)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let forecast of previousBillingForecastRows"
+                              class="border-b border-gray-200 dark:border-gray-700 last:border-0">
+                            <td class="px-3 py-2 previous-snapshot-value">
+                              {{ formatPreviousSnapshotDate(forecast.month) }}
+                            </td>
+                            <td class="px-3 py-2 previous-snapshot-value text-right">
+                              {{ formatPreviousSnapshotAmount(forecast.amount) }}
+                            </td>
+                          </tr>
+                          <tr *ngIf="previousBillingForecastRows.length === 0">
+                            <td colspan="2" class="px-3 py-4 text-center previous-snapshot-value">
+                              No forecast
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngFor="let revGroup of billingForecastArray.controls; let ri = index"
+                     [formGroupName]="ri"
+                     class="flex-none w-[460px] p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <!-- Revision Card Header -->
+                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                      <div class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                        {{ isRevisionMode ? 'New Revision' : 'Current Snapshot' }}
+                      </div>
+                    </div>
+
+                    <!-- Table of month / amount rows for this revision group -->
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-sm border-collapse table-fixed billing-forecast-table">
+                        <colgroup>
+                          <col class="billing-forecast-date-col" />
+                          <col class="billing-forecast-amount-col" />
+                          <col class="billing-forecast-remove-col" />
+                        </colgroup>
+                        <thead>
+                          <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                            <th class="py-2 px-3 text-center font-semibold rounded-l-lg">1st of Month</th>
+                            <th class="py-2 px-3 text-center font-semibold">Amount (approx)</th>
+                            <th class="py-2 px-0 text-center font-semibold rounded-r-lg"></th>
+                          </tr>
+                        </thead>
+                        <tbody formArrayName="forecasts">
+                          <tr *ngFor="let forecast of getBillingForecastRows(ri).controls; let i = index"
+                              [formGroupName]="i"
+                              class="border-b border-gray-100 dark:border-gray-700 last:border-0">
+                            <td class="px-2 py-2">
+                              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                                <input matInput [matDatepicker]="forecastPicker" formControlName="month" placeholder="mm/dd/yyyy">
+                                <mat-datepicker-toggle matSuffix [for]="forecastPicker"></mat-datepicker-toggle>
+                                <mat-datepicker #forecastPicker></mat-datepicker>
+                              </mat-form-field>
+                            </td>
+                            <td class="px-2 py-2">
+                              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                                <input matInput type="number" formControlName="amount" placeholder="0">
+                              </mat-form-field>
+                            </td>
+                            <td class="px-0 py-2 text-center billing-forecast-remove-cell">
+                              <button type="button" mat-icon-button color="warn"
+                                      (click)="removeBillingForecastRowFromRevision(ri, i)"
+                                      [disabled]="getBillingForecastRows(ri).length <= 1"
+                                      class="billing-forecast-remove-btn">
+                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- Add Row Button inside card -->
+                  <button type="button" mat-stroked-button color="primary" 
+                          (click)="addBillingForecastRowToRevision(ri)"
+                          class="w-full mt-4 rounded-lg">
+                    <mat-icon class="mr-1">add</mat-icon>
+                    Add Row
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6">
+          <section class="document-section borderless">
+            <h3 class="document-section-title">
+              <span class="section-number">E</span>
+              Project Type and Approval
+            </h3>
+
+            <div class="section-brief section-brief--compact">
+              <div class="brief-item">
+                <span class="brief-title">Reference</span>
+                <span class="brief-text">Use the project type codes from the fee sheet document and complete approvals on the right.</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              <div>
+                <div class="project-type-sheet">
+                  <div class="project-type-sheet-header">
+                    <span class="project-type-sheet-label">Project Type:</span>
+                    <span class="project-type-sheet-code">{{ getSelectedProjectTypeCode() || ' ' }}</span>
+                  </div>
+                </div>
+
+                <div class="document-field mt-4">
+                  <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                    <mat-select formControlName="projectType" placeholder="Select project type">
+                      <mat-option *ngFor="let type of projectTypes" [value]="type.id">
+                        {{ getProjectTypeDisplayCode(type) }} {{ type.name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="project-type-reference mt-4">
+                  <div class="project-type-column" *ngFor="let column of getProjectTypeColumns()">
+                    <div class="project-type-item" *ngFor="let type of column">
+                      <span class="type-code">{{ getProjectTypeDisplayCode(type) }}</span>
+                      <span class="type-name">{{ type.name }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="document-field md:col-span-2">
+                    <label>Form filled in by</label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="filledInBy" placeholder="Select employee">
+                        <mat-option>
+                          <ngx-mat-select-search
+                            [formControl]="filledInSearchCtrl"
+                            placeholderLabel="Search employee..."
+                            noEntriesFoundLabel="No results">
+                          </ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngIf="employeeSearchLoading.filledIn" disabled>Searching...</mat-option>
+                        <mat-option *ngFor="let employee of filteredFilledInEmployees" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="document-field md:col-span-2">
+                    <label>Date</label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <input matInput [matDatepicker]="filledInDatePicker" formControlName="filledInDate">
+                      <mat-datepicker-toggle matSuffix [for]="filledInDatePicker"></mat-datepicker-toggle>
+                      <mat-datepicker #filledInDatePicker></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                  <div class="document-field md:col-span-2 mt-2">
+                    <label>Approved by CH</label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="approvedBy" placeholder="Select approver">
+                        <mat-option>
+                          <ngx-mat-select-search
+                            [formControl]="approvedSearchCtrl"
+                            placeholderLabel="Search approver..."
+                            noEntriesFoundLabel="No results">
+                          </ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngIf="employeeSearchLoading.approved" disabled>Searching...</mat-option>
+                        <mat-option *ngFor="let employee of filteredApprovedEmployees" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="document-field md:col-span-2">
+                    <label>Date</label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <input matInput [matDatepicker]="approvedDatePicker" formControlName="approvedDate">
+                      <mat-datepicker-toggle matSuffix [for]="approvedDatePicker"></mat-datepicker-toggle>
+                      <mat-datepicker #approvedDatePicker></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4">
+        <button type="button" mat-button (click)="onCancel()" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">
+          Cancel
+        </button>
+        <button type="submit" mat-flat-button color="primary" class="bg-primary text-on-primary" [disabled]="isSubmitting">
+          <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+          {{ isSubmitting ? 'Submitting...' : (isRevisionMode ? 'Submit Revision' : (isEditMode ? 'Update Fee Sheet' : 'Submit Fee Sheet')) }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Main Tailwind file for injecting utilities.
+/* ----------------------------------------------------------------------------------------------------- */
+@tailwind utilities;
+
+.list-sort-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.list-sort-header:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+}
+
+.list-sort-header__indicator {
+    display: inline-block;
+    margin-left: 0.35rem;
+    color: #64748b;
+    font-size: 0.7rem;
+    line-height: 1;
+}

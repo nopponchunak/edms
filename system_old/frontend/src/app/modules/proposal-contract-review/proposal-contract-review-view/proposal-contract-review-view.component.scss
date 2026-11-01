@@ -1,0 +1,812 @@
+// Proposal Contract Review View Component Styles
+// Modern document theme aligned with Purchase Order view
+
+:host {
+    display: block;
+}
+
+.ims-view-page {
+    min-height: 100%;
+    background: #f9fafb;
+}
+
+.ims-view-shell {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background: #fff;
+}
+
+.ims-view-header {
+    margin-bottom: 2rem;
+}
+
+.proposal-view-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .proposal-view-actions {
+        justify-content: flex-end;
+    }
+}
+
+:host ::ng-deep .proposal-view-actions app-view-actions > div {
+    margin-bottom: 0 !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.75rem !important;
+}
+
+:host ::ng-deep .proposal-view-actions app-view-actions > div > div {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+:host ::ng-deep .proposal-view-actions app-view-actions > div > div:last-child button.mat-mdc-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #374151;
+    font-weight: 600;
+}
+
+:host ::ng-deep .proposal-view-actions app-view-actions > div > div:last-child button.mat-mdc-button:hover {
+    border-color: #9ca3af;
+    background: #f8fafc;
+}
+
+.proposal-create-pqa-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #374151;
+    font-weight: 600;
+}
+
+.proposal-create-pqa-button:hover {
+    border-color: #9ca3af;
+    background: #f8fafc;
+}
+
+.proposal-create-mt-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #374151;
+    font-weight: 600;
+}
+
+.proposal-create-mt-button:hover {
+    border-color: #9ca3af;
+    background: #f8fafc;
+}
+
+:host ::ng-deep .proposal-review-back-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #374151;
+    font-weight: 600;
+}
+
+:host ::ng-deep .proposal-review-back-button:hover {
+    border-color: #9ca3af;
+    background: #f8fafc;
+}
+
+:host ::ng-deep .proposal-create-pqa-button .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+}
+
+:host ::ng-deep .proposal-create-mt-button .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+}
+
+:host ::ng-deep .proposal-review-back-button .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.approval-action-card {
+    font-size: 0.875rem;
+}
+
+.approval-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.approval-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.approval-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #111827;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.approval-choice input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #2563eb;
+}
+
+.approval-choice.selected {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.approval-choice.decline.selected {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.approval-input,
+.approval-textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #111827;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.approval-input {
+    height: 2.75rem;
+    padding: 0 0.75rem;
+}
+
+.approval-textarea {
+    resize: vertical;
+    min-height: 6.5rem;
+    padding: 0.75rem;
+}
+
+.approval-input:focus,
+.approval-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+.approval-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+:host ::ng-deep .approval-cancel-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #374151;
+    font-weight: 600;
+}
+
+:host ::ng-deep .approval-submit-button {
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+}
+
+:host ::ng-deep .approval-submit-button .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.approval-workflow-comment {
+    margin: 0.4rem 0 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.approval-workflow-comment span {
+    font-weight: 700;
+    color: #374151;
+}
+
+.mt-project-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #dbeafe;
+    border-radius: 0.5rem;
+    background: #eff6ff;
+}
+
+.mt-project-strip-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1d4ed8;
+    font-weight: 800;
+}
+
+.mt-project-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.mt-project-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid #bfdbfe;
+    border-radius: 9999px;
+    background: #fff;
+    color: #1e40af;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.ims-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.10), 0 4px 6px -4px rgba(15, 23, 42, 0.10);
+    overflow: hidden;
+}
+
+.ims-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+.ims-card-body {
+    padding: 1.5rem;
+}
+
+.ims-field-box {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #f8fafc;
+    padding: 0.5rem 0.75rem;
+    color: #111827;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    overflow-wrap: anywhere;
+    box-shadow: none;
+}
+
+// Section title with numbered badge
+.document-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+@media (min-width: 768px) {
+    .document-section-title {
+        font-size: 1.125rem;
+    }
+}
+
+.section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.45rem;
+    border-radius: 9999px;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+// Field labels
+.document-field label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.document-help {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+// Check grid (project details, disciplines)
+.document-check-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    gap: 0.75rem 1rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+}
+
+@media (max-width: 767px) {
+    .document-check-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.document-check-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #111827;
+    min-width: 0;
+}
+
+.document-check-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.25rem;
+    background: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #2563eb;
+    flex-shrink: 0;
+}
+
+// Question list (10-13)
+.question-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.question-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+@media (min-width: 768px) {
+    .question-row {
+        grid-template-columns: minmax(280px, 1fr) auto minmax(190px, 0.7fr);
+        align-items: center;
+        gap: 1rem;
+    }
+}
+
+.question-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.document-question-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.question-answer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.question-detail {
+    grid-column: 1 / -1;
+    font-size: 0.875rem;
+}
+
+// Classifications
+.classification-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .classification-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.classification-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.classification-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    margin-right: auto;
+}
+
+// Conclusion cards
+.conclusion-card {
+    border-left: 4px solid #2563eb;
+}
+
+.conclusion-title {
+    font-size: 1rem;
+}
+
+// Reviewer cards
+.reviewer-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.reviewer-card {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.reviewer-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.reviewer-label-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.reviewer-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.document-card {
+    font-size: 0.875rem;
+}
+
+.document-card section {
+    break-inside: avoid;
+}
+
+.document-tail-section {
+    display: grid;
+    gap: 1rem;
+    border: 0;
+    border-radius: 0;
+    margin-top: 1rem;
+    background: transparent;
+    overflow: visible;
+}
+
+.document-classification-row,
+.document-signed-row,
+.document-conclusion-heading,
+.document-pqp-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+
+.document-classification-row,
+.document-signed-row:not(.compact),
+.document-conclusion-block {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.document-classification-row,
+.document-signed-row:not(.compact) {
+    padding: 1rem;
+}
+
+.document-signed-row.compact {
+    border-bottom: 0;
+    padding: 1rem 1rem 0;
+}
+
+.document-inline-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.document-separator {
+    display: none;
+}
+
+.document-line-field {
+    display: grid;
+    gap: 0.25rem;
+    align-items: stretch;
+    min-width: 0;
+    flex: 1 1 260px;
+}
+
+.document-date-field {
+    flex: 0 1 240px;
+}
+
+.document-value-line,
+.signature-value {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #f8fafc;
+    color: #111827;
+    overflow-wrap: anywhere;
+}
+
+.document-value-line {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+}
+
+.document-conclusion-block {
+    padding: 0;
+}
+
+.document-conclusion-heading {
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 0;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #eff6ff;
+    color: #1e3a8a;
+}
+
+.document-win-probability {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.document-win-probability .document-value-line {
+    flex: 0 0 3.5rem;
+    justify-content: center;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.document-pqp-row {
+    margin-top: 0;
+    padding: 1rem 1rem 0;
+    gap: 0.5rem 1.25rem;
+}
+
+.signature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.signature-cell {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.85rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.signature-line {
+    display: grid;
+    gap: 0.25rem;
+    align-items: stretch;
+    min-width: 0;
+    color: #111827;
+}
+
+.signature-line > span:first-child {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.signature-line .signature-value {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+}
+
+.signature-role {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #111827;
+    margin: 0.25rem 0 0.15rem;
+}
+
+@media (max-width: 767px) {
+    .signature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .document-win-probability {
+        margin-left: 0;
+    }
+}
+
+// Dark mode overrides
+:host-context(.dark) {
+    .ims-view-page {
+        background: #0f172a;
+    }
+
+    .ims-view-shell {
+        background: transparent;
+    }
+
+    .ims-card {
+        border-color: #334155;
+        background: #1e293b;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+    }
+
+    .ims-card-header {
+        border-bottom-color: #334155;
+    }
+
+    .ims-field-box {
+        border-color: #4b5563;
+        background: transparent;
+        color: #f3f4f6;
+    }
+
+    .document-section-title,
+    .question-text,
+    .classification-label,
+    .reviewer-label-text {
+        color: #f3f4f6;
+    }
+
+    .section-number {
+        background: transparent;
+        color: #f3f4f6;
+    }
+
+    .document-field label,
+    .document-help {
+        color: #9ca3af;
+    }
+
+    .document-check-grid {
+        border-color: transparent;
+        background: transparent;
+    }
+
+    .document-check-row {
+        color: #f3f4f6;
+    }
+
+    .document-check-box {
+        border-color: #6b7280;
+        background: #1f2937;
+        color: #60a5fa;
+    }
+
+    .question-row,
+    .classification-item,
+    .reviewer-card {
+        border-color: #4b5563;
+        background: transparent;
+    }
+
+    .reviewer-role {
+        color: #9ca3af;
+    }
+
+    .conclusion-card {
+        border-left-color: #3b82f6;
+    }
+
+    .document-tail-section,
+    .document-classification-row,
+    .document-signed-row,
+    .document-conclusion-block {
+        border-color: #334155;
+    }
+
+    .document-inline-label,
+    .document-separator,
+    .signature-line,
+    .signature-role,
+    .document-value-line,
+    .signature-value {
+        color: #f3f4f6;
+    }
+
+    .document-value-line,
+    .signature-value {
+        border-bottom-color: #64748b;
+    }
+
+    .document-win-probability .document-value-line {
+        border-color: #64748b;
+    }
+
+    .approval-workflow-comment {
+        color: #94a3b8;
+    }
+
+    .approval-workflow-comment span {
+        color: #f8fafc;
+    }
+}

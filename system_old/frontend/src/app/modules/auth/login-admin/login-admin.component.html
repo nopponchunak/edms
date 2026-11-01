@@ -1,0 +1,129 @@
+<div class="login-wrapper">
+    <section class="login-visual" aria-label="Meinhardt Thailand EDMS">
+        <div class="visual-content">
+            <div class="brand-lockup">
+                <span class="brand-mark">M</span>
+                <span>Meinhardt Thailand</span>
+            </div>
+
+            <h1>EDMS SYSTEM</h1>
+            <div class="visual-subtitle">
+                (Electronic Document Management System)
+            </div>
+            <p>
+                Secure administrator access for internal requests, approvals,
+                and document workflows.
+            </p>
+
+            <div class="stat-row" aria-label="Company highlights">
+                <div>
+                    <strong>30+</strong>
+                    <span>Years</span>
+                </div>
+                <div>
+                    <strong>400+</strong>
+                    <span>Professionals</span>
+                </div>
+                <div>
+                    <strong>2700+</strong>
+                    <span>Awards</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="login-panel" aria-labelledby="admin-login-title">
+        <div class="login-header">
+            <div class="eyebrow">Admin Portal</div>
+            <h2 id="admin-login-title">Admin Login</h2>
+            <p>Use your administrator account to continue.</p>
+        </div>
+
+        @if (showAlert) {
+            <div
+                class="login-alert error"
+                role="alert"
+                [@shake]="alert.type === 'error'"
+            >
+                {{ alert.message }}
+            </div>
+        }
+
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+            <div class="form-group">
+                <label for="admin-username">Username</label>
+                <input
+                    id="admin-username"
+                    formControlName="username"
+                    type="text"
+                    autocomplete="username"
+                    placeholder="Enter your username"
+                />
+                @if (
+                    loginForm.get('username')?.hasError('required') &&
+                    loginForm.get('username')?.touched
+                ) {
+                    <div class="field-error">Username is required</div>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="admin-password">Password</label>
+                <div class="password-field">
+                    <input
+                        id="admin-password"
+                        formControlName="password"
+                        [type]="hidePassword ? 'password' : 'text'"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                    />
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        (click)="togglePasswordVisibility()"
+                        [attr.aria-label]="
+                            hidePassword ? 'Show password' : 'Hide password'
+                        "
+                    >
+                        <mat-icon
+                            [svgIcon]="
+                                hidePassword
+                                    ? 'heroicons_solid:eye'
+                                    : 'heroicons_solid:eye-slash'
+                            "
+                        ></mat-icon>
+                    </button>
+                </div>
+                @if (
+                    loginForm.get('password')?.hasError('required') &&
+                    loginForm.get('password')?.touched
+                ) {
+                    <div class="field-error">Password is required</div>
+                }
+            </div>
+
+            <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="loginForm.invalid || loading"
+            >
+                @if (!loading) {
+                    <span>Login as Admin</span>
+                }
+                @if (loading) {
+                    <mat-progress-spinner
+                        [diameter]="22"
+                        [mode]="'indeterminate'"
+                    ></mat-progress-spinner>
+                    <span>Signing in...</span>
+                }
+            </button>
+        </form>
+
+        <button type="button" class="btn-secondary" [routerLink]="['/sign-in']">
+            Back to Regular Sign In
+        </button>
+
+        <p class="support-note">Meinhardt administrator access only</p>
+    </main>
+</div>

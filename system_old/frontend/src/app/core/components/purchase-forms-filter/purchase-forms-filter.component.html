@@ -1,0 +1,188 @@
+<mat-card *ngIf="variant !== 'bar'" [ngClass]="variant === 'panel' ? 'filter-panel-card' : 'mb-6'">
+  <mat-card-content [ngClass]="variant === 'panel' ? 'p-0' : 'p-6'">
+    <div
+      [ngClass]="
+        variant === 'panel'
+          ? 'grid grid-cols-1 gap-3'
+          : 'grid grid-cols-1 md:grid-cols-4 gap-4'
+      "
+    >
+      <!-- Search -->
+      <mat-form-field class="w-full">
+        <mat-label>{{ config.searchLabel }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          [placeholder]="config.searchPlaceholder"
+          class="bg-white dark:bg-gray-700"
+        />
+        <mat-icon
+          matPrefix
+          class="mr-2"
+          [svgIcon]="'heroicons_outline:magnifying-glass'"
+        ></mat-icon>
+      </mat-form-field>
+
+      <!-- Status Filter -->
+      <mat-form-field class="w-full" *ngIf="config.showStatusFilter !== false">
+        <mat-label>{{ config.statusFilterLabel }}</mat-label>
+        <mat-select
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="onStatusChange($event)"
+          class="bg-white dark:bg-gray-700"
+        >
+          <mat-option value="">All Status</mat-option>
+          <mat-option
+            *ngFor="let status of config.statusOptions"
+            [value]="status.value"
+          >
+            {{ status.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Third Filter (Project Type, Company, etc.) -->
+      <mat-form-field class="w-full" *ngIf="config.showThirdFilter && config.thirdFilterLabel && config.thirdFilterOptions">
+        <mat-label>{{ config.thirdFilterLabel }}</mat-label>
+        <mat-select
+          [(ngModel)]="thirdFilter"
+          (ngModelChange)="onThirdFilterChange($event)"
+          class="bg-white dark:bg-gray-700"
+        >
+          <mat-option value="">All {{ config.thirdFilterLabel.replace('Filter by ', '') }}</mat-option>
+          <mat-option
+            *ngFor="let option of config.thirdFilterOptions"
+            [value]="option.value"
+          >
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="w-full" *ngIf="config.showMonthFilter">
+        <mat-label>{{ config.monthFilterLabel || 'Filter by Month' }}</mat-label>
+        <input
+          matInput
+          type="month"
+          [(ngModel)]="monthFilter"
+          (ngModelChange)="onMonthFilterChange($event)"
+          class="bg-white dark:bg-gray-700"
+        />
+      </mat-form-field>
+
+      <!-- Clear Filters & Results Count -->
+      <div
+        [ngClass]="
+          variant === 'panel'
+            ? 'flex items-center justify-end gap-3'
+            : 'flex items-center justify-end gap-4'
+        "
+      >
+        <button
+          *ngIf="hasActiveFilters()"
+          mat-button
+          (click)="onClearFilters()"
+          class="rounded-md border border-gray-300 px-3 py-1.5 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+        >
+          <mat-icon
+            class="mr-1"
+            [svgIcon]="'heroicons_outline:x-mark'"
+          ></mat-icon>
+          Clear Filters
+        </button>
+        <button
+          *ngIf="manualSearch"
+          type="button"
+          mat-flat-button
+          color="primary"
+          (click)="onApplyFilters()"
+          class="rounded-md bg-blue-600 px-4 py-1.5 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+        >
+          <mat-icon
+            class="mr-1 text-white"
+            [svgIcon]="'heroicons_outline:magnifying-glass'"
+          ></mat-icon>
+          Search
+        </button>
+        <span
+          class="text-sm text-gray-500 dark:text-gray-400"
+          *ngIf="showResultCount && selectedTabIndex === 0"
+        >
+          {{ filteredCount }} of {{ totalCount }} {{ getItemName() }}
+        </span>
+        <span
+          class="text-sm text-gray-500 dark:text-gray-400"
+          *ngIf="
+            showResultCount &&
+            selectedTabIndex === 1 &&
+            actionRequestCount !== undefined
+          "
+        >
+          {{ filteredCount }} of {{ actionRequestCount }} action requests
+        </span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<section *ngIf="variant === 'bar'" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm" aria-label="Filters">
+  <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+    <mat-form-field appearance="outline" class="w-full xl:col-span-2">
+      <mat-label>Search requester or approver</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange($event)" [placeholder]="config.searchPlaceholder" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onStatusChange($event)">
+        <mat-option value="">All statuses</mat-option>
+        <mat-option *ngFor="let status of config.statusOptions" [value]="status.value">{{ status.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Approved by</mat-label>
+      <mat-select [ngModel]="approvedByFilter" (ngModelChange)="onApprovedByChange($event)">
+        <mat-option>
+          <ngx-mat-select-search [formControl]="approvedBySearchCtrl" placeholderLabel="Search approver" noEntriesFoundLabel="No employee found" [searching]="approvedByLoading"></ngx-mat-select-search>
+        </mat-option>
+        <mat-option value="">All approvers</mat-option>
+        <mat-option *ngFor="let employee of approvedByOptions" [value]="employee.code">{{ employee.displayLabel }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Approved from</mat-label>
+      <input matInput type="date" [(ngModel)]="approvedDateFrom" (ngModelChange)="scheduleBarApply()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Approved to</mat-label>
+      <input matInput type="date" [(ngModel)]="approvedDateTo" (ngModelChange)="scheduleBarApply()" />
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="config.showThirdFilter" class="mt-1">
+    <button type="button" mat-stroked-button (click)="showMoreFilters = !showMoreFilters" class="!rounded-md">
+      <mat-icon>tune</mat-icon> More filters
+    </button>
+    <mat-form-field *ngIf="showMoreFilters" appearance="outline" class="ml-3 w-64 align-middle">
+      <mat-label>{{ config.thirdFilterLabel }}</mat-label>
+      <mat-select [(ngModel)]="thirdFilter" (ngModelChange)="onThirdFilterChange($event)">
+        <mat-option value="">All disciplines</mat-option>
+        <mat-option *ngFor="let option of config.thirdFilterOptions" [value]="option.value">{{ option.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="hasActiveFilters() || approvedByFilter || approvedDateFrom || approvedDateTo" class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+    <span *ngIf="statusFilter" class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">Status: {{ getStatusLabel(statusFilter) }}</span>
+    <span *ngIf="approvedByFilter" class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">Approved by: {{ getApprovedByLabel() }}</span>
+    <span *ngIf="approvedDateFrom || approvedDateTo" class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">Approved date: {{ approvedDateFrom || 'Any' }} to {{ approvedDateTo || 'Any' }}</span>
+    <span *ngIf="thirdFilter" class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">Discipline: {{ thirdFilter }}</span>
+    <span *ngIf="searchTerm" class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">Search: {{ searchTerm }}</span>
+    <button type="button" mat-button (click)="onClearFilters()" class="!text-blue-700">Clear all</button>
+  </div>
+</section>

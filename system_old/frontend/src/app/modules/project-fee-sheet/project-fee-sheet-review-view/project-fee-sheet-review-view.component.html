@@ -1,0 +1,427 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        Project Fee Sheet Details
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        View fee sheet information and details
+      </p>
+    </div>
+
+    <!-- Alert -->
+    <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+      [dismissible]="'true'" (dismissed)="alert = null">
+      {{ alert.message }}
+    </fuse-alert>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- CONTENT WHEN DATA EXISTS -->
+    <ng-container *ngIf="!isLoading && feeSheet as fs">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:currency-dollar'"></mat-icon>
+            Fee Sheet Details
+          </h2>
+        </div>
+
+        <div class="p-6">
+          <!-- Status & actions -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center space-x-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                  [class]="getStatusBadgeClass(fs.status)">
+                  {{ getStatusLabel(fs.status) }}
+                </span>
+              </div>
+
+              <div class="flex space-x-4">
+                <button mat-button (click)="backToList()"
+                  class="flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                  <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                  Back to List
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Header Information -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+              Header Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Copies to</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.copiesTo }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Circ</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.circ }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CH / File</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.chFile }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fee</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.fee }}</p>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="my-8"></mat-divider>
+
+          <!-- Project Information -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:building-office'"></mat-icon>
+              Project Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project "P No."</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.projectPNo }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project No.</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.projectNo }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                <p class="text-gray-900 dark:text-white">{{ formatDate(fs.date) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team (TL)</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.team }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Director In Charge
+                  (DI)</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.directorInCharge }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Discipline</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.discipline }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.projectName }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.location }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.client }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Name</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.contactName }}</p>
+              </div>
+            </div>
+
+            <div class="mt-6 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">MTL Scope</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.mtlScope }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comments</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.comments }}</p>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="my-8"></mat-divider>
+
+          <!-- Fee Information -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:currency-dollar'"></mat-icon>
+              Fee Information
+            </h3>
+
+            <div class="space-y-4">
+              <div class="flex items-center space-x-4">
+                <mat-icon
+                  [svgIcon]="fs.feeAgreementReceived ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"
+                  [class]="fs.feeAgreementReceived ? 'text-green-600' : 'text-red-600'"></mat-icon>
+                <span class="text-gray-900 dark:text-white">Fee Agreement Received</span>
+                <span *ngIf="fs.feeAgreementReceived" class="text-sm text-gray-600 dark:text-gray-400">
+                  ({{ formatCurrency(fs.feeAgreementAmount) }})
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gross Fee (excl
+                    VAT)</label>
+                  <p class="text-gray-900 dark:text-white">{{ formatCurrency(fs.grossFee) }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subconsultants
+                    (Name)</label>
+                  <p class="text-gray-900 dark:text-white">{{ fs.subconsultantsName }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subconsultants
+                    Amount</label>
+                  <p class="text-gray-900 dark:text-white">{{ formatCurrency(fs.subconsultantsAmount) }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Other Expenses</label>
+                  <p class="text-gray-900 dark:text-white">{{ formatCurrency(fs.otherExpenses) }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nett Fee (excl
+                    VAT)</label>
+                  <p class="text-xl font-bold text-blue-600">{{ formatCurrency(fs.nettFee) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="my-8"></mat-divider>
+
+          <!-- Job Costing Allocation -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:chart-pie'"></mat-icon>
+              Job Costing Allocation
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                <thead>
+                  <tr class="bg-gray-50 dark:bg-gray-700">
+                    <th
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                      Phase
+                    </th>
+                    <th
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                      % of Fee
+                    </th>
+                    <th
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                      Start
+                    </th>
+                    <th
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                      End
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let allocation of fs.jobCostingAllocation"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                      {{ allocation.phase }}
+                    </td>
+                    <td
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                      {{ allocation.percentage }}%
+                    </td>
+                    <td
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                      {{ formatDate(allocation.startDate) }}
+                    </td>
+                    <td
+                      class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                      {{ formatDate(allocation.endDate) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <mat-divider class="my-8"></mat-divider>
+
+          <!-- Billing Forecast -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+              Billing Forecast (based on the Agreement)
+            </h3>
+
+            <div class="flex flex-row overflow-x-auto gap-6 pb-4 w-full">
+              <div *ngFor="let revBf of fs.billingForecastRevisions" class="flex-none w-[320px] p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="font-bold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700 uppercase tracking-wider text-xs">
+                  {{ revBf.revisionLabel }}
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                    <thead>
+                      <tr class="bg-gray-50 dark:bg-gray-700">
+                        <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                          1st of Month
+                        </th>
+                        <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                          Amount (approx)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of revBf.items">
+                        <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                          {{ formatDate(item.month) }}
+                        </td>
+                        <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-mono text-gray-900 dark:text-white">
+                          {{ formatCurrency(item.amount) }}
+                        </td>
+                      </tr>
+                      <tr *ngIf="!revBf.items.length">
+                        <td colspan="2" class="text-center text-gray-500 py-4 italic">No forecast data</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div *ngIf="!fs.billingForecastRevisions || !fs.billingForecastRevisions.length" class="text-center text-gray-500 py-4 italic col-span-2">
+                No forecast data
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="my-8"></mat-divider>
+
+          <!-- Project Type & Signatures -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+              Project Type and Signatures
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Type</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.projectType }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Form filled in by</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.filledInBy }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                <p class="text-gray-900 dark:text-white">{{ formatDate(fs.filledInDate) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approved by CH
+                  (MD)</label>
+                <p class="text-gray-900 dark:text-white">{{ fs.approvedBy }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                <p class="text-gray-900 dark:text-white">{{ formatDate(fs.approvedDate) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="my-8"></mat-divider>
+
+          <!-- Timestamps -->
+          <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+              Timestamps
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Created At</label>
+                <p class="text-gray-900 dark:text-white">{{ formatDate(fs.createdAt) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Updated</label>
+                <p class="text-gray-900 dark:text-white">{{ formatDate(fs.updatedAt) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Approval decision -->
+          <mat-card class="mb-6">
+            <mat-card-header>
+              <mat-card-title class="text-lg font-semibold flex items-center">
+                <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                Approval Decision
+              </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content class="pt-4">
+              <div class="space-y-4">
+
+                <!-- Decision radios -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Decision</label>
+                  <mat-radio-group [(ngModel)]="approvalDecision" class="flex items-center gap-10">
+                    <mat-radio-button value="approve" class="text-green-700 dark:text-green-400">
+                      <span class="ml-2">Approve</span>
+                    </mat-radio-button>
+                    <mat-radio-button value="decline" class="text-red-700 dark:text-red-400">
+                      <span class="ml-2">Decline</span>
+                    </mat-radio-button>
+                  </mat-radio-group>
+                </div>
+
+                <!-- Comments (Material outline) -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Comments (Optional)</mat-label>
+                  <textarea matInput [(ngModel)]="approvalComments" rows="4"
+                    placeholder="Enter your approval comments or remarks..."
+                    class="bg-white dark:bg-gray-700"></textarea>
+                </mat-form-field>
+
+                <!-- Actions -->
+                <div class="flex justify-end items-center gap-4 pt-2">
+                  <button mat-stroked-button cdkFocusInitial (click)="backToList()" class="px-6 rounded-full">
+                    Cancel
+                  </button>
+
+                  <button mat-flat-button color="primary" type="button" (click)="submitDecision()" [ngClass]="approvalDecision === 'approve'
+            ? 'bg-green-600 hover:bg-green-700'
+            : 'bg-red-600 hover:bg-red-700'" class="px-6 text-white rounded-full">
+                    <mat-icon class="mr-2" [svgIcon]="approvalDecision === 'approve'
+              ? 'heroicons_outline:check'
+              : 'heroicons_outline:x-mark'">
+                    </mat-icon>
+                    {{ approvalDecision === 'approve' ? 'Approve Review' : 'Decline Review' }}
+                  </button>
+                </div>
+
+              </div>
+            </mat-card-content>
+          </mat-card>
+          <!-- /Approval decision -->
+        </div> <!-- /.p-6 -->
+      </div> <!-- /.card -->
+    </ng-container>
+
+    <!-- NOT FOUND -->
+    <ng-container *ngIf="!isLoading && !feeSheet">
+      <mat-card class="mt-8 p-8 text-center">
+        <mat-icon class="text-5xl text-gray-400 mb-3">info</mat-icon>
+        <div class="text-lg font-medium">Fee sheet not found</div>
+        <div class="text-slate-500 mb-4">
+          The fee sheet you're looking for doesn't exist or has been deleted.
+        </div>
+        <button mat-flat-button color="primary" (click)="backToList()">
+          <mat-icon class="mr-1">arrow_back</mat-icon> Back to List
+        </button>
+      </mat-card>
+    </ng-container>
+  </div>
+</div>

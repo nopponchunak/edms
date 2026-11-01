@@ -1,0 +1,240 @@
+<div class="ims-view-page">
+  <div class="ims-view-shell">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !contribution" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-lg text-gray-500">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <ng-container *ngIf="contribution">
+      <section class="ims-view-header overflow-hidden">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div class="max-w-3xl">
+            <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-slate-500">1 FORM ACCC - 01</p>
+            <div class="mb-4 flex flex-wrap items-center gap-3">
+              <h1 class="text-2xl font-bold uppercase text-blue-600">
+                {{ getRequestTypeLabel(contribution.requestType) }}
+              </h1>
+              <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold" [ngClass]="getStatusColor(contribution.status)">
+                {{ getStatusLabel(contribution.status) }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">1 FORM ACCC - 01 | REQUEST FOR CHARITABLE CONTRIBUTION / SPONSORSHIP</p>
+          </div>
+          <button mat-button type="button" (click)="router.navigate(['/charitable-contributions'])" class="-ml-2 flex items-center px-0 text-gray-600 hover:text-gray-900">
+            <mat-icon class="mr-1 icon-size-5" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+            <span class="text-md font-medium">Back to List</span>
+          </button>
+        </div>
+      </section>
+
+      <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- Left Column: Details (2/3) -->
+        <div class="space-y-6 lg:col-span-2">
+          <mat-card class="ims-card document-card">
+            <div class="ims-card-body space-y-8">
+              <section>
+                <h2 class="mb-6 text-xl font-semibold text-slate-900">Form Details</h2>
+
+                <div class="mb-6">
+                  <h3 class="document-subtitle">
+                    Request Type
+                    <span class="text-red-500">*</span>
+                  </h3>
+                  <div class="flex flex-wrap gap-6">
+                    <div *ngFor="let type of requestTypes" class="document-check-row">
+                      <span class="document-check-circle">{{ isRequestTypeSelected(type.value) ? '●' : '' }}</span>
+                      <span class="text-sm font-medium text-slate-700">{{ type.label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <mat-divider></mat-divider>
+
+              <section>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div class="document-field md:col-span-2">
+                    <label>Event Description</label>
+                    <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">
+                      {{ contribution.eventDescription || '-' }}
+                    </div>
+                  </div>
+
+                  <div class="document-field md:col-span-2">
+                    <label>Event Purpose</label>
+                    <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">
+                      {{ contribution.eventPurpose || '-' }}
+                    </div>
+                  </div>
+
+                  <div class="document-field md:col-span-2">
+                    <label>Name of Organizer / Sponsorship Receiver</label>
+                    <div class="ims-field-box">
+                      {{ contribution.organizerName || '-' }}
+                    </div>
+                  </div>
+
+                  <div class="document-field md:col-span-2">
+                    <label>Description of Contribution / Sponsorship</label>
+                    <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">
+                      {{ contribution.contributionDescription || '-' }}
+                    </div>
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <label class="mb-2 block text-[15px] leading-5">
+                      <span class="font-semibold text-slate-800">Value of Charitable Contribution or Sponsorship ({{ contribution.currencyCode || 'THB' }})</span>
+                      <span class="ml-1 text-red-500">*</span>
+                    </label>
+                    <div class="ims-field-box text-lg font-semibold">
+                      {{ formatCurrency(contribution.valueAmount, contribution.currencyCode) }}
+                    </div>
+                    <div class="mt-2 text-sm text-slate-500">
+                      {{ (contribution.currencyCode || 'THB') === 'THB' ? 'Minimum 2,500 THB' : 'Foreign currency amount' }}
+                    </div>
+                  </div>
+
+                  <div class="mt-2 md:col-span-2">
+                    <h4 class="mb-2 flex items-center text-sm font-semibold text-gray-800">
+                      <mat-icon class="mr-1 text-base" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                      Approval Matrix (THB)
+                    </h4>
+                    <div class="overflow-x-auto">
+                      <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                          <tr>
+                            <th class="border border-gray-300 p-2 text-center">Amount</th>
+                            <th class="border border-gray-300 p-2 text-center">Prepared by</th>
+                            <th class="border border-gray-300 p-2 text-center">Verified by</th>
+                            <th class="border border-gray-300 p-2 text-center">Approved by</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="border border-gray-300 p-2 text-center">≤ 20,000 THB</td>
+                            <td class="border border-gray-300 p-2 text-center">Staff</td>
+                            <td rowspan="2" class="border border-gray-300 p-2 text-center">ACSC</td>
+                            <td class="border border-gray-300 p-2 text-center">DI or MD</td>
+                          </tr>
+                          <tr>
+                            <td class="border border-gray-300 p-2 text-center">&gt; 20,000 THB</td>
+                            <td class="border border-gray-300 p-2 text-center">EE or above</td>
+                            <td class="border border-gray-300 p-2 text-center">2 DIs or MD</td>
+                          </tr>
+                        </tbody>
+                        </table>
+                      </div>
+                      <p *ngIf="contribution.currencyCode && contribution.currencyCode !== 'THB'" class="mt-2 text-sm text-amber-700">
+                        Foreign currency requests do not use THB thresholds. Approver 2 is selected manually when needed.
+                      </p>
+                    </div>
+
+                  <div class="document-field md:col-span-2">
+                    <label>Proposed Date</label>
+                    <div class="ims-field-box">
+                      {{ formatDate(contribution.proposedDate) }}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </mat-card>
+          <!-- Approval History -->
+          <mat-card *ngIf="contribution.approvalHistory && contribution.approvalHistory.length > 0" class="ims-card">
+            <div class="ims-card-body">
+              <div class="mb-6 flex items-center gap-3">
+                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+                  <mat-icon>history</mat-icon>
+                </div>
+                <div>
+                  <h2 class="text-2xl font-semibold text-slate-900">Approval History</h2>
+                  <p class="text-sm text-slate-500">Recorded workflow actions</p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div *ngFor="let history of contribution.approvalHistory" class="ims-field-box flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="min-w-0">
+                    <div class="text-base font-semibold capitalize text-slate-900">
+                      {{ history.action }}
+                    </div>
+                    <div class="mt-1 text-sm text-slate-500">by {{ history.userName }}</div>
+                    <div *ngIf="history.comments" class="mt-2 whitespace-pre-wrap text-sm text-slate-600">
+                      {{ history.comments }}
+                    </div>
+                  </div>
+                  <div class="flex flex-col items-start gap-2 sm:items-end">
+                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getStatusColor(history.status)">
+                      {{ getStatusLabel(history.status) }}
+                    </span>
+                    <span class="text-sm text-slate-500">{{ formatDate(history.timestamp) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <!-- Action Form -->
+          <mat-card class="mt-6 rounded-xl shadow-sm">
+            <mat-card-header>
+              <mat-card-title class="text-lg font-medium text-gray-900">{{ getActionTitle() }}</mat-card-title>
+              <mat-card-subtitle class="text-sm text-gray-500">You are updating the status for this request</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="pt-4">
+              <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+                <!-- Status -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Status</mat-label>
+                  <mat-select formControlName="status">
+                    <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                      {{ option.label }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched"> Status is required </mat-error>
+                </mat-form-field>
+
+                <!-- Display current "by" field -->
+                <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
+                  <p class="mb-2 text-sm text-blue-800">
+                    <strong>{{ getCurrentActionLabel() }}:</strong>
+                  </p>
+                  <p class="text-base font-semibold text-blue-900">
+                    {{ getCurrentActionAssignee() }}
+                  </p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4 pt-4">
+                  <button
+                    type="button"
+                    (click)="router.navigate(['/charitable-contributions'])"
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    [disabled]="actionForm.invalid || loading"
+                    class="rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span *ngIf="!loading">Update Status</span>
+                    <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Right Column: Workflow Status (1/3) -->
+        <div class="lg:col-span-1">
+          <app-approval-workflow class="sticky top-6" [steps]="workflowSteps"></app-approval-workflow>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

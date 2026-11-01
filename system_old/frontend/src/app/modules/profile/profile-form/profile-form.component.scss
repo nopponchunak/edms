@@ -1,0 +1,43 @@
+// Profile form specific styles
+.mat-mdc-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-card-header {
+  padding-bottom: 1rem;
+}
+
+// Custom button styles
+.mat-mdc-raised-button {
+  text-transform: none;
+  font-weight: 500;
+}
+
+// Form field spacing
+.mat-mdc-form-field {
+  margin-bottom: 0.5rem;
+}
+
+// Icon colors
+.mat-icon {
+  &.text-blue-600 {
+    color: #2563eb;
+  }
+  
+  &.text-green-600 {
+    color: #059669;
+  }
+  
+  &.text-red-600 {
+    color: #dc2626;
+  }
+  
+  &.text-purple-600 {
+    color: #7c3aed;
+  }
+}

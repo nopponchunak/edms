@@ -1,0 +1,304 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-0">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 uppercase">
+          Project Quality Assurance Plan Details
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          View plan information and details
+        </p>
+      </div>
+
+      <!-- Standardized Actions for View Mode -->
+      <app-view-actions [backPath]="'/project-quality-assurance-plan'" [navId]="'project-quality-assurance-plan'"
+        (edit)="onEdit()"></app-view-actions>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- Not Found -->
+    <div *ngIf="!isLoading && !plan" class="text-center py-12">
+      <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:shield-check'"></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Plan not found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">The plan you're looking for doesn't exist or has been deleted.
+      </p>
+      <button mat-flat-button color="primary" (click)="onBack()"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+        <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        Back to List
+      </button>
+    </div>
+
+    <!-- Plan Details -->
+    <div *ngIf="!isLoading && plan"
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+            [class]="getStatusBadgeClass(plan.status)">
+            {{ getStatusLabel(plan.status) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <!-- Header Information -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+            Header Information
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Revision</label>
+              <p class="text-gray-900 dark:text-white">{{ plan.revision }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+              <p class="text-gray-900 dark:text-white">{{ formatDate(plan.date) }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prepared By (TL)</label>
+              <p class="text-gray-900 dark:text-white">{{ plan.preparedBy }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approved By (DI)</label>
+              <p class="text-gray-900 dark:text-white">{{ plan.approvedBy }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Acknowledged by
+                (VVE/Reviewer)</label>
+              <p class="text-gray-900 dark:text-white">{{ plan.acknowledgedBy }}</p>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="my-8"></mat-divider>
+
+        <!-- A. Project Details -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:building-office'"></mat-icon>
+            A. Project Details
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name</label>
+              <p class="text-gray-900 dark:text-white">{{ plan.projectName }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project No.</label>
+              <p class="text-gray-900 dark:text-white">{{ plan.projectNo }}</p>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="my-8"></mat-divider>
+
+        <!-- B. Scope of Services -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:clipboard-document-check'"></mat-icon>
+            B. Scope of Services
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            <mat-chip *ngFor="let service of plan.scopeOfServices" class="bg-blue-100 text-blue-800">
+              {{ service }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <mat-divider class="my-8"></mat-divider>
+
+        <!-- C. Project Team & Coordinator -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:user-group'"></mat-icon>
+            C. Project Team & Coordinator
+          </h3>
+
+          <!-- Project Team -->
+          <div class="mb-6">
+            <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Project Team</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">DI</label>
+                <p class="text-gray-900 dark:text-white">{{ plan.projectTeam.di }}</p>
+              </div>
+              <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">TL</label>
+                <p class="text-gray-900 dark:text-white">{{ plan.projectTeam.tl }}</p>
+              </div>
+              <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PM</label>
+                <p class="text-gray-900 dark:text-white">{{ plan.projectTeam.pm }}</p>
+              </div>
+              <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CM</label>
+                <p class="text-gray-900 dark:text-white">{{ plan.projectTeam.cm }}</p>
+              </div>
+              <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RE</label>
+                <p class="text-gray-900 dark:text-white">{{ plan.projectTeam.re }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Coordinators -->
+          <div>
+            <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Project Coordinator</h4>
+            <div class="space-y-2">
+              <div *ngFor="let c of plan.projectCoordinators" class="flex items-center space-x-4">
+                <span class="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">{{ c.discipline }}:</span>
+                <span class="text-gray-900 dark:text-white">{{ c.coordinator }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="my-8"></mat-divider>
+
+        <!-- D. VVE/Reviewer -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:eye'"></mat-icon>
+            D. VVE/Reviewer
+          </h3>
+          <div class="space-y-2">
+            <div *ngFor="let r of plan.vveReviewers" class="flex items-center space-x-4">
+              <span class="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">{{ r.discipline }}:</span>
+              <span class="text-gray-900 dark:text-white">{{ r.reviewer }}</span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="my-8"></mat-divider>
+
+        <!-- E. Design Review Schedule -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+            E. Design Review, Verification, Validation Schedule
+          </h3>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-700">
+                  <th class="border px-4 py-2 text-left text-sm font-medium">ITEM</th>
+                  <th class="border px-4 py-2 text-center text-sm font-medium">REVIEW (✓)</th>
+                  <th class="border px-4 py-2 text-center text-sm font-medium">VERIFICATION (✓)</th>
+                  <th class="border px-4 py-2 text-center text-sm font-medium">VALIDATION (✓)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let i of plan.designReviewSchedule" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td class="border px-4 py-2 text-sm">{{ i.item }}</td>
+                  <td class="border px-4 py-2 text-center">
+                    <mat-icon *ngIf="i.review" class="text-green-600" [svgIcon]="'heroicons_solid:check'"></mat-icon>
+                    <mat-icon *ngIf="!i.review" class="text-gray-400" [svgIcon]="'heroicons_solid:minus'"></mat-icon>
+                  </td>
+                  <td class="border px-4 py-2 text-center">
+                    <mat-icon *ngIf="i.verification" class="text-green-600"
+                      [svgIcon]="'heroicons_solid:check'"></mat-icon>
+                    <mat-icon *ngIf="!i.verification" class="text-gray-400"
+                      [svgIcon]="'heroicons_solid:minus'"></mat-icon>
+                  </td>
+                  <td class="border px-4 py-2 text-center">
+                    <mat-icon *ngIf="i.validation" class="text-green-600"
+                      [svgIcon]="'heroicons_solid:check'"></mat-icon>
+                    <mat-icon *ngIf="!i.validation" class="text-gray-400"
+                      [svgIcon]="'heroicons_solid:minus'"></mat-icon>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6">
+            <h4 class="text-md font-medium mb-4">Construction Stage Documents Validation to be done:</h4>
+            <div class="space-y-2">
+              <div class="flex items-center space-x-2">
+                <mat-icon
+                  [svgIcon]="plan.beforeDocumentsIssued ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"
+                  [class]="plan.beforeDocumentsIssued ? 'text-green-600' : 'text-red-600'"></mat-icon>
+                <span>Before Documents Issued</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <mat-icon
+                  [svgIcon]="plan.within14DaysAfterDocumentsIssued ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"
+                  [class]="plan.within14DaysAfterDocumentsIssued ? 'text-green-600' : 'text-red-600'"></mat-icon>
+                <span>Within 14 Days After Documents Issued</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider class="my-8"></mat-divider>
+
+        <!-- Timestamps -->
+        <div class="mb-2">
+          <h3 class="text-lg font-medium mb-4 flex items-center">
+            <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+            Timestamps
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium mb-1">Created At</label>
+              <p>{{ formatDate(plan.createdAt) }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Last Updated</label>
+              <p>{{ formatDate(plan.updatedAt) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approval decision -->
+        <mat-card class="mb-6">
+          <mat-card-header>
+            <mat-card-title class="text-lg font-semibold flex items-center">
+              <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+              Approval Decision
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="pt-4">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Decision
+                </label>
+                <mat-radio-group [(ngModel)]="approvalDecision" class="flex space-x-6">
+                  <mat-radio-button value="approve" class="text-green-700 dark:text-green-400">
+                    <span class="ml-2">Approve</span>
+                  </mat-radio-button>
+                  <mat-radio-button value="decline" class="text-red-700 dark:text-red-400">
+                    <span class="ml-2">Decline</span>
+                  </mat-radio-button>
+                </mat-radio-group>
+              </div>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Comments (Optional)</mat-label>
+                <textarea matInput [(ngModel)]="approvalComments" rows="4"
+                  placeholder="Enter your approval comments or remarks..." class="bg-white dark:bg-gray-700"></textarea>
+              </mat-form-field>
+
+              <div class="flex justify-end space-x-3 pt-4">
+                <button mat-stroked-button (click)="onBack()"
+                  class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+                  Cancel
+                </button>
+                <button mat-flat-button color="primary" (click)="onApprove()" [disabled]="!approvalDecision"
+                  [class]="approvalDecision === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
+                  class="px-6 py-2 text-white rounded-lg transition-colors">
+                  <mat-icon class="mr-2"
+                    [svgIcon]="approvalDecision === 'approve' ? 'heroicons_outline:check-circle' : 'heroicons_outline:x-circle'"></mat-icon>
+                  {{ approvalDecision === 'approve' ? 'Approve' : 'Decline' }} Review
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>

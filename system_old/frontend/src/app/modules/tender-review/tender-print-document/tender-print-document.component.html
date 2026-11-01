@@ -1,0 +1,230 @@
+<div *ngIf="form" class="print-only tender-print-root" [ngClass]="printRootClass">
+  <div class="tdtr-print-document">
+    <div class="tdtr-print-header">
+      <div class="tdtr-print-company">Meinhardt (Thailand) Ltd.</div>
+      <div class="tdtr-print-brand">
+        <img src="/images/logo/logo-meinharde.png" alt="Meinhardt">
+        <div>20 - FORM MTDD-04</div>
+      </div>
+    </div>
+
+    <h1 class="tdtr-print-title">
+      DETAILED DESIGN / TENDER REVIEW &ndash; VERIFICATION CHECKLIST/ACTION SHEET
+    </h1>
+
+    <div class="tdtr-print-box">
+      <div class="tdtr-print-info-row tdtr-print-info-row--project">
+        <div class="tdtr-print-line-field">
+          <span class="tdtr-print-label">Project Name:</span>
+          <span class="tdtr-print-dotted-value">{{ projectName }}</span>
+        </div>
+        <div class="tdtr-print-line-field">
+          <span class="tdtr-print-label">Project No.:</span>
+          <span class="tdtr-print-dotted-value">{{ projectNumber }}</span>
+        </div>
+      </div>
+
+      <div class="tdtr-print-info-row tdtr-print-info-row--prepared">
+        <div class="tdtr-print-line-field">
+          <span class="tdtr-print-label">Prepared by:</span>
+          <span class="tdtr-print-dotted-value">{{ preparedBy }}</span>
+        </div>
+      </div>
+
+      <div class="tdtr-print-info-row tdtr-print-info-row--documents">
+        <div class="tdtr-print-line-field tdtr-print-discipline-line">
+          <span class="tdtr-print-label">Discipline:</span>
+          <span class="tdtr-print-dotted-value">{{ disciplineLine }}</span>
+        </div>
+
+        <div class="tdtr-print-options-row tdtr-print-documents-row">
+          <span class="tdtr-print-options-label">Document(s) Reviewed:</span>
+          <div class="tdtr-print-document-options">
+            <label class="tdtr-print-check-option">
+              <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isDocumentChecked('Drawings')">
+                <span *ngIf="isDocumentChecked('Drawings')">&#10003;</span>
+              </span>
+              <span>Drawings</span>
+            </label>
+            <label class="tdtr-print-check-option">
+              <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isDocumentChecked('Specifications')">
+                <span *ngIf="isDocumentChecked('Specifications')">&#10003;</span>
+              </span>
+              <span>Specifications</span>
+            </label>
+            <label class="tdtr-print-check-option">
+              <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isDocumentChecked('Reports')">
+                <span *ngIf="isDocumentChecked('Reports')">&#10003;</span>
+              </span>
+              <span>Reports</span>
+            </label>
+            <label class="tdtr-print-check-option">
+              <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isDocumentChecked('Calculations')">
+                <span *ngIf="isDocumentChecked('Calculations')">&#10003;</span>
+              </span>
+              <span>Calculations</span>
+            </label>
+            <label class="tdtr-print-check-option tdtr-print-check-option--other">
+              <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isDocumentChecked('Other')">
+                <span *ngIf="isDocumentChecked('Other')">&#10003;</span>
+              </span>
+              <span>Other</span>
+              <span class="tdtr-print-dotted-value tdtr-print-dotted-value--document-other">
+                {{ form.get('documentTypesOther')?.value || '' }}
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="tdtr-print-review-section">
+        <div class="tdtr-print-section-title">TENDER DESIGN REVIEW/VERIFICATION:</div>
+
+        <table class="tdtr-print-checklist">
+          <thead>
+            <tr>
+              <th class="tdtr-print-checklist-number"></th>
+              <th class="tdtr-print-checklist-question"></th>
+              <th>Yes</th>
+              <th>No</th>
+              <th>N/A</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of checklist; let i = index">
+              <td class="tdtr-print-checklist-number">{{ i + 1 }}.</td>
+              <td class="tdtr-print-checklist-question">{{ item.question }}</td>
+              <td>
+                <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isChecklistResponse(i, 'yes')">
+                  <span *ngIf="isChecklistResponse(i, 'yes')">&#10003;</span>
+                </span>
+              </td>
+              <td>
+                <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isChecklistResponse(i, 'no')">
+                  <span *ngIf="isChecklistResponse(i, 'no')">&#10003;</span>
+                </span>
+              </td>
+              <td>
+                <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isChecklistResponse(i, 'na')">
+                  <span *ngIf="isChecklistResponse(i, 'na')">&#10003;</span>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="tdtr-print-line-field tdtr-print-comments-line">
+          <span class="tdtr-print-label">Comments:</span>
+          <span class="tdtr-print-dotted-value tdtr-print-dotted-value--multiline">{{ comments }}</span>
+        </div>
+        <div class="tdtr-print-blank-dotted-line"></div>
+        <div class="tdtr-print-line-field tdtr-print-recommended-any-line">
+          <span class="tdtr-print-label">Recommended action(s) if any:</span>
+          <span class="tdtr-print-dotted-value tdtr-print-dotted-value--multiline">{{ recommendedActions }}</span>
+        </div>
+
+        <div class="tdtr-print-sign-block">
+          <div class="tdtr-print-sign-grid">
+            <div class="tdtr-print-line-field">
+              <span class="tdtr-print-label">Reviewed by:</span>
+              <span class="tdtr-print-dotted-value">{{ reviewedBy }}</span>
+            </div>
+            <div class="tdtr-print-line-field">
+              <span class="tdtr-print-label">Date:</span>
+              <span class="tdtr-print-dotted-value">{{ reviewedByDate }}</span>
+            </div>
+          </div>
+          <div class="tdtr-print-role">(VVE(CSA), DL/SE(MEP))</div>
+        </div>
+      </div>
+
+      <div class="tdtr-print-sign-block tdtr-print-sign-block--bordered">
+        <div class="tdtr-print-sign-grid">
+          <div class="tdtr-print-line-field">
+            <span class="tdtr-print-label">Responded by:</span>
+            <span class="tdtr-print-dotted-value">{{ respondedBy }}</span>
+          </div>
+          <div class="tdtr-print-line-field">
+            <span class="tdtr-print-label">Date:</span>
+            <span class="tdtr-print-dotted-value">{{ respondedByDate }}</span>
+          </div>
+        </div>
+        <div class="tdtr-print-role">(PE)</div>
+      </div>
+
+      <div class="tdtr-print-recommended-section">
+        <div class="tdtr-print-recommended-line">
+          <span>Recommended action (s) have been satisfactorily taken:</span>
+          <span class="tdtr-print-inline-check">
+            <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isRecommendedActionYes()">
+              <span *ngIf="isRecommendedActionYes()">&#10003;</span>
+            </span>
+            <span>Yes</span>
+          </span>
+          <span class="tdtr-print-inline-check">
+            <span class="tdtr-print-checkbox" [class.tdtr-print-checkbox--checked]="isRecommendedActionNo()">
+              <span *ngIf="isRecommendedActionNo()">&#10003;</span>
+            </span>
+            <span>No</span>
+          </span>
+        </div>
+
+        <div class="tdtr-print-line-field tdtr-print-note-line">
+          <span class="tdtr-print-label">Note:</span>
+          <span class="tdtr-print-dotted-value tdtr-print-dotted-value--multiline">{{ note }}</span>
+        </div>
+
+        <div class="tdtr-print-sign-block">
+          <div class="tdtr-print-sign-grid">
+            <div class="tdtr-print-line-field">
+              <span class="tdtr-print-label">Signed by:</span>
+              <span class="tdtr-print-dotted-value">{{ signedByVVE }}</span>
+            </div>
+            <div class="tdtr-print-line-field">
+              <span class="tdtr-print-label">Date:</span>
+              <span class="tdtr-print-dotted-value">{{ signedByVVEDate }}</span>
+            </div>
+          </div>
+          <div class="tdtr-print-role">(VVE(CSA), DL/SE(MEP))</div>
+        </div>
+      </div>
+
+      <div class="tdtr-print-sign-block tdtr-print-sign-block--bordered tdtr-print-sign-block--tl">
+        <div class="tdtr-print-sign-grid">
+          <div class="tdtr-print-line-field">
+            <span class="tdtr-print-label">Signed by:</span>
+            <span class="tdtr-print-dotted-value">{{ signedByTL }}</span>
+          </div>
+          <div class="tdtr-print-line-field">
+            <span class="tdtr-print-label">Date:</span>
+            <span class="tdtr-print-dotted-value">{{ signedByTLDate }}</span>
+          </div>
+        </div>
+        <div class="tdtr-print-role">(TL)</div>
+      </div>
+
+      <div class="tdtr-print-sign-block tdtr-print-sign-block--bordered tdtr-print-sign-block--acknowledged">
+        <div class="tdtr-print-sign-grid">
+          <div class="tdtr-print-line-field">
+            <span class="tdtr-print-label">Acknowledged by:</span>
+            <span class="tdtr-print-dotted-value">{{ acknowledgedBy }}</span>
+          </div>
+          <div class="tdtr-print-line-field">
+            <span class="tdtr-print-label">Date:</span>
+            <span class="tdtr-print-dotted-value">{{ acknowledgedByDate }}</span>
+          </div>
+        </div>
+        <div class="tdtr-print-role">(DI)</div>
+      </div>
+    </div>
+
+    <div class="tdtr-print-footer">
+      <div>
+        <div>{{ footerPrimary }}</div>
+        <div>{{ footerEffective }}</div>
+        <div>{{ footerSource }}</div>
+      </div>
+      <div>Page 1 of 2</div>
+    </div>
+  </div>
+</div>

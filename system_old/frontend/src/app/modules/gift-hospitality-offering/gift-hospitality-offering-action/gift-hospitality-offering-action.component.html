@@ -1,0 +1,414 @@
+<div class="ims-view-page">
+  <div class="ims-view-shell">
+    <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">Gift / Hospitality Offering Form</h1>
+        <p class="text-sm text-gray-600">4 FORM ACGH - 02 | REQUEST FOR OFFERING OF GIFT / HOSPITALITY</p>
+      </div>
+      <button
+        mat-button
+        type="button"
+        (click)="router.navigate(['/gift-hospitality-offering'])"
+        class="flex items-center text-gray-600 hover:text-gray-900 px-0 -ml-2"
+      >
+        <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        <span class="font-medium text-md">Back to List</span>
+      </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !offering" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="offering" class="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="ims-card document-card p-8">
+          <div class="space-y-8">
+            <section>
+              <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Form Details</h2>
+              </div>
+
+              <h3 class="document-subtitle">Request Type</h3>
+              <div class="flex gap-8">
+                <div *ngFor="let type of requestTypes" class="document-check-row">
+                  <span class="document-check-circle">{{ isRequestTypeSelected(type.value) ? '●' : '' }}</span>
+                  <span class="text-sm font-medium text-slate-700">{{ type.label }}</span>
+                </div>
+              </div>
+            </section>
+
+            <div class="border-t border-gray-200"></div>
+
+            <section class="space-y-6">
+              <h3 class="document-subtitle">Offering Details</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2 document-field">
+                  <label>Description of Gift/Hospitality</label>
+                  <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ offering.description || '-' }}</div>
+                </div>
+
+                <div class="md:col-span-2 document-field">
+                  <label>Purpose of the Gift/Hospitality offering</label>
+                  <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ offering.purpose || '-' }}</div>
+                </div>
+
+                <div class="md:col-span-2 document-field">
+                  <label>Value of Gift/Hospitality ({{ offering.currencyCode || 'THB' }})</label>
+                  <div class="ims-field-box text-lg font-semibold">{{ formatCurrency(offering.value, offering.currencyCode) }}</div>
+                </div>
+
+                <div class="md:col-span-2 mt-2">
+                  <h4 class="font-semibold text-slate-800 mb-2">Approval Matrix (THB)</h4>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-sm border-collapse border border-gray-300">
+                      <thead class="bg-gray-50 text-gray-700">
+                        <tr>
+                          <th class="border border-slate-300 p-3 text-center">Amount</th>
+                          <th class="border border-slate-300 p-3 text-center">Prepared/Requested by</th>
+                          <th class="border border-slate-300 p-3 text-center">Verified by</th>
+                          <th class="border border-slate-300 p-3 text-center">Approved by</th>
+                        </tr>
+                      </thead>
+                      <tbody class="[&>tr:nth-child(even)]:bg-slate-50">
+                        <tr>
+                          <td class="border border-slate-300 p-3 text-center">&gt; 5,000 – ≤ 10,000</td>
+                          <td class="border border-slate-300 p-3 text-center">EE or above</td>
+                          <td class="border border-slate-300 p-3 text-center">ACSC</td>
+                          <td class="border border-slate-300 p-3 text-center">DI or MD</td>
+                        </tr>
+                        <tr>
+                          <td class="border border-slate-300 p-3 text-center">&gt; 10,000 – ≤ 30,000</td>
+                          <td class="border border-slate-300 p-3 text-center">DI / MD</td>
+                          <td class="border border-slate-300 p-3 text-center">ACSC</td>
+                          <td class="border border-slate-300 p-3 text-center">DI or MD</td>
+                        </tr>
+                        <tr>
+                          <td class="border border-slate-300 p-3 text-center">&gt; 30,000</td>
+                          <td class="border border-slate-300 p-3 text-center">MD</td>
+                          <td class="border border-slate-300 p-3 text-center">ACSC</td>
+                          <td class="border border-slate-300 p-3 text-center">MD and DI</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="mt-3 text-sm text-slate-600">If DI is the requester, DI cannot approve their own request.</p>
+                </div>
+
+                <div class="md:col-span-2 document-field">
+                  <label>Proposed Date</label>
+                  <div class="ims-field-box">{{ formatDate(offering.proposedDate) }}</div>
+                </div>
+
+                <div class="md:col-span-2 document-field">
+                  <label>Name & Company of Receiver(s)</label>
+                  <div class="ims-field-box min-h-[72px] whitespace-pre-wrap">{{ offering.receiverNameAndCompany || '-' }}</div>
+                  </div>
+                  <p *ngIf="offering.currencyCode && offering.currencyCode !== 'THB'" class="mt-2 text-sm text-amber-700">
+                    Foreign currency requests do not use THB thresholds. Approver 2 is selected manually when needed.
+                  </p>
+                </div>
+            </section>
+          </div>
+        </div>
+        <!-- Action Form -->
+        <mat-card class="shadow-sm rounded-xl mt-6">
+          <mat-card-header>
+            <mat-card-title class="text-lg font-medium text-gray-900">{{ getActionTitle() }}</mat-card-title>
+            <mat-card-subtitle class="text-sm text-gray-500">You are updating the status for this request</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="pt-4">
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Status -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Display current "by" field -->
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-sm text-blue-800 mb-2">
+                  <strong>{{ actionType === 'verified_by_status' ? 'Verified By' : 
+                              actionType === 'acknowledged_by_status' ? 'Acknowledged By' : 
+                              actionType === 'ims_acknowledged_by_status' ? 'ACSL Acknowledge By' :
+                              actionType === 'approved_by_status' ? 'Approved By' :
+                              actionType === 'approved_by_2_status' ? 'Approved By 2' : 'By' }}:</strong>
+                </p>
+                <p class="text-base font-semibold text-blue-900">
+                  {{ offering && actionType === 'verified_by_status' ? getEmployeeLabel(offering.verifiedBy) :
+                     offering && actionType === 'acknowledged_by_status' ? getEmployeeLabel(offering.acknowledgedBy) :
+                     offering && actionType === 'ims_acknowledged_by_status' ? getEmployeeLabel(offering.imsAcknowledgedBy) :
+                     offering && actionType === 'approved_by_status' ? getEmployeeLabel(offering.approvedBy) :
+                     offering && actionType === 'approved_by_2_status' ? getEmployeeLabel(offering.approvedBy2) : 'N/A' }}
+                </p>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  (click)="router.navigate(['/gift-hospitality-offering'])"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+
+
+        <!-- Workflow Status -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Workflow Status</h3>
+          <div class="space-y-2">
+            <!-- Request -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-100 text-blue-800">
+                  <mat-icon class="text-base text-blue-600">check</mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Request (EE and above):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabel(offering.createBy) }}</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Date: {{ formatDateTime(offering.createdAt) }}</p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Submitted</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Verified By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(offering.verifiedByStatus)">
+                  <mat-icon [class]="getByStatusColor(offering.verifiedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(offering.verifiedByStatus).includes('red') ? 'text-red-600' : 'text-blue-600'" class="text-base">
+                    {{ offering.verifiedByStatus === 'approve' || offering.verifiedByStatus === 'approved' ? 'check' : offering.verifiedByStatus === 'reject' || offering.verifiedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Verify by (ACSC):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(offering.verifiedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(offering.verifiedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(offering.verifiedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(offering.verifiedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(offering.verifiedByStatus)">
+                    {{ getByStatusText(offering.verifiedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACSL Acknowledged By (legacy IMS storage fields) -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(offering.imsAcknowledgedBy ? offering.imsAcknowledgedByStatus : 'unassigned')">
+                  <mat-icon [class]="!offering.imsAcknowledgedBy ? 'text-gray-600' : getByStatusColor(offering.imsAcknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(offering.imsAcknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-blue-600'" class="text-base">
+                    {{ !offering.imsAcknowledgedBy ? 'person_off' : offering.imsAcknowledgedByStatus === 'approve' || offering.imsAcknowledgedByStatus === 'approved' ? 'check' : offering.imsAcknowledgedByStatus === 'reject' || offering.imsAcknowledgedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge 1 (ACSL):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(offering.imsAcknowledgedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(offering.imsAcknowledgedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(offering.imsAcknowledgedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(offering.imsAcknowledgedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(offering.imsAcknowledgedBy ? offering.imsAcknowledgedByStatus : 'unassigned')">
+                    {{ offering.imsAcknowledgedBy ? getByStatusText(offering.imsAcknowledgedByStatus) : 'Not assigned' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(offering.approvedByStatus)">
+                  <mat-icon [class]="getByStatusColor(offering.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(offering.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-base">
+                    {{ offering.approvedByStatus === 'approve' || offering.approvedByStatus === 'approved' ? 'check' : offering.approvedByStatus === 'reject' || offering.approvedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by (DI/MD):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(offering.approvedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(offering.approvedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(offering.approvedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(offering.approvedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(offering.approvedByStatus)">
+                    {{ getByStatusText(offering.approvedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="offering.approvedBy2" class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(offering.approvedBy2Status)">
+                  <mat-icon [class]="getByStatusColor(offering.approvedBy2Status).includes('green') ? 'text-green-600' : getByStatusColor(offering.approvedBy2Status).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-base">
+                    {{ offering.approvedBy2Status === 'approve' || offering.approvedBy2Status === 'approved' ? 'check' : offering.approvedBy2Status === 'reject' || offering.approvedBy2Status === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by 2 (DI):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(offering.approvedBy2).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(offering.approvedBy2).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(offering.approvedBy2).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(offering.approvedBy2Date) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(offering.approvedBy2Status)">
+                    {{ getByStatusText(offering.approvedBy2Status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledged By Accounts (CA) -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(offering.acknowledgedByStatus)">
+                  <mat-icon [class]="getByStatusColor(offering.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(offering.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-base">
+                    {{ offering.acknowledgedByStatus === 'approve' || offering.acknowledgedByStatus === 'approved' ? 'check' : offering.acknowledgedByStatus === 'reject' || offering.acknowledgedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge 2 (CA - JN):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(offering.acknowledgedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(offering.acknowledgedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(offering.acknowledgedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(offering.acknowledgedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(offering.acknowledgedByStatus)">
+                    {{ getByStatusText(offering.acknowledgedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attached Documents Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 mt-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                Attached Documents
+            </h2>
+
+            <div *ngIf="attachments?.length; else noDocs" class="space-y-3">
+                <div *ngFor="let doc of attachments"
+                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <a *ngIf="doc?.url; else docNameOnly" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                        class="flex items-center space-x-3 overflow-hidden flex-1 group cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-200">
+                                <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium truncate block">
+                                {{ doc?.name }}
+                            </span>
+                        </div>
+                    </a>
+                    <ng-template #docNameOnly>
+                        <div class="flex items-center space-x-3 overflow-hidden flex-1 text-gray-800 dark:text-gray-200">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                    <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 text-sm font-medium truncate block">
+                                {{ doc?.name }}
+                            </div>
+                        </div>
+                    </ng-template>
+                    <div *ngIf="doc?.url" class="ml-2 flex-shrink-0">
+                        <a mat-icon-button [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                            matTooltip="Open file">
+                            <mat-icon class="text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #noDocs>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    No documents attached.
+                </div>
+            </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

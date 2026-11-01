@@ -1,0 +1,392 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Design/Drawing Changes Notification</h1>
+          <p class="text-base text-gray-600 mt-1">26 - FORM MTDC-01 | DESIGN/DRAWING CHANGES NOTIFICATION</p>
+        </div>
+        <button
+          type="button"
+          (click)="goBack()"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+      <!-- Project Information -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Project Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Project Name</mat-label>
+            <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)">
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="projectSearchCtrl"
+                  placeholderLabel="Search Project..."
+                  noEntriesFoundLabel="No projects found">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                {{ project.name }} ({{ project.code }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('projectId')?.hasError('required')">
+              Project is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Project No.</mat-label>
+            <input matInput formControlName="projectNo" placeholder="Enter project number" readonly>
+            <mat-error *ngIf="form.get('projectNo')?.hasError('required')">
+              Project number is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Change No.</mat-label>
+            <input matInput formControlName="changeNo" placeholder="Auto-generated">
+            <button matSuffix mat-icon-button type="button" (click)="generateChangeNo()">
+              <mat-icon>refresh</mat-icon>
+            </button>
+            <mat-error *ngIf="form.get('changeNo')?.hasError('required')">
+              Change number is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="form.get('date')?.hasError('required')">
+              Date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Recipients -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>To (Director/Team Leader)</mat-label>
+            <mat-select formControlName="to">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }} ({{ employee.role }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('to')?.hasError('required')">
+              To is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>From (Project Engineer)</mat-label>
+            <mat-select formControlName="from">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }} ({{ employee.role }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('from')?.hasError('required')">
+              From is required
+            </mat-error>
+          </mat-form-field>
+
+          <div class="w-full">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Copies</label>
+            <div class="flex flex-wrap gap-2">
+              <mat-chip *ngFor="let copyId of copies.value; let i = index" [removable]="true" (removed)="removeCopy(i)">
+                {{ getEmployeeName(copyId) }}
+                <mat-icon matChipRemove>cancel</mat-icon>
+              </mat-chip>
+              <mat-form-field appearance="outline" class="w-48">
+                <mat-label>Add Copy</mat-label>
+                <mat-select (selectionChange)="addCopy($event.value)">
+                  <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                    {{ employee.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART 1: Request for change originated by -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-blue-600 mb-6">PART 1: REQUEST FOR CHANGE ORIGINATED BY</h3>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-4">Request for change originated by:</label>
+          <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+            <mat-checkbox 
+              *ngFor="let option of changeOriginatedByOptions" 
+              [checked]="changeOriginatedBy.value.includes(option)"
+              (change)="option === 'Other' ? null : (changeOriginatedBy.value.includes(option) ? removeChangeOriginatedBy(changeOriginatedBy.value.indexOf(option)) : addChangeOriginatedBy(option))"
+              class="text-gray-700 h-[40px] flex items-center">
+              {{ option }}
+            </mat-checkbox>
+          </div>
+          <mat-form-field *ngIf="changeOriginatedBy.value.includes('Other')" appearance="outline" class="w-full mt-2">
+            <mat-label>Please specify</mat-label>
+            <input matInput formControlName="changeOriginatedByOther" placeholder="Specify other originator">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Description and Reason for Changes (or reference date of communication)</mat-label>
+          <textarea matInput formControlName="description" rows="4" placeholder="Enter description and reason for changes"></textarea>
+          <mat-error *ngIf="form.get('description')?.hasError('required')">
+            Description is required
+          </mat-error>
+        </mat-form-field>
+
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 mb-4">Attached supporting documentation:</label>
+          <div class="flex gap-8">
+            <mat-checkbox formControlName="supportingDocumentationYes" (change)="onSupportingDocumentationChange()" class="text-gray-700 h-[40px] flex items-center">
+              Yes
+            </mat-checkbox>
+            <mat-checkbox formControlName="supportingDocumentationNo" (change)="onSupportingDocumentationChange()" class="text-gray-700 h-[40px] flex items-center">
+              No
+            </mat-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART 2: Design output required to amend -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-blue-600 mb-6">PART 2: DESIGN OUTPUT REQUIRED TO AMEND</h3>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-4">Design output required to amend:</label>
+          <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+            <mat-checkbox 
+              *ngFor="let option of designOutputOptions" 
+              [checked]="designOutputRequired.value.includes(option)"
+              (change)="option === 'Other' ? null : (designOutputRequired.value.includes(option) ? removeDesignOutputRequired(designOutputRequired.value.indexOf(option)) : addDesignOutputRequired(option))"
+              class="text-gray-700 h-[40px] flex items-center">
+              {{ option }}
+            </mat-checkbox>
+          </div>
+          <mat-form-field *ngIf="designOutputRequired.value.includes('Other')" appearance="outline" class="w-full mt-2">
+            <mat-label>Please specify</mat-label>
+            <input matInput formControlName="designOutputOther" placeholder="Specify other design output">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Comments</mat-label>
+          <textarea matInput formControlName="comments" rows="3" placeholder="Enter comments"></textarea>
+        </mat-form-field>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Signed (Team Leader / Project Engineer)</mat-label>
+            <mat-select formControlName="signedBy">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }} ({{ employee.role }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('signedBy')?.hasError('required')">
+              Signature is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="signedPicker" formControlName="signedDate">
+            <mat-datepicker-toggle matSuffix [for]="signedPicker"></mat-datepicker-toggle>
+            <mat-datepicker #signedPicker></mat-datepicker>
+            <mat-error *ngIf="form.get('signedDate')?.hasError('required')">
+              Date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- PART 3: Proceed with design change -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-blue-600 mb-6">PART 3: PROCEED WITH DESIGN CHANGE?</h3>
+        
+        <div class="mb-6">
+          <div class="flex gap-8">
+            <mat-checkbox formControlName="proceedWithChangeYes" (change)="onProceedWithChangeChange()" class="text-gray-700 h-[40px] flex items-center">
+              Yes
+            </mat-checkbox>
+            <mat-checkbox formControlName="proceedWithChangeNo" (change)="onProceedWithChangeChange()" class="text-gray-700 h-[40px] flex items-center">
+              No
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Yes options -->
+        <div *ngIf="form.get('proceedWithChangeYes')?.value" class="mb-6">
+          <div class="space-y-4">
+            <mat-checkbox formControlName="adviseClientOfChange" class="text-gray-700 h-[40px] flex items-center">
+              Advise Client of Change
+            </mat-checkbox>
+            <mat-checkbox formControlName="proceedBeforeClientApproval" class="text-gray-700 h-[40px] flex items-center">
+              Proceed before Client's Approval received
+            </mat-checkbox>
+            <mat-checkbox formControlName="adviseAccountantOfFeeChange" class="text-gray-700 h-[40px] flex items-center">
+              Advise Accountant of Fee Change
+            </mat-checkbox>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 mt-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Comments</mat-label>
+              <textarea matInput formControlName="proceedComments" rows="3" placeholder="Enter comments"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="proceedDescription" rows="3" placeholder="Enter description"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>References</mat-label>
+              <textarea matInput formControlName="proceedReferences" rows="3" placeholder="Enter references"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- No options -->
+        <div *ngIf="form.get('proceedWithChangeNo')?.value" class="mb-4">
+          <div class="grid grid-cols-1 gap-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Comments</mat-label>
+              <textarea matInput formControlName="proceedComments" rows="3" placeholder="Enter comments"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="proceedDescription" rows="3" placeholder="Enter description"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Signed (Director/Team Leader)</mat-label>
+            <mat-select formControlName="proceedSignedBy">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }} ({{ employee.role }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('proceedSignedBy')?.hasError('required')">
+              Signature is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="proceedPicker" formControlName="proceedSignedDate">
+            <mat-datepicker-toggle matSuffix [for]="proceedPicker"></mat-datepicker-toggle>
+            <mat-datepicker #proceedPicker></mat-datepicker>
+            <mat-error *ngIf="form.get('proceedSignedDate')?.hasError('required')">
+              Date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- PART 4: Acknowledgement by client -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-blue-600 mb-6">PART 4: ACKNOWLEDGEMENT BY CLIENT (IF APPLICABLE)</h3>
+        
+        <div class="mb-6">
+          <p class="text-sm text-gray-700 mb-4">Proceed with the changes (additional fee request shall be submitted in due course)?</p>
+          <div class="flex gap-8">
+            <mat-checkbox formControlName="clientAcknowledgementYes" (change)="onClientAcknowledgementChange()" class="text-gray-700 h-[40px] flex items-center">
+              Yes
+            </mat-checkbox>
+            <mat-checkbox formControlName="clientAcknowledgementNo" (change)="onClientAcknowledgementChange()" class="text-gray-700 h-[40px] flex items-center">
+              No
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- No options -->
+        <div *ngIf="form.get('clientAcknowledgementNo')?.value" class="mb-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Comments</mat-label>
+            <textarea matInput formControlName="clientComments" rows="3" placeholder="Enter comments"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Signed (Name/Company)</mat-label>
+            <input matInput formControlName="clientSignedBy" placeholder="Enter client name/company">
+            <mat-error *ngIf="form.get('clientSignedBy')?.hasError('required')">
+              Client signature is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="clientPicker" formControlName="clientSignedDate">
+            <mat-datepicker-toggle matSuffix [for]="clientPicker"></mat-datepicker-toggle>
+            <mat-datepicker #clientPicker></mat-datepicker>
+            <mat-error *ngIf="form.get('clientSignedDate')?.hasError('required')">
+              Date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <div class="flex justify-between items-center">
+          <button 
+            type="button" 
+            mat-stroked-button 
+            (click)="goBack()"
+            class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+            <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+            Back to List
+          </button>
+          <div class="flex gap-4">
+            <button 
+              type="button" 
+              mat-stroked-button 
+              (click)="onReset()"
+              class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+              Reset
+            </button>
+            <button 
+              type="button" 
+              mat-flat-button 
+              color="accent"
+              (click)="onSaveDraft()"
+              class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors">
+              Save Draft
+            </button>
+            <button 
+              type="submit" 
+              mat-flat-button 
+              color="primary"
+              [disabled]="isLoading"
+              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+              <mat-spinner *ngIf="isLoading" diameter="20" class="mr-2"></mat-spinner>
+              <mat-icon *ngIf="!isLoading" class="mr-2" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

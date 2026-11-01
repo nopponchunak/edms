@@ -1,0 +1,40 @@
+// Permission Settings Form Component Styles
+
+.menu-item-row {
+    transition: background-color 0.2s;
+}
+
+.menu-header-row {
+    background-color: rgba(15, 23, 42, 0.03);
+}
+
+.menu-header-row td {
+    color: rgba(15, 23, 42, 0.72);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .mat-expansion-panel {
+    margin-bottom: 1rem;
+}
+
+::ng-deep .mat-expansion-panel-header {
+    padding: 1rem 1.5rem;
+}
+
+::ng-deep .mat-expansion-panel-body {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+::ng-deep .mat-checkbox {
+    .mat-checkbox-frame {
+        border-color: rgba(0, 0, 0, 0.54);
+    }
+}

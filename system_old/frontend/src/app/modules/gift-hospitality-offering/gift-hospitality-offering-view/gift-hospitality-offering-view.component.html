@@ -1,0 +1,291 @@
+<div class="ims-view-page">
+  <div class="ims-view-shell">
+    <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">Gift / Hospitality Offering Form</h1>
+        <p class="text-sm text-gray-600">4 FORM ACGH - 02 | REQUEST FOR OFFERING OF GIFT / HOSPITALITY</p>
+      </div>
+      <app-view-actions
+        [backPath]="'/gift-hospitality-offering'"
+        [navId]="'request-for-offering-of-gift-hospitality'"
+        (edit)="editRequest()"
+        (print)="printRequest()"
+      ></app-view-actions>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Offering Details -->
+    <div *ngIf="!loading && giftHospitalityOffering" class="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+      <div class="ims-card document-card p-8">
+        <div class="space-y-8">
+          <section>
+            <div class="mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Form Details</h2>
+            </div>
+
+            <h3 class="document-subtitle">Request Type</h3>
+            <div class="flex gap-8">
+              <div *ngFor="let type of requestTypes" class="document-check-row">
+                <span class="document-check-circle">{{ isRequestTypeSelected(type.value) ? '●' : '' }}</span>
+                <span class="text-sm font-medium text-slate-700">{{ type.label }}</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="border-t border-gray-200"></div>
+
+          <section class="space-y-6">
+            <h3 class="document-subtitle">Offering Details</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="md:col-span-2 document-field">
+                <label>Description of Gift/Hospitality</label>
+                <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ giftHospitalityOffering.description || '-' }}</div>
+              </div>
+
+              <div class="md:col-span-2 document-field">
+                <label>Purpose of the Gift/Hospitality offering</label>
+                <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ giftHospitalityOffering.purpose || '-' }}</div>
+              </div>
+
+              <div class="md:col-span-2 document-field">
+                <label>Value of Gift/Hospitality ({{ giftHospitalityOffering.currencyCode || 'THB' }}, Including VAT)</label>
+                <div class="ims-field-box text-lg font-semibold">{{ formatCurrency(giftHospitalityOffering.value, giftHospitalityOffering.currencyCode) }}</div>
+              </div>
+
+              <div class="md:col-span-2 mt-2">
+                <h4 class="font-semibold text-slate-800 mb-2">Approval Matrix (THB)</h4>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm border-collapse border border-gray-300">
+                    <thead class="bg-gray-50 text-gray-700">
+                      <tr>
+                        <th class="border border-slate-300 p-3 text-center">Amount</th>
+                        <th class="border border-slate-300 p-3 text-center">Prepared/Requested by</th>
+                        <th class="border border-slate-300 p-3 text-center">Verified by</th>
+                        <th class="border border-slate-300 p-3 text-center">Approved by</th>
+                      </tr>
+                    </thead>
+                    <tbody class="[&>tr:nth-child(even)]:bg-slate-50">
+                      <tr>
+                        <td class="border border-slate-300 p-3 text-center">&gt; 5,000 – ≤ 10,000</td>
+                        <td class="border border-slate-300 p-3 text-center">EE or above</td>
+                        <td class="border border-slate-300 p-3 text-center">ACSC</td>
+                        <td class="border border-slate-300 p-3 text-center">DI or MD</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-slate-300 p-3 text-center">&gt; 10,000 – ≤ 30,000</td>
+                        <td class="border border-slate-300 p-3 text-center">DI / MD</td>
+                        <td class="border border-slate-300 p-3 text-center">ACSC</td>
+                        <td class="border border-slate-300 p-3 text-center">DI or MD</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-slate-300 p-3 text-center">&gt; 30,000</td>
+                        <td class="border border-slate-300 p-3 text-center">MD</td>
+                        <td class="border border-slate-300 p-3 text-center">ACSC</td>
+                        <td class="border border-slate-300 p-3 text-center">MD and DI</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="mt-3 text-sm text-slate-600">If DI is the requester, DI cannot approve their own request.</p>
+                <p *ngIf="giftHospitalityOffering.currencyCode && giftHospitalityOffering.currencyCode !== 'THB'" class="mt-2 text-sm text-amber-700">
+                  Foreign currency requests do not use THB thresholds. Approver 2 is selected manually when needed.
+                </p>
+              </div>
+
+              <div class="md:col-span-2 document-field">
+                <label>Proposed Date</label>
+                <div class="ims-field-box">{{ formatDate(giftHospitalityOffering.proposedDate) }}</div>
+              </div>
+
+              <div class="md:col-span-2 document-field">
+                <label>Name & Company of Receiver(s)</label>
+                <div class="ims-field-box min-h-[72px] whitespace-pre-wrap">{{ giftHospitalityOffering.receiverNameAndCompany || '-' }}</div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      </div> <!-- Left Column -->
+
+      <!-- Right Column: Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+          <app-approval-workflow
+            [steps]="workflowSteps"
+            (actionClick)="onWorkflowAction($event)"
+          ></app-approval-workflow>
+
+          <!-- Attached Documents Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 mt-6">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                  Attached Documents
+              </h2>
+
+              <div *ngIf="attachments?.length; else noDocs" class="space-y-3">
+                  <div *ngFor="let doc of attachments"
+                      class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                      <a *ngIf="doc?.url; else docNameOnly" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                          class="flex items-center space-x-3 overflow-hidden flex-1 group cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                          <div class="flex-shrink-0">
+                              <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-200">
+                                  <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                              </div>
+                          </div>
+                          <div class="flex-1 min-w-0">
+                              <span class="text-sm font-medium truncate block">
+                                  {{ doc?.name }}
+                              </span>
+                          </div>
+                      </a>
+                      <ng-template #docNameOnly>
+                          <div class="flex items-center space-x-3 overflow-hidden flex-1 text-gray-800 dark:text-gray-200">
+                              <div class="flex-shrink-0">
+                                  <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                      <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                  </div>
+                              </div>
+                              <div class="flex-1 min-w-0 text-sm font-medium truncate block">
+                                  {{ doc?.name }}
+                              </div>
+                          </div>
+                      </ng-template>
+                  <div *ngIf="doc?.url" class="ml-2 flex-shrink-0">
+                      <a mat-icon-button [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                              matTooltip="Open file">
+                              <mat-icon class="text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+
+              <ng-template #noDocs>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                      No documents attached.
+                  </div>
+              </ng-template>
+          </div>
+      </div> <!-- Right Column -->
+
+    </div>
+
+    <!-- Verify Dialog -->
+    <div *ngIf="showVerifyDialog" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Verify Request</h3>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+            <textarea
+              [(ngModel)]="verifyComments"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter verification comments">
+            </textarea>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              (click)="showVerifyDialog = false; verifyComments = ''"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Cancel
+            </button>
+            <button
+              (click)="onVerify()"
+              class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+              Verify
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acknowledge Dialog -->
+    <div *ngIf="showAcknowledgeDialog" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Acknowledge Request</h3>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+            <textarea
+              [(ngModel)]="acknowledgeComments"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter acknowledgment comments">
+            </textarea>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              (click)="showAcknowledgeDialog = false; acknowledgeComments = ''"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Cancel
+            </button>
+            <button
+              (click)="onAcknowledge()"
+              class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700">
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approve Dialog -->
+    <div *ngIf="showApproveDialog" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Approve/Reject Request</h3>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Decision</label>
+            <div class="flex space-x-4">
+              <label class="flex items-center">
+                <input
+                  type="radio"
+                  [(ngModel)]="approveDecision"
+                  [value]="true"
+                  class="mr-2">
+                <span class="text-green-600 font-medium">Approve</span>
+              </label>
+              <label class="flex items-center">
+                <input
+                  type="radio"
+                  [(ngModel)]="approveDecision"
+                  [value]="false"
+                  class="mr-2">
+                <span class="text-red-600 font-medium">Reject</span>
+              </label>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+            <textarea
+              [(ngModel)]="approveComments"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter approval comments">
+            </textarea>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              (click)="showApproveDialog = false; approveComments = ''; approveDecision = false"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Cancel
+            </button>
+            <button
+              (click)="onApprove()"
+              class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+              Submit Decision
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

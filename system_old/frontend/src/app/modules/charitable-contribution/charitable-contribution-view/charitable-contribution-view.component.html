@@ -1,0 +1,201 @@
+<div class="ims-view-page">
+    <div class="ims-view-shell">
+        <fuse-alert
+            class="mb-6"
+            *ngIf="showAlert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="true"
+            [dismissible]="true"
+            (dismissed)="showAlert = false"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <div *ngIf="loading" class="flex min-h-[320px] items-center justify-center">
+            <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <ng-container *ngIf="!loading && request">
+            <section class="ims-view-header overflow-hidden">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div class="max-w-3xl">
+                        <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                            1 FORM ACCC - 01
+                        </p>
+                        <div class="mb-4 flex flex-wrap items-center gap-3">
+                            <h1 class="text-2xl font-bold text-blue-600 uppercase">
+                                {{ getRequestTypeLabel(request.requestType) }}
+                            </h1>
+                            <span
+                                class="inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full"
+                                [ngClass]="getStatusColor(request.status)"
+                            >
+                                {{ getStatusLabel(request.status) }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600">
+                            1 FORM ACCC - 01 | REQUEST FOR CHARITABLE CONTRIBUTION / SPONSORSHIP
+                        </p>
+                    </div>
+                    <app-view-actions
+                        [backPath]="'/charitable-contributions'"
+                        [navId]="'request-for-charitable-contributions-sponsorship'"
+                        (edit)="editRequest()"
+                        (print)="printRequest()"
+                    ></app-view-actions>
+                </div>
+            </section>
+
+            <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="space-y-6 lg:col-span-2">
+                    <mat-card class="ims-card document-card">
+                        <div class="ims-card-body space-y-8">
+                            <section>
+                                <h2 class="text-xl font-semibold text-slate-900 mb-6">Form Details</h2>
+
+                                <div class="mb-6">
+                                    <h3 class="document-subtitle">
+                                        Request Type <span class="text-red-500">*</span>
+                                    </h3>
+                                    <div class="flex flex-wrap gap-6">
+                                        <div *ngFor="let type of requestTypes" class="document-check-row">
+                                            <span class="document-check-circle">{{ isRequestTypeSelected(type.value) ? '●' : '' }}</span>
+                                            <span class="text-sm font-medium text-slate-700">{{ type.label }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <mat-divider></mat-divider>
+
+                            <section>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="md:col-span-2 document-field">
+                                        <label>Event Description</label>
+                                        <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ request.eventDescription || '-' }}</div>
+                                    </div>
+
+                                    <div class="md:col-span-2 document-field">
+                                        <label>Event Purpose</label>
+                                        <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ request.eventPurpose || '-' }}</div>
+                                    </div>
+
+                                    <div class="md:col-span-2 document-field">
+                                        <label>Name of Organizer / Sponsorship Receiver</label>
+                                        <div class="ims-field-box">{{ request.organizerName || '-' }}</div>
+                                    </div>
+
+                                    <div class="md:col-span-2 document-field">
+                                        <label>Description of Contribution / Sponsorship</label>
+                                        <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ request.contributionDescription || '-' }}</div>
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label class="block mb-2 text-[15px] leading-5">
+                                            <span class="font-semibold text-slate-800">Value of Charitable Contribution or Sponsorship ({{ request.currencyCode || 'THB' }})</span>
+                                            <span class="ml-1 text-red-500">*</span>
+                                            <span class="ml-1 text-slate-500 italic">*Including VAT</span>
+                                        </label>
+                                        <div class="ims-field-box text-lg font-semibold">{{ formatCurrency(request.valueAmount, request.currencyCode) }}</div>
+                                        <div class="mt-2 text-sm text-slate-500">
+                                            {{ (request.currencyCode || 'THB') === 'THB' ? 'Minimum 2,500 THB' : 'Foreign currency amount' }}
+                                        </div>
+                                    </div>
+
+                                    <div class="md:col-span-2 mt-2">
+                                        <h4 class="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                                            <mat-icon class="mr-1 text-base" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                                            Approval Matrix (THB)
+                                        </h4>
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full border-collapse border border-gray-300">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="border border-gray-300 p-2 text-center">Amount</th>
+                                                        <th class="border border-gray-300 p-2 text-center">Prepared by</th>
+                                                        <th class="border border-gray-300 p-2 text-center">Verified by</th>
+                                                        <th class="border border-gray-300 p-2 text-center">Approved by</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="border border-gray-300 p-2 text-center">≤ 20,000 THB</td>
+                                                        <td class="border border-gray-300 p-2 text-center">Staff</td>
+                                                        <td rowspan="2" class="border border-gray-300 p-2 text-center">ACSC</td>
+                                                        <td class="border border-gray-300 p-2 text-center">DI or MD</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="border border-gray-300 p-2 text-center">&gt; 20,000 THB</td>
+                                                        <td class="border border-gray-300 p-2 text-center">EE or above</td>
+                                                        <td class="border border-gray-300 p-2 text-center">2 DIs or MD</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p *ngIf="request.currencyCode && request.currencyCode !== 'THB'" class="mt-2 text-sm text-amber-700">
+                                            Foreign currency requests do not use THB thresholds. Approver 2 is selected manually when needed.
+                                        </p>
+                                    </div>
+
+                                    <div class="md:col-span-2 document-field">
+                                        <label>Proposed Date</label>
+                                        <div class="ims-field-box">{{ formatDate(request.proposedDate) }}</div>
+                                    </div>
+                                </div>
+                            </section>
+
+                        </div>
+                    </mat-card>
+
+                    <mat-card
+                        *ngIf="request.approvalHistory && request.approvalHistory.length > 0"
+                        class="ims-card"
+                    >
+                        <div class="ims-card-body">
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+                                <mat-icon>history</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-semibold text-slate-900">Approval History</h2>
+                                <p class="text-sm text-slate-500">Recorded workflow actions</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div *ngFor="let history of request.approvalHistory" class="ims-field-box flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div class="min-w-0">
+                                    <div class="text-base font-semibold capitalize text-slate-900">
+                                        {{ history.action }}
+                                    </div>
+                                    <div class="mt-1 text-sm text-slate-500">by {{ history.userName }}</div>
+                                    <div *ngIf="history.comments" class="mt-2 text-sm text-slate-600">
+                                        {{ history.comments }}
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-start gap-2 sm:items-end">
+                                    <span
+                                        class="inline-flex px-3 py-1 text-xs font-semibold rounded-full"
+                                        [ngClass]="getStatusColor(history.status)"
+                                    >
+                                        {{ getStatusLabel(history.status) }}
+                                    </span>
+                                    <span class="text-sm text-slate-500">{{ formatDate(history.timestamp) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </mat-card>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <app-approval-workflow
+                        class="sticky top-6"
+                        [steps]="workflowSteps"
+                    ></app-approval-workflow>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

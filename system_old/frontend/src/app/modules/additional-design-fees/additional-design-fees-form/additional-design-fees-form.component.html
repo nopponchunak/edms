@@ -1,0 +1,382 @@
+<div class="h-full bg-gray-50 overflow-y-auto">
+  <div class="max-w-7xl mx-auto p-6">
+  <!-- Form Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center mb-0">
+      <div class="flex items-center space-x-4">
+        <div *ngIf="!isView">
+            <button
+            (click)="goBack()"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            >
+            <mat-icon class="mr-2 text-sm">arrow_back</mat-icon>
+            Back
+            </button>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 uppercase">Request for Additional Design Fees</h1>
+          <p class="text-sm text-gray-600 mt-1">26 - FORM MTDC-03</p>
+        </div>
+      </div>
+
+      <!-- Standardized Actions for View Mode -->
+      <app-view-actions *ngIf="isView"
+          [backPath]="'/additional-design-fees'"
+          [navId]="'additional-design-fees'"
+          (edit)="onEdit()"
+      ></app-view-actions>
+
+      <div *ngIf="!isView" class="text-right">
+        <p class="text-sm text-gray-600">Copies to: {{ form.get('copiesTo')?.value }}</p>
+        <p class="text-sm text-gray-600">Circ: {{ form.get('circ')?.value }}</p>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Project Information -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Project Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Project Name</mat-label>
+          <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)" [disabled]="isView">
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="projectSearchCtrl"
+                placeholderLabel="Search Project..."
+                noEntriesFoundLabel="No projects found">
+              </ngx-mat-select-search>
+            </mat-option>
+            <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+              {{ project.name }} ({{ project.code }})
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('projectId')?.hasError('required')">
+            Project is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Project No.</mat-label>
+          <input matInput formControlName="projectNo" placeholder="Enter project number" readonly>
+          <mat-error *ngIf="form.get('projectNo')?.hasError('required')">
+            Project number is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date" [readonly]="isView">
+          <mat-datepicker-toggle matSuffix [for]="picker" [disabled]="isView"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="form.get('date')?.hasError('required')">
+            Date is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Claim No.</mat-label>
+          <input matInput formControlName="claimNo" placeholder="Enter claim number" [readonly]="isView">
+          <mat-error *ngIf="form.get('claimNo')?.hasError('required')">
+            Claim number is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Discipline -->
+      <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Discipline</label>
+        <div class="flex gap-4">
+          <div class="flex">
+            <mat-checkbox formControlName="disciplineCs" (change)="onDisciplineChange()" [disabled]="isView"></mat-checkbox>
+            <div class="h-10 flex items-end">C&S</div>
+          </div>
+          <div class="flex">
+            <mat-checkbox formControlName="disciplineMep" (change)="onDisciplineChange()" [disabled]="isView"></mat-checkbox>
+            <div class="h-10 flex items-end">MEP</div>
+          </div>
+          <div class="flex">
+            <mat-checkbox formControlName="disciplineOther" (change)="onDisciplineChange()" [disabled]="isView"></mat-checkbox>
+            <div class="h-10 flex items-end">Other.</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <mat-form-field appearance="outline" class="w-48">
+            <input matInput formControlName="disciplineOtherText" placeholder="Specify" [readonly]="isView">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Fee Details Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Details of Changes</h2>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">
+                Description of Changes
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                Reference
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                Engineer / Draftsman Level
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                Hours Input
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                Rate (THB / HR)
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
+                Total (THB)
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody formArrayName="designFeeItems" class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let item of designFeeItems.controls; let i = index" [formGroupName]="i">
+              <td class="px-4 py-3">
+                <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                  <textarea matInput formControlName="description" rows="2" placeholder="Enter description" [readonly]="isView"></textarea>
+                  <mat-error *ngIf="item.get('description')?.hasError('required')">
+                    Description is required
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td class="px-4 py-3">
+                <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                  <input matInput formControlName="reference" placeholder="Ref" [readonly]="isView">
+                </mat-form-field>
+              </td>
+              <td class="px-4 py-3">
+                <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                  <mat-select formControlName="engineerLevel" (selectionChange)="onEngineerLevelChange(i, $event.value)" [disabled]="isView">
+                    <mat-option *ngFor="let level of engineerLevels" [value]="level">
+                      {{ level }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="item.get('engineerLevel')?.hasError('required')">
+                    Engineer level is required
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td class="px-4 py-3">
+                <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                  <input matInput type="number" formControlName="hoursInput" placeholder="0" [readonly]="isView">
+                  <mat-error *ngIf="item.get('hoursInput')?.hasError('required')">
+                    Hours is required
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td class="px-4 py-3">
+                <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                  <input matInput type="number" formControlName="rateThb" placeholder="0" [readonly]="isView">
+                  <mat-error *ngIf="item.get('rateThb')?.hasError('required')">
+                    Rate is required
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td class="px-4 py-3">
+                <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                  <input matInput type="number" formControlName="totalThb" readonly>
+                </mat-form-field>
+              </td>
+              <td class="px-4 py-3">
+                <button 
+                  *ngIf="!isView"
+                  type="button" 
+                  mat-icon-button 
+                  color="warn" 
+                  (click)="removeDesignFeeItem(i)"
+                  [disabled]="designFeeItems.length === 1">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex justify-between items-center">
+        <button *ngIf="!isView" type="button" mat-raised-button color="primary" (click)="addDesignFeeItem()">
+          <mat-icon class="text-white">add</mat-icon>
+          Add Item
+        </button>
+        
+        <div class="flex items-center gap-4">
+          <span class="text-lg font-semibold">Total (excl. VAT):</span>
+          <mat-form-field appearance="outline" class="w-32 non-bottom-margin">
+            <input matInput type="number" formControlName="totalExclVat" readonly>
+            <span matSuffix class="mr-2">฿</span>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charge-out Rate Options -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900">Charge-out Rate Options</h2>
+      
+      <div class="flex gap-6">
+        <div class="flex">
+          <mat-checkbox formControlName="ratePerAgreement" (change)="onChargeOutRateChange()" [disabled]="isView"></mat-checkbox>
+          <div class="h-10 flex items-end">Rate per agreement</div>
+        </div>
+        <div class="flex">
+          <mat-checkbox formControlName="officeStandardRate" (change)="onChargeOutRateChange()" [disabled]="isView"></mat-checkbox>
+          <div class="h-10 flex items-end">Office standard rate</div>
+        </div>
+      </div>
+
+      <!-- Standard Charge Out Rate Table -->
+      <div class="mt-6">
+        <h3 class="text-md font-medium text-gray-900 mb-3">Standard Charge Out Rate 2017</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role/Position
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rate per hour Baht / USD (excl. VAT/Nett of all Taxes)
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let rate of standardRates">
+                <td class="px-4 py-3 text-sm text-gray-900">{{ rate.position }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">
+                  {{ rate.rateThb | number }} / ${{ rate.rateUsd }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approval Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Approval</h2>
+      
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Meinhardt Approval -->
+        <div class="flex gap-4 items-center ">
+          <div class="flex-1">
+            <!-- <h3 class="text-md font-medium text-gray-900 mb-3">Meinhardt Approval</h3> -->
+              <mat-form-field class="w-full">
+                <mat-label>Meinhardt Approval Name</mat-label>
+                <input matInput formControlName="meinhardtApprovalName" placeholder="Enter name" [readonly]="isView">
+                <mat-error *ngIf="form.get('meinhardtApprovalName')?.hasError('required')">
+                  Approval name is required
+                </mat-error>
+              </mat-form-field>
+            <!-- <span matSuffix>(MD / DI)</span> -->
+          </div>
+          <span class="text-sm text-gray-500 dark:text-gray-400 w-[62px] text-center">(MD / DI)</span>
+            <div>
+              <mat-form-field class="w-[300px]">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="meinhardtPicker" formControlName="meinhardtApprovalDate" [readonly]="isView">
+                <mat-datepicker-toggle matSuffix [for]="meinhardtPicker" [disabled]="isView"></mat-datepicker-toggle>
+                <mat-datepicker #meinhardtPicker></mat-datepicker>
+                <mat-error *ngIf="form.get('meinhardtApprovalDate')?.hasError('required')">
+                  Date is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Client Approval -->
+        <div>
+          <h3 class="text-md font-medium text-gray-900 mb-3">Client Approval</h3>
+          <div class="space-y-4">
+            <div class="flex gap-4">
+              <mat-radio-group formControlName="clientApproved" class="flex" [disabled]="isView">
+                <div class="flex">
+                    <mat-radio-button [value]="true">
+                    </mat-radio-button>
+                    <div class="h-10 flex items-center">Approved and Process with change</div>
+                </div>
+                <div class="flex">
+                    <mat-radio-button [value]="false">
+                    </mat-radio-button>
+                    <div class="h-10 flex items-center">Not Approved</div>
+                </div>
+            </mat-radio-group>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <mat-form-field class="w-full">
+                <mat-label>Client Signature</mat-label>
+                <input matInput formControlName="clientSignature" placeholder="Enter signature" [readonly]="isView">
+                <mat-error *ngIf="form.get('clientSignature')?.hasError('required')">
+                  Client signature is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field class="w-full">
+                <mat-label>Client Name</mat-label>
+                <input matInput formControlName="clientName" placeholder="Enter client company name" [readonly]="isView">
+                <mat-error *ngIf="form.get('clientName')?.hasError('required')">
+                  Client name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div *ngIf="!isView" class="flex justify-between gap-4">
+      <button 
+        type="button" 
+        mat-stroked-button 
+        (click)="goBack()"
+        class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+        <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        Back to List
+      </button>
+      <div class="flex gap-4">
+        <button 
+          type="button" 
+          mat-stroked-button 
+          (click)="onReset()"
+          class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+          Reset
+        </button>
+        <button 
+          type="button" 
+          mat-flat-button 
+          color="accent"
+          (click)="onSaveDraft()"
+          class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors">
+          Save Draft
+        </button>
+        <button 
+          type="submit" 
+          mat-flat-button 
+          color="primary"
+          [disabled]="isLoading"
+          class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+          <mat-spinner *ngIf="isLoading" diameter="20" class="mr-2"></mat-spinner>
+          <mat-icon *ngIf="!isLoading" class="mr-2" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+          Submit
+        </button>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>

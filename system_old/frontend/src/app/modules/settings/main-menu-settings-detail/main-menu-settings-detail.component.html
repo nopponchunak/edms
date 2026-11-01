@@ -1,0 +1,174 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="mx-auto max-w-7xl bg-white p-4 dark:bg-gray-900 sm:p-5">
+        <div class="mb-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button
+                    class="main-menu-icon-button"
+                    type="button"
+                    (click)="back()"
+                    aria-label="Back"
+                >
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ mainMenu?.name || 'Main menu detail' }}
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Main menu
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-3 mt-3"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <div
+            class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        >
+            <div
+                class="flex flex-col gap-1 border-b border-gray-200 px-4 py-3 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between"
+            >
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+                        Menu tree
+                    </h2>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                        Sorted by sort order
+                    </p>
+                </div>
+                <span class="text-xs font-medium text-gray-500 sm:text-sm">
+                    {{ menuRows.length }} menus
+                </span>
+            </div>
+
+            <div class="p-0">
+                <div
+                    class="flex items-center justify-center py-8"
+                    *ngIf="isLoading"
+                >
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="32"
+                    ></mat-progress-spinner>
+                </div>
+
+                <div
+                    *ngIf="!isLoading && menuRows.length === 0"
+                    class="flex flex-col items-center justify-center py-10 text-center text-gray-500"
+                >
+                    <mat-icon
+                        class="mb-2 text-4xl text-gray-400"
+                        [svgIcon]="'heroicons_outline:rectangle-stack'"
+                    ></mat-icon>
+                    <div class="font-medium">No menus</div>
+                    <div class="text-sm">No menus are assigned to this main menu.</div>
+                </div>
+
+                <div
+                    *ngIf="!isLoading && menuRows.length > 0"
+                    class="overflow-x-auto"
+                >
+                    <table
+                        mat-table
+                        [dataSource]="menuRows"
+                        class="main-menu-compact-table w-full min-w-[760px] text-left"
+                    >
+                        <ng-container matColumnDef="sort_order">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                class="w-24 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Sort
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let row"
+                                class="whitespace-nowrap px-3 py-1.5 text-sm text-gray-600"
+                            >
+                                {{ row.sort_order }}
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="name">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                class="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Name
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let row"
+                                class="px-3 py-1.5 text-sm text-gray-700"
+                            >
+                                <div
+                                    class="max-w-[320px] truncate font-semibold text-gray-900 dark:text-white"
+                                    [style.paddingLeft.px]="row.level * 16"
+                                    [title]="row.name"
+                                >
+                                    {{ row.name }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="parent">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                class="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Parent
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let row"
+                                class="px-3 py-1.5 text-sm text-gray-600"
+                            >
+                                {{ row.parent_name || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="id">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                class="w-24 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                ID
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let row"
+                                class="whitespace-nowrap px-3 py-1.5 text-sm text-gray-600"
+                            >
+                                {{ row.id }}
+                            </td>
+                        </ng-container>
+
+                        <tr
+                            mat-header-row
+                            *matHeaderRowDef="displayedColumns"
+                        ></tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let row; columns: displayedColumns; trackBy: trackById"
+                        ></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

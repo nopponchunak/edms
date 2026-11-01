@@ -1,0 +1,639 @@
+<div class="screen-view h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6">
+    <div class="mb-8">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 uppercase">
+            Tender Review CSA
+          </h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            {{ isEdit ? 'Update checklist / action sheet details' : isView ? 'View submitted checklist / action sheet' : 'Prepare a new checklist / action sheet' }}
+          </p>
+        </div>
+
+        <div class="flex flex-col items-start gap-3 lg:items-end">
+          <div class="flex flex-col items-start gap-2 lg:items-end">
+            <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              20 - FORM MTDD-04
+            </span>
+
+            <span
+              *ngIf="isView"
+              class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold"
+              [ngClass]="displayStatusClass">
+              {{ displayStatusLabel }}
+            </span>
+          </div>
+
+          <div *ngIf="isView" class="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
+          <app-view-actions
+            [backPath]="'/tender/csa/review'"
+            [navId]="'tender-csa-review'"
+            (edit)="onEdit()"
+            (print)="onPrint()"
+          ></app-view-actions>
+
+          <app-legacy-source-button
+            [recordData]="recordData"
+          ></app-legacy-source-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <div [ngClass]="isView ? 'grid grid-cols-1 gap-6 lg:grid-cols-3 items-start' : ''">
+        <div [ngClass]="isView ? 'lg:col-span-2' : ''">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="p-6 lg:p-8">
+              <section class="document-section">
+                <h3 class="document-section-title">
+                  Project And Document Information
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                  <div class="document-field xl:col-span-2">
+                    <label>Project Name</label>
+                    <div *ngIf="isView; else editProjectName" class="view-field-box">
+                      {{ form.get('projectName')?.value || '-' }}
+                    </div>
+                    <ng-template #editProjectName>
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)">
+                          <mat-option>
+                            <ngx-mat-select-search
+                              [formControl]="projectSearchCtrl"
+                              placeholderLabel="Search Project..."
+                              noEntriesFoundLabel="No projects found">
+                            </ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                            {{ project.name }} ({{ project.code }})
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </ng-template>
+                  </div>
+                  <div class="document-field">
+                    <label>Project No.</label>
+                    <div *ngIf="isView; else editProjectNumber" class="view-field-box">
+                      {{ form.get('projectNumber')?.value || '-' }}
+                    </div>
+                    <ng-template #editProjectNumber>
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput formControlName="projectNumber" readonly>
+                      </mat-form-field>
+                    </ng-template>
+                  </div>
+                  <div class="document-field">
+                    <label>Prepared By</label>
+                    <div *ngIf="isView; else editPreparedBy" class="view-field-box">
+                      {{ getEmployeeDisplay(form.get('preparedBy')?.value) }}
+                    </div>
+                    <ng-template #editPreparedBy>
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select *ngIf="!isSafari; else safariPreparedBySelect" formControlName="preparedBy" [disabled]="isView" placeholder="Select employee">
+                          <mat-option *ngIf="!isSafari">
+                            <ngx-mat-select-search [formControl]="preparedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="let employee of filteredPreparedByOptions" [value]="employee.code">
+                            {{ employee.displayLabel }}
+                          </mat-option>
+                        </mat-select>
+                        <ng-template #safariPreparedBySelect>
+                          <select matNativeControl formControlName="preparedBy">
+                            <option value=""></option>
+                            <option *ngFor="let employee of filteredPreparedByOptions" [value]="employee.code">
+                              {{ employee.displayLabel }}
+                            </option>
+                          </select>
+                        </ng-template>
+                      </mat-form-field>
+                    </ng-template>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div class="document-field">
+                    <label>Discipline</label>
+                    <div *ngIf="isView; else editDiscipline" class="view-field-box">
+                      {{ disciplineDisplay }}
+                    </div>
+                    <ng-template #editDiscipline>
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <mat-select *ngIf="!isSafari; else safariDisciplineSelect" formControlName="discipline" (selectionChange)="onDisciplineChange()" [disabled]="isView" placeholder="Select discipline">
+                          <mat-option *ngFor="let discipline of disciplines" [value]="discipline">{{ discipline }}</mat-option>
+                        </mat-select>
+                        <ng-template #safariDisciplineSelect>
+                          <select matNativeControl formControlName="discipline" (change)="onDisciplineChange()">
+                            <option value=""></option>
+                            <option *ngFor="let discipline of disciplines" [value]="discipline">{{ discipline }}</option>
+                          </select>
+                        </ng-template>
+                      </mat-form-field>
+                    </ng-template>
+                  </div>
+                  <div class="document-field">
+                    <label>Detail</label>
+                    <div *ngIf="isView; else editStage" class="view-field-box">
+                      {{ form.get('stage')?.value || '-' }}
+                    </div>
+                    <ng-template #editStage>
+                      <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                        <input matInput formControlName="stage" placeholder="Enter detail" [readonly]="isView">
+                      </mat-form-field>
+                    </ng-template>
+                  </div>
+                  <div class="document-field md:col-span-2" *ngIf="!isView && form.get('discipline')?.value === 'Other'">
+                    <label>Specify Other Discipline</label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <input matInput formControlName="disciplineOther" placeholder="Enter other discipline" [readonly]="isView">
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="document-field mt-5">
+                  <label>Document(s) Reviewed</label>
+                  <div *ngIf="isView; else editDocumentTypes" class="selection-panel">
+                    <div class="selection-item selection-item--view" *ngFor="let docType of documentTypes">
+                      <mat-icon class="selection-icon" [class.selection-icon--active]="getSelectedDocumentTypes().includes(docType)">
+                        {{ getSelectedDocumentTypes().includes(docType) ? 'check_box' : 'check_box_outline_blank' }}
+                      </mat-icon>
+                      <span>{{ getDocumentTypeLabel(docType) }}</span>
+                    </div>
+                  </div>
+                  <ng-template #editDocumentTypes>
+                    <div class="selection-panel" formArrayName="documentTypes">
+                      <div class="selection-item" *ngFor="let docType of documentTypes; let i = index" [class.selection-item--readonly]="isView">
+                        <mat-checkbox
+                          [formControlName]="i"
+                          [value]="docType"
+                          (change)="onDocumentTypeChange()"
+                          [disabled]="isView">
+                        </mat-checkbox>
+                        <span>{{ docType }}</span>
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4" *ngIf="getSelectedDocumentTypes().includes('Other')">
+                  <div class="document-field">
+                    <label>Specify Other Document Type</label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <input matInput formControlName="documentTypesOther" placeholder="Enter other document type" [readonly]="isView">
+                    </mat-form-field>
+                  </div>
+                </div>
+              </section>
+
+              <section class="document-section section-divider-top" *ngIf="isView || isEdit">
+                <!-- <h3 class="document-section-title">
+                  Tender Design Review/Verification
+                </h3> -->
+
+                <ng-container>
+                  <div class="section-table-note">
+                    Answer every checklist item using the review outcome that best matches the tender package.
+                  </div>
+
+                  <div class="overflow-x-auto">
+                    <table class="w-full border border-gray-200 dark:border-gray-600 text-sm border-collapse checklist-table">
+                      <thead>
+                        <tr class="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                          <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-left font-semibold checklist-col-question">Checklist Item</th>
+                          <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold checklist-col-answer">Yes</th>
+                          <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold checklist-col-answer">No</th>
+                          <th class="px-4 py-3 border border-gray-200 dark:border-gray-600 text-center font-semibold checklist-col-answer">N/A</th>
+                        </tr>
+                      </thead>
+                      <tbody formArrayName="checklistResponses">
+                        <tr *ngFor="let item of tenderCsaReviewChecklist; let i = index" class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
+                          <td class="px-4 py-4 border border-gray-200 dark:border-gray-600 align-top">
+                            <div class="checklist-question">
+                              <span class="checklist-number">{{ i + 1 }}</span>
+                              <span>{{ item.question }}</span>
+                            </div>
+                          </td>
+                          <ng-container *ngIf="isView; else editChecklistRow">
+                            <td class="px-3 py-3 border border-gray-200 dark:border-gray-600 text-center">
+                              <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="isChecklistResponse(i, 'yes')">
+                                <mat-icon *ngIf="isChecklistResponse(i, 'yes')">check</mat-icon>
+                              </span>
+                            </td>
+                            <td class="px-3 py-3 border border-gray-200 dark:border-gray-600 text-center">
+                              <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="isChecklistResponse(i, 'no')">
+                                <mat-icon *ngIf="isChecklistResponse(i, 'no')">check</mat-icon>
+                              </span>
+                            </td>
+                            <td class="px-3 py-3 border border-gray-200 dark:border-gray-600 text-center">
+                              <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="isChecklistResponse(i, 'na')">
+                                <mat-icon *ngIf="isChecklistResponse(i, 'na')">check</mat-icon>
+                              </span>
+                            </td>
+                          </ng-container>
+                          <ng-template #editChecklistRow>
+                            <td class="px-3 py-3 border border-gray-200 dark:border-gray-600" colspan="3">
+                              <mat-radio-group [formControlName]="i" class="checklist-options">
+                                <div class="checklist-option">
+                                  <mat-radio-button value="yes" [disabled]="isView"></mat-radio-button>
+                                  <span>Yes</span>
+                                </div>
+                                <div class="checklist-option">
+                                  <mat-radio-button value="no" [disabled]="isView"></mat-radio-button>
+                                  <span>No</span>
+                                </div>
+                                <div class="checklist-option">
+                                  <mat-radio-button value="na" [disabled]="isView"></mat-radio-button>
+                                  <span>N/A</span>
+                                </div>
+                              </mat-radio-group>
+                            </td>
+                          </ng-template>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="signature-block mt-6">
+                    <div class="document-field">
+                      <label>Comments</label>
+                      <div *ngIf="isView; else editComments" class="view-field-box view-field-box--multiline">
+                        {{ form.get('comments')?.value || '-' }}
+                      </div>
+                      <ng-template #editComments>
+                        <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                          <textarea matInput formControlName="comments" rows="4" placeholder="Enter comments" [readonly]="isView"></textarea>
+                        </mat-form-field>
+                      </ng-template>
+                    </div>
+
+                    <div class="document-field mt-4">
+                      <label>Recommended action(s) if any</label>
+                      <div *ngIf="isView; else editRecommendedActionsText" class="view-field-box view-field-box--multiline">
+                        {{ form.get('recommendedActions')?.value || '-' }}
+                      </div>
+                      <ng-template #editRecommendedActionsText>
+                        <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                          <textarea matInput formControlName="recommendedActions" rows="4" placeholder="Describe recommended actions" [readonly]="isView"></textarea>
+                        </mat-form-field>
+                      </ng-template>
+                    </div>
+
+                    <div class="document-field mt-6">
+                      <label>Reviewed By <span class="field-meta">VVE(CSA), DL/SE(MEP)</span></label>
+                      <div class="view-field-box">
+                        {{ getEmployeeDisplay(form.get('reviewedBy')?.value) }}
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </section>
+
+              <section class="document-section borderless" [class.section-divider-top]="!isView">
+                <!-- <h3 class="document-section-title">
+                  Review Comments And Signatures
+                </h3> -->
+
+                <div class="mb-6 flex justify-start" *ngIf="isView">
+                  <div
+                    (click)="openCommentDialog()"
+                    class="group w-full max-w-[760px] cursor-pointer flex items-center gap-3 rounded-2xl border bg-gradient-to-r px-4 py-3 transition-all duration-300 shadow-sm"
+                    [ngClass]="hasDiscussionComments
+                      ? 'border-orange-200 from-orange-50 to-white hover:border-orange-300 hover:from-orange-50/80'
+                      : 'border-slate-200 from-slate-50 to-white hover:border-blue-200 hover:from-blue-50/60'">
+                    <div
+                      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
+                      [ngClass]="hasDiscussionComments ? 'bg-orange-500' : 'bg-blue-600'">
+                      <mat-icon class="!text-white text-[22px] leading-none group-hover:scale-105 transition-transform">forum</mat-icon>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="text-sm font-semibold transition-colors"
+                          [ngClass]="hasDiscussionComments ? 'text-orange-700 group-hover:text-orange-800' : 'text-slate-800 group-hover:text-blue-700'">
+                          Detailed Discussion &amp; Items Tracking
+                        </span>
+                        <span class="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-600">View only</span>
+                        <span *ngIf="hasDiscussionComments" class="design-review-comment-badge--pulse rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700">Has comments</span>
+                      </div>
+                      <p class="mt-0.5 text-xs text-slate-500">Open the discussion history and review itemized comments and responses.</p>
+                    </div>
+                    <mat-icon
+                      class="shrink-0 group-hover:translate-x-1 transition-all"
+                      [ngClass]="hasDiscussionComments ? 'text-orange-300 group-hover:text-orange-500' : 'text-slate-300 group-hover:text-blue-400'">
+                      chevron_right
+                    </mat-icon>
+                  </div>
+                </div>
+
+                <div class="signature-block" *ngIf="isView">
+                  <label class="document-inline-label">Recommended action(s) have been satisfactorily taken</label>
+                  <div class="flex items-center gap-8 mt-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-gray-700 font-medium">Yes</span>
+                      <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="form.get('recommendedActionsSatisfactorilyTaken')?.value === true || form.get('recommendedActionsSatisfactorilyTaken')?.value === 'yes'">
+                        <mat-icon *ngIf="form.get('recommendedActionsSatisfactorilyTaken')?.value === true || form.get('recommendedActionsSatisfactorilyTaken')?.value === 'yes'">check</mat-icon>
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-gray-700 font-medium">No</span>
+                      <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="form.get('recommendedActionsSatisfactorilyTaken')?.value === false || form.get('recommendedActionsSatisfactorilyTaken')?.value === 'no'">
+                        <mat-icon *ngIf="form.get('recommendedActionsSatisfactorilyTaken')?.value === false || form.get('recommendedActionsSatisfactorilyTaken')?.value === 'no'">check</mat-icon>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="document-field mt-4">
+                    <label>Responded By <span class="field-meta">(PE)</span></label>
+                    <div class="view-field-box">
+                      {{ getEmployeeDisplay(form.get('respondedBy')?.value) }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- New Style Signatures for View Mode -->
+                <div class="signature-stack space-y-8" *ngIf="false">
+                  <!-- Reviewer Signature -->
+                  <div class="signature-block p-6 bg-gray-50 rounded-xl border border-gray-100" *ngIf="recordData?.reviewed_by_tl_status === 'approved' || recordData?.reviewed_by_t_l_status === 'approved' || recordData?.reviewed_by_status === 'approved'">
+                    <div class="flex items-start justify-between">
+                      <div class="space-y-4">
+                        <div class="flex items-center space-x-2 text-green-600">
+                          <mat-icon class="icon-size-5">verified</mat-icon>
+                          <span class="font-bold uppercase tracking-wider">Reviewed By</span>
+                        </div>
+                        <div class="space-y-1">
+                          <p class="text-xl font-bold text-gray-900">{{ getEmployeeDisplay(recordData?.reviewed_by) }}</p>
+                          <p class="text-sm text-gray-500">Date: {{ recordData?.reviewed_by_date | date:'dd/MM/yyyy HH:mm' }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TL Signature -->
+                  <div class="signature-block p-6 bg-gray-50 rounded-xl border border-gray-100" *ngIf="recordData?.signed_by_t_l_status === 'approved' || recordData?.signed_by_tl_status === 'approved'">
+                    <div class="flex items-start justify-between">
+                      <div class="space-y-4">
+                        <div class="flex items-center space-x-2 text-purple-600">
+                          <mat-icon class="icon-size-5">draw</mat-icon>
+                          <span class="font-bold uppercase tracking-wider">Signed By (TL)</span>
+                        </div>
+                        <div class="space-y-1">
+                          <p class="text-xl font-bold text-gray-900">{{ getEmployeeDisplay(recordData?.signed_by_t_l || recordData?.signed_by_tl) }}</p>
+                          <p class="text-sm text-gray-500">Date: {{ (recordData?.signed_by_t_l_date || recordData?.signed_by_tl_date) | date:'dd/MM/yyyy HH:mm' }}</p>
+                        </div>
+                        <div class="mt-4 p-3 bg-white rounded border border-gray-100" *ngIf="recordData?.signed_by_t_l_note || recordData?.signed_by_tl_note">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-tight">Note</p>
+                          <p class="text-sm text-gray-700 italic">"{{ recordData?.signed_by_t_l_note || recordData?.signed_by_tl_note }}"</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- DI Acknowledge -->
+                  <div class="signature-block p-6 bg-gray-50 rounded-xl border border-gray-100" *ngIf="recordData?.acknowledged_by_status === 'approved' || recordData?.acknowledged_by_d_i_status === 'approved'">
+                    <div class="flex items-start justify-between">
+                      <div class="space-y-4">
+                        <div class="flex items-center space-x-2 text-indigo-600">
+                          <mat-icon class="icon-size-5">fact_check</mat-icon>
+                          <span class="font-bold uppercase tracking-wider">Acknowledged By (DI)</span>
+                        </div>
+                        <div class="space-y-1">
+                          <p class="text-xl font-bold text-gray-900">{{ getEmployeeDisplay(recordData?.acknowledged_by_d_i || recordData?.acknowledged_by) }}</p>
+                          <p class="text-sm text-gray-500">Date: {{ (recordData?.acknowledged_by_d_i_date || recordData?.acknowledged_by_date) | date:'dd/MM/yyyy HH:mm' }}</p>
+                        </div>
+                        <div class="mt-4 p-3 bg-white rounded border border-gray-100" *ngIf="recordData?.acknowledged_by_d_i_note || recordData?.acknowledged_by_note">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-tight">Note</p>
+                          <p class="text-sm text-gray-700 italic">"{{ recordData?.acknowledged_by_d_i_note || recordData?.acknowledged_by_note }}"</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Fallback for empty state in view mode -->
+                  <div *ngIf="isView && !recordData?.reviewed_by_status && !recordData?.reviewed_by_tl_status && !recordData?.reviewed_by_t_l_status && !recordData?.signed_by_tl_status && !recordData?.acknowledged_by_status"
+                       class="p-12 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+                    <mat-icon class="icon-size-12 text-gray-300 mb-2">signature</mat-icon>
+                    <p class="text-gray-400 font-medium">No signatures available yet</p>
+                  </div>
+                </div>
+
+                <!-- Original Layout for Create/Edit Mode -->
+                <div class="signature-stack space-y-6" *ngIf="!isView">
+
+
+                  <div class="document-field">
+                    <label>Review Comments And Signatures By <span class="field-meta">VVE(CSA), DL/SE(MEP)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select *ngIf="!isSafari; else safariSignedByVVESelect" formControlName="signedByVVE" placeholder="Select employee">
+                        <mat-option *ngIf="!isSafari">
+                          <ngx-mat-select-search [formControl]="signedByVVESearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredSignedByVVEOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                      <ng-template #safariSignedByVVESelect>
+                        <select matNativeControl formControlName="signedByVVE">
+                          <option value=""></option>
+                          <option *ngFor="let employee of filteredSignedByVVEOptions" [value]="employee.code">
+                            {{ employee.displayLabel }}
+                          </option>
+                        </select>
+                      </ng-template>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="document-field">
+                    <label>Acknowledged By <span class="field-meta">(TL)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select *ngIf="!isSafari; else safariSignedByTLSelect" formControlName="signedByTL" placeholder="Select employee">
+                        <mat-option *ngIf="!isSafari">
+                          <ngx-mat-select-search [formControl]="signedByTLSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredSignedByTLOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                      <ng-template #safariSignedByTLSelect>
+                        <select matNativeControl formControlName="signedByTL">
+                          <option value=""></option>
+                          <option *ngFor="let employee of filteredSignedByTLOptions" [value]="employee.code">
+                            {{ employee.displayLabel }}
+                          </option>
+                        </select>
+                      </ng-template>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="document-field">
+                    <label>Acknowledged By <span class="field-meta">(DI)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select *ngIf="!isSafari; else safariAcknowledgedBySelect" formControlName="acknowledgedBy" placeholder="Select employee">
+                        <mat-option *ngIf="!isSafari">
+                          <ngx-mat-select-search [formControl]="acknowledgedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredAcknowledgedByOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                      <ng-template #safariAcknowledgedBySelect>
+                        <select matNativeControl formControlName="acknowledgedBy">
+                          <option value=""></option>
+                          <option *ngFor="let employee of filteredAcknowledgedByOptions" [value]="employee.code">
+                            {{ employee.displayLabel }}
+                          </option>
+                        </select>
+                      </ng-template>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </section>
+
+              <section *ngIf="!isView" class="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                  <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Attachments</h2>
+                  <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Upload up to 5 files or add links.</p>
+                </div>
+
+                <div class="grid gap-6 p-6 lg:grid-cols-2">
+                  <div>
+                    <div class="mb-3 flex items-center justify-between">
+                      <h3 class="text-sm font-medium text-slate-900 dark:text-slate-100">Uploaded Files</h3>
+                      <span class="text-xs text-slate-500 dark:text-slate-400">{{ attachments.length }}/{{ maxAttachmentFiles }}</span>
+                    </div>
+
+                    <button type="button" mat-stroked-button (click)="openUploadDialog()" [disabled]="attachments.length >= maxAttachmentFiles">
+                      <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                      Upload Files
+                    </button>
+
+                    <div *ngIf="attachments.length; else noTenderFiles" class="mt-4 space-y-3">
+                      <div *ngFor="let attachment of attachments.controls; index as i" class="flex items-start justify-between rounded-xl border border-gray-200 px-4 py-3 dark:border-gray-700">
+                        <div class="flex items-start gap-3 min-w-0">
+                          <mat-icon
+                            class="mt-0.5 text-slate-400"
+                            [svgIcon]="attachment.get('type')?.value === 'link' ? 'heroicons_outline:link' : 'heroicons_outline:document-text'">
+                          </mat-icon>
+                          <div class="min-w-0">
+                            <div class="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
+                              {{ attachment.get('file_name')?.value || attachment.get('file_path')?.value }}
+                            </div>
+                            <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              <ng-container *ngIf="attachment.get('type')?.value === 'link'; else fileDetails">
+                                Shared link
+                              </ng-container>
+                              <ng-template #fileDetails>
+                                {{ formatAttachmentSize(attachment.get('file_size')?.value) || 'Uploaded file' }}
+                              </ng-template>
+                            </div>
+                          </div>
+                        </div>
+                        <button type="button" mat-icon-button color="warn" (click)="removeAttachment(i)">
+                          <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                        </button>
+                      </div>
+                    </div>
+
+                    <ng-template #noTenderFiles>
+                      <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">No uploaded files yet.</p>
+                    </ng-template>
+                  </div>
+
+
+                </div>
+              </section>
+
+              <div *ngIf="!isView" class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  mat-button
+                  (click)="goBack()"
+                  class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  mat-stroked-button
+                  (click)="saveForm()"
+                  [disabled]="loading"
+                  class="rounded-full border-gray-300 dark:border-gray-600">
+                  <mat-icon *ngIf="loading" class="animate-spin mr-2">refresh</mat-icon>
+                  Save Draft
+                </button>
+                <button
+                  type="submit"
+                  mat-flat-button
+                  color="primary"
+                  [disabled]="loading"
+                  class="!bg-blue-600 !text-white hover:!bg-blue-700 disabled:!bg-gray-300 disabled:!text-gray-500">
+                  <mat-icon *ngIf="loading" class="animate-spin mr-2">refresh</mat-icon>
+                  {{ loading ? 'Submitting...' : (isEdit ? 'Update Review' : 'Submit Review') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isView" class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+          <div>
+            <app-approval-workflow [steps]="workflowSteps"></app-approval-workflow>
+          </div>
+
+          <div *ngIf="attachmentItems.length" class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-4 flex items-center gap-2">
+              <mat-icon class="text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+              <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Attachments</h2>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                *ngFor="let attachment of attachmentItems"
+                class="flex items-start gap-3 rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-900/60 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+                (click)="openAttachment(attachment)">
+                <mat-icon
+                  class="mt-0.5 text-slate-400 scale-75"
+                  [svgIcon]="attachment.type === 'link' ? 'heroicons_outline:link' : 'heroicons_outline:document-text'">
+                </mat-icon>
+                <div class="min-w-0">
+                  <div class="truncate text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                    {{ attachment.fileName }}
+                  </div>
+                  <div class="mt-1 text-xs text-slate-500">
+                    <ng-container *ngIf="attachment.type === 'link'; else viewFileDetails">
+                      Shared link
+                    </ng-container>
+                    <ng-template #viewFileDetails>
+                      {{ attachment.fileSize || 'Unknown size' }} • {{ attachment.uploadDate }}
+                    </ng-template>
+                  </div>
+                </div>
+
+                <!-- Copy Button (Only for Drive Paths) -->
+                <button
+                  mat-icon-button
+                  class="ml-auto text-slate-400 hover:text-blue-600 transition-colors"
+                  (click)="$event.stopPropagation(); copyToClipboard(attachment.filePath)"
+                  *ngIf="attachment.filePath.includes(':')"
+                  matTooltip="Copy path to clipboard">
+                  <mat-icon class="scale-75" [svgIcon]="'heroicons_outline:clipboard-document'"></mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-tender-print-document
+  *ngIf="isView"
+  [form]="form"
+  [recordData]="recordData"
+  [checklist]="tenderCsaReviewChecklist"
+  [documentTypes]="documentTypes"
+  printRootClass="tender-csa-review-print-root"
+  [employeeDisplay]="printEmployeeDisplay">
+</app-tender-print-document>

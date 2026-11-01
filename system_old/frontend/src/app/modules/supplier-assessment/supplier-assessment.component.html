@@ -1,0 +1,335 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            Supplier Assessment Form
+          </h1>
+          <p class="text-base text-gray-600">
+            Meinhardt (Thailand) Ltd. - Form MTPC-01
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/supplier-assessment'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">refresh</mat-icon>
+          Reset Form
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Form -->
+    <mat-card class="mb-6" style="background-color: var(--fuse-bg-card); backdrop-filter: none; opacity: 1;">
+      <mat-card-header>
+        <mat-card-title class="text-xl font-semibold">
+          <mat-icon class="mr-2" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+          Form Details
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="pt-6">
+        <form [formGroup]="assessmentForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Basic Information Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Basic Information <span class="text-red-500">*</span>
+            </h3>
+          
+          <mat-form-field appearance="outline" class="w-full mb-4">
+            <mat-label>Item(s) supplied</mat-label>
+            <textarea matInput formControlName="itemsSupplied" 
+                     placeholder="Describe the items or services supplied by the supplier"
+                     rows="3"></textarea>
+            <mat-error *ngIf="assessmentForm.get('itemsSupplied')?.hasError('required')">
+              Items supplied is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full mb-6">
+            <mat-label>Company Name</mat-label>
+            <input matInput formControlName="companyName" placeholder="Enter supplier company name">
+            <mat-error *ngIf="assessmentForm.get('companyName')?.hasError('required')">
+              Company name is required
+            </mat-error>
+          </mat-form-field>
+
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-lg font-medium text-gray-700 mb-4">Information used for Assessment (Select at least one):</h4>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <mat-checkbox *ngFor="let option of informationOptions" 
+                           (change)="onInformationChange(option, $event.checked)"
+                           class="text-gray-700">
+                {{ option }}
+              </mat-checkbox>
+            </div>
+            <mat-error *ngIf="informationFormArray.hasError('required')" class="text-red-600 text-sm mt-2">
+              At least one information source must be selected
+            </mat-error>
+          </div>
+        </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Assessment Scoring Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Assessment Scoring (1-10 scale) <span class="text-red-500">*</span>
+            </h3>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6">
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Experience since establishment</mat-label>
+                <input matInput type="number" formControlName="experienceScore" 
+                       min="1" max="10" (input)="calculateTotalScore()">
+                <mat-hint>1-2: 1-2 years, 3-5: 3-5 years, 6-8: 6-10 years, 9-10: 10+ years</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Fully qualified staff</mat-label>
+                <input matInput type="number" formControlName="qualifiedStaffScore" 
+                       min="1" max="10" (input)="calculateTotalScore()">
+                <mat-hint>1-2: 1-4 staff, 3-5: 5-10 staff, 6-8: 11-20 staff, 9-10: 20+ staff</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Product compliance with accepted standards</mat-label>
+                <input matInput type="number" formControlName="productComplianceScore" 
+                       min="1" max="10" (input)="calculateTotalScore()">
+                <mat-hint>1-2: Poor, 3-5: Fair, 6-8: Good, 9-10: Excellent</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="text-center p-6 rounded-lg border-2 transition-colors"
+               [class.bg-green-50]="totalScore >= 15" 
+               [class.border-green-300]="totalScore >= 15"
+               [class.text-green-800]="totalScore >= 15"
+               [class.bg-red-50]="totalScore < 15" 
+               [class.border-red-300]="totalScore < 15"
+               [class.text-red-800]="totalScore < 15">
+            <h4 class="text-2xl font-bold mb-2">Total Score: {{ totalScore }} / 30</h4>
+            <p *ngIf="totalScore < 15" class="text-red-600 font-medium">
+              ⚠️ Total score must be at least 15 to proceed
+            </p>
+            <p *ngIf="totalScore >= 15" class="text-green-600 font-medium">
+              ✅ Score meets minimum requirement
+            </p>
+          </div>
+        </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- References Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              References <span class="text-red-500">*</span>
+            </h3>
+            <p class="text-gray-600 mb-4 text-sm">Contact at least one external reference and record name and opinion</p>
+          
+          <div formArrayName="references">
+            <div *ngFor="let reference of referencesFormArray.controls; let i = index" 
+                 [formGroupName]="i" class="mb-4">
+              <mat-card class="border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                <mat-card-content class="p-4">
+                  <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-medium text-gray-700">Reference {{ i + 1 }}</h4>
+                    <button mat-icon-button type="button" 
+                            (click)="removeReference(i)" 
+                            *ngIf="referencesFormArray.length > 1"
+                            matTooltip="Remove reference"
+                            class="text-red-500 hover:bg-red-50">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  
+                  <mat-form-field appearance="outline" class="w-full mb-4">
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="name" placeholder="Enter reference name">
+                    <mat-error *ngIf="reference.get('name')?.hasError('required')">
+                      Name is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Opinion</mat-label>
+                    <mat-select formControlName="opinion">
+                      <mat-option *ngFor="let option of opinionOptions" [value]="option.value">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="reference.get('opinion')?.hasError('required')">
+                      Opinion is required
+                    </mat-error>
+                  </mat-form-field>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+
+          <button mat-raised-button type="button" (click)="addReference()" 
+                  class="bg-blue-600 text-white hover:bg-blue-700 mb-6">
+            <mat-icon class="text-white">add</mat-icon>
+            Add Reference
+          </button>
+
+          <div class="p-4 rounded-lg text-center"
+               [class.bg-green-50]="hasPositiveReference" 
+               [class.border-green-300]="hasPositiveReference"
+               [class.text-green-800]="hasPositiveReference"
+               [class.bg-red-50]="!hasPositiveReference" 
+               [class.border-red-300]="!hasPositiveReference"
+               [class.text-red-800]="!hasPositiveReference"
+               [class.border]="true">
+            <p *ngIf="!hasPositiveReference" class="font-medium">
+              ⚠️ At least one positive reference is required
+            </p>
+            <p *ngIf="hasPositiveReference" class="font-medium">
+              ✅ Positive reference found
+            </p>
+          </div>
+        </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Recommendation Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Recommendation <span class="text-red-500">*</span>
+            </h3>
+          
+          <mat-radio-group formControlName="recommendation" class="flex flex-col gap-4 mb-6">
+            <mat-radio-button value="accept" class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+              <div class="ml-3">
+                <strong class="text-lg">Accept</strong>
+                <p class="text-gray-600 text-sm mt-1">Score in item 1 must be 15 or better and must have at least one good positive reference.</p>
+              </div>
+            </mat-radio-button>
+            
+            <mat-radio-button value="not_accept" class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+              <div class="ml-3">
+                <strong class="text-lg">Not Accept</strong>
+                <p class="text-gray-600 text-sm mt-1">Supplier does not meet the required criteria.</p>
+              </div>
+            </mat-radio-button>
+          </mat-radio-group>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Reason (Optional)</mat-label>
+            <textarea matInput formControlName="reason" 
+                     placeholder="Provide additional reasoning for the recommendation"
+                     rows="3"></textarea>
+          </mat-form-field>
+        </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Assessment Details Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Assessment Details <span class="text-red-500">*</span>
+            </h3>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <mat-form-field appearance="outline">
+              <mat-label>Assessed By (DI/TL)</mat-label>
+              <mat-select formControlName="assessedBy">
+                <mat-option *ngFor="let evaluator of evaluators" [value]="evaluator.name">
+                  {{ evaluator.name }} - {{ evaluator.role }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="assessmentForm.get('assessedBy')?.hasError('required')">
+                Assessor is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Assessment Date</mat-label>
+              <input matInput [matDatepicker]="assessedPicker" formControlName="assessedDate">
+              <mat-datepicker-toggle matSuffix [for]="assessedPicker"></mat-datepicker-toggle>
+              <mat-datepicker #assessedPicker></mat-datepicker>
+              <mat-error *ngIf="assessmentForm.get('assessedDate')?.hasError('required')">
+                Assessment date is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="bg-gray-50 p-6 rounded-lg mb-6">
+            <h4 class="text-lg font-medium text-gray-700 mb-2">Approved Supplier List Status</h4>
+            <p class="text-gray-600 mb-4">Is the above Supplier approved to go on the Approved Supplier List?</p>
+            
+            <mat-radio-group formControlName="approvedForSupplierList" class="flex gap-6 mb-4">
+              <mat-radio-button [value]="true">Yes</mat-radio-button>
+              <mat-radio-button [value]="false">No</mat-radio-button>
+            </mat-radio-group>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Remark (Optional)</mat-label>
+              <textarea matInput formControlName="approvedRemark" 
+                       placeholder="Additional remarks about the approval decision"
+                       rows="2"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6" *ngIf="assessmentForm.get('approvedForSupplierList')?.value">
+            <mat-form-field appearance="outline">
+              <mat-label>Approved By (MD/DI)</mat-label>
+              <mat-select formControlName="approvedBy">
+                <mat-option *ngFor="let approver of approvers" [value]="approver.name">
+                  {{ approver.name }} - {{ approver.role }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Approval Date</mat-label>
+              <input matInput [matDatepicker]="approvedPicker" formControlName="approvedDate">
+              <mat-datepicker-toggle matSuffix [for]="approvedPicker"></mat-datepicker-toggle>
+              <mat-datepicker #approvedPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <mat-form-field appearance="outline">
+              <mat-label>Acknowledged By (IMR)</mat-label>
+              <mat-select formControlName="acknowledgedBy">
+                <mat-option *ngFor="let acknowledger of acknowledgers" [value]="acknowledger.name">
+                  {{ acknowledger.name }} - {{ acknowledger.role }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Acknowledgment Date</mat-label>
+              <input matInput [matDatepicker]="acknowledgedPicker" formControlName="acknowledgedDate">
+              <mat-datepicker-toggle matSuffix [for]="acknowledgedPicker"></mat-datepicker-toggle>
+              <mat-datepicker #acknowledgedPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-center mt-12 pt-8 border-t-2 border-gray-300">
+          <button mat-raised-button color="primary" type="submit" 
+                  [disabled]="!assessmentForm.valid" 
+                  class="bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed px-12 py-4 text-xl font-bold rounded-lg flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
+            <mat-icon class="text-2xl">save</mat-icon>
+            Submit Assessment
+          </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="flex flex-wrap items-center gap-2">
+  <button
+    mat-stroked-button
+    (click)="onBack()"
+    class="!h-10 !rounded-full !border-slate-200 !px-4 !text-slate-700 hover:!bg-slate-50"
+  >
+    <mat-icon
+      class="icon-size-5 mr-2"
+      [svgIcon]="'heroicons_outline:arrow-left'"
+    ></mat-icon>
+    <span class="font-medium">Back to List</span>
+  </button>
+
+  <button
+    *ngIf="showPrint"
+    mat-stroked-button
+    (click)="onPrint()"
+    class="!h-10 !rounded-full !border-slate-200 !px-4 !text-slate-700 hover:!bg-slate-50"
+  >
+    <mat-icon
+      class="icon-size-5 mr-2"
+      [svgIcon]="'heroicons_outline:printer'"
+    ></mat-icon>
+    <span class="font-medium">{{ printLabel }}</span>
+  </button>
+
+  <button
+    *ngIf="showSecondaryPrint"
+    mat-stroked-button
+    (click)="onSecondaryPrint()"
+    class="!h-10 !rounded-full !border-orange-200 !bg-orange-50 !px-4 !text-orange-700 hover:!border-orange-300 hover:!bg-orange-100"
+  >
+    <mat-icon
+      class="icon-size-5 mr-2 !text-orange-500"
+      [svgIcon]="secondaryPrintIcon"
+    ></mat-icon>
+    <span class="font-medium">{{ secondaryPrintLabel }}</span>
+  </button>
+
+  <button
+    *ngIf="showEdit && hasEditPermission"
+    mat-flat-button
+    color="primary"
+    (click)="onEdit()"
+    class="!h-10 !rounded-full !px-4 !bg-blue-600 !text-white hover:!bg-blue-700"
+    style="background-color: #2563eb; color: #ffffff;"
+  >
+    <mat-icon
+      class="icon-size-5 mr-2"
+      [svgIcon]="'heroicons_outline:pencil-square'"
+    ></mat-icon>
+    <span class="font-medium">Edit</span>
+  </button>
+</div>

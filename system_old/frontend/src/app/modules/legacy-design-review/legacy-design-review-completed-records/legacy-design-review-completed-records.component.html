@@ -1,0 +1,248 @@
+<div class="h-full bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+  <div class="w-full border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="w-full px-4 py-4 sm:px-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl dark:text-white">
+            Legacy Design Review Records
+          </h1>
+          <p class="mt-1 text-sm text-gray-600 sm:text-base dark:text-gray-400">
+            Read-only records from all legacy Design Review stages
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="inline-flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+          [disabled]="isLoading || isLoadingTypes"
+          (click)="refresh()">
+          <mat-icon class="mr-2 text-current">refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-full w-full bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 dark:bg-gray-900">
+    <fuse-alert
+      *ngIf="alert"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null"
+      class="mb-6">
+      {{ alert.message }}
+    </fuse-alert>
+
+    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,1fr)_280px_auto_auto] lg:items-end">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Search</span>
+          <input
+            type="search"
+            class="legacy-completed-filter-input w-full"
+            [(ngModel)]="searchTerm"
+            (keyup.enter)="onSearch()"
+            placeholder="Project no, project name, discipline, source" />
+        </label>
+
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
+          <mat-form-field appearance="outline" class="legacy-completed-filter-field w-full">
+            <mat-select
+              [(ngModel)]="typeFilter"
+              [disabled]="isLoadingTypes"
+              (selectionChange)="onTypeChange()"
+              aria-label="Legacy Design Review stage">
+              <mat-option [value]="''">All Types</mat-option>
+              <mat-option *ngFor="let stage of stages" [value]="stage.key">
+                {{ stage.label }} ({{ totalCount(stage.key) }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <button
+          type="button"
+          class="inline-flex h-[42px] items-center justify-center rounded-lg border border-transparent bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          [disabled]="isLoading"
+          (click)="onSearch()">
+          <mat-icon class="mr-2 text-white">search</mat-icon>
+          Search
+        </button>
+
+        <button
+          type="button"
+          class="inline-flex h-[42px] items-center justify-center rounded-lg border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 shadow-sm transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+          [disabled]="isLoading && !searchTerm && !typeFilter"
+          (click)="clearFilters()">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Records</div>
+        <div class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ filteredRecords }}</div>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Selected Type</div>
+        <div class="mt-2 truncate text-lg font-semibold text-gray-900 dark:text-white" [title]="selectedTypeLabel">
+          {{ selectedTypeLabel }}
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Loaded Total</div>
+        <div class="mt-2 text-2xl font-bold text-blue-700 dark:text-blue-300">{{ totalRecords }}</div>
+      </div>
+    </div>
+
+    <div class="relative overflow-visible rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div class="relative flex flex-col gap-2 rounded-t-lg border-b border-gray-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-gray-700 dark:bg-gray-800">
+        <h2 class="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
+          Legacy Design Review Records
+        </h2>
+        <span class="text-xs font-medium text-gray-500 sm:text-sm dark:text-gray-400">
+          {{ filteredRecords }} of {{ totalRecords }} records
+        </span>
+      </div>
+
+      <div class="p-0">
+        <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12">
+          <mat-progress-spinner mode="indeterminate" diameter="48" class="mb-4"></mat-progress-spinner>
+          <p class="text-base text-gray-500 dark:text-gray-400">Loading records...</p>
+        </div>
+
+        <div *ngIf="!isLoading && pagedRecords.length === 0" class="flex flex-col items-center justify-center py-10 text-center sm:py-12">
+          <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 sm:h-24 sm:w-24">
+            <mat-icon class="h-10 w-10 text-blue-600 sm:h-12 sm:w-12" [svgIcon]="'heroicons_outline:clipboard-document-check'"></mat-icon>
+          </div>
+          <div class="mb-3 text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
+            No records found
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && pagedRecords.length > 0" class="overflow-x-auto">
+          <table mat-table [dataSource]="pagedRecords" class="legacy-completed-table w-full min-w-[1420px] text-left">
+            <ng-container matColumnDef="No">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">#</th>
+              <td mat-cell *matCellDef="let record">{{ record.No }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="stage">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Stage</th>
+              <td mat-cell *matCellDef="let record">
+                <span class="inline-flex max-w-[220px] items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200 dark:bg-blue-900/30 dark:text-blue-200 dark:ring-blue-800"
+                  [title]="record.stage.label">
+                  <span class="truncate">{{ record.stage.label }}</span>
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="projectNo">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Project No.</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap font-semibold text-gray-900 dark:text-white">
+                {{ record.projectId || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="projectName">
+              <th mat-header-cell *matHeaderCellDef>Project Name</th>
+              <td mat-cell *matCellDef="let record">
+                <div class="max-w-[320px]">
+                  <div class="truncate text-gray-800 dark:text-gray-100" [title]="record.projectName || '-'">
+                    {{ record.projectName || '-' }}
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="discipline">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Discipline</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap">
+                {{ record.discipline || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdDate">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Create Date</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap">
+                {{ formatDate(record.createdDate) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="teamEngineer">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Team Engineer</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap">
+                {{ record.teamEngineer || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="reviewer">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Reviewer</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap">
+                {{ record.reviewer || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="teamlead">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Teamlead</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap">
+                {{ record.teamlead || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="director">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap">Director</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap">
+                {{ record.director || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let record">
+                <span class="inline-flex max-w-[180px] items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1" [ngClass]="statusClass(record.status.label)">
+                  <span class="truncate">{{ record.status.label || '-' }}</span>
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-right">Action</th>
+              <td mat-cell *matCellDef="let record" class="whitespace-nowrap text-right">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  type="button"
+                  [disabled]="!canOpenDetail(record)"
+                  [matTooltip]="canOpenDetail(record) ? 'Open legacy detail' : 'Detail is unavailable'"
+                  (click)="openDetail(record)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <mat-paginator
+      *ngIf="!isLoading && filteredRecords > 0"
+      [length]="filteredRecords"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      class="legacy-completed-paginator mt-4">
+    </mat-paginator>
+  </div>
+</div>

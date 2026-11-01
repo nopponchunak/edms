@@ -1,0 +1,692 @@
+<div class="purchase-requisition-form-page h-full bg-gray-50 dark:bg-gray-950">
+    <div class="purchase-requisition-form-container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <div class="purchase-requisition-form-topbar mb-6">
+        <!-- Header -->
+        <div class="purchase-requisition-form-header">
+            <div class="purchase-requisition-form-title-row">
+                <div class="min-w-0">
+                    <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                        PURCHASE REQUISITION FORM
+                    </h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        {{ isEditMode ? 'Update purchase requisition information' : 'Meinhardt (Thailand) Ltd.' }}
+                    </p>
+                </div>
+
+                <div class="purchase-requisition-form-meta">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">
+                        27 - FORM MTPC-02
+                    </span>
+                    <div class="pr-required-summary" aria-label="Required fields left">
+                        <div class="pr-required-summary__topline">
+                            <span>Required Fields Left</span>
+                            <strong>{{ requiredFieldsLeft }}</strong>
+                        </div>
+                        <div class="pr-required-summary__track">
+                            <div
+                                class="pr-required-summary__bar"
+                                [style.width.%]="requiredProgressPercent">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!isEditMode" class="pr-version-switch-row">
+            <nav
+                class="pr-version-switch"
+                aria-label="Purchase requisition form version"
+            >
+                <a
+                    class="pr-version-switch__option pr-version-switch__option--active"
+                    routerLink="/purchase-requisition/new"
+                    aria-current="page"
+                >
+                    Modern
+                </a>
+                <a
+                    class="pr-version-switch__option"
+                    routerLink="/purchase-requisition/new-document"
+                >
+                    Legacy
+                </a>
+            </nav>
+        </div>
+    </div>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+            <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+        <!-- Form -->
+        <div *ngIf="!isLoading">
+            <mat-card class="purchase-requisition-form-card shadow-lg">
+                <mat-card-content class="purchase-requisition-form-card-content p-6">
+                    <form id="purchaseRequisitionForm" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                        <!-- General Request Information -->
+                        <div class="pr-form-section pr-form-section--general mb-8">
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                <mat-icon class="mr-2 text-green-600">business</mat-icon>
+                                General Request Information
+                            </h3>
+
+                            <div class="general-info-layout">
+	                                <div class="general-info-field">
+	                                    <label class="general-info-field__label general-info-field__label--required">To</label>
+	                                    <mat-form-field class="general-info-field__control to-field-readonly" id="control-to">
+                                        <input
+                                            matInput
+                                            formControlName="to"
+                                            placeholder="Select Verify by (MD/DI/AD/TL) to auto-fill"
+                                            readonly
+                                            aria-label="To"
+                                            class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed">
+                                        <mat-error *ngIf="isFieldInvalid('to')" class="text-red-500">
+                                            {{ getErrorMessage('to') }}
+                                        </mat-error>
+	                                    </mat-form-field>
+	                                </div>
+
+	                                <div class="general-info-field general-info-field--full">
+	                                    <label class="general-info-field__label general-info-field__label--required">Subject</label>
+	                                    <mat-form-field class="general-info-field__control" id="control-subject">
+	                                        <input
+	                                            matInput
+	                                            formControlName="subject"
+	                                            placeholder="Enter subject"
+	                                            aria-label="Subject"
+	                                            class="bg-white dark:bg-gray-700">
+	                                        <mat-error *ngIf="isFieldInvalid('subject')" class="text-red-500">
+	                                            {{ getErrorMessage('subject') }}
+	                                        </mat-error>
+	                                    </mat-form-field>
+	                                </div>
+
+	                                <div class="general-info-field">
+	                                    <label class="general-info-field__label general-info-field__label--required">Date</label>
+                                    <mat-form-field class="general-info-field__control" id="control-date">
+                                        <input
+                                            matInput
+                                            [matDatepicker]="datePicker"
+                                            formControlName="date"
+                                            aria-label="Date"
+                                            class="bg-white dark:bg-gray-700">
+                                        <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #datePicker></mat-datepicker>
+                                        <mat-error *ngIf="isFieldInvalid('date')" class="text-red-500">
+                                            {{ getErrorMessage('date') }}
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="general-info-field">
+                                    <label class="general-info-field__label general-info-field__label--required">Requested By</label>
+                                    <mat-form-field class="general-info-field__control" id="control-requestedBy">
+                                        <mat-select formControlName="requestedBy" aria-label="Requested By" class="bg-white dark:bg-gray-700">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="requestedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredRequestedUsers" [value]="user.code">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="isFieldInvalid('requestedBy')" class="text-red-500">
+                                            {{ getErrorMessage('requestedBy') }}
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="general-info-field">
+                                    <label class="general-info-field__label">Recommended By <span>(if any)</span></label>
+                                    <mat-form-field class="general-info-field__control">
+                                        <input
+                                            matInput
+                                            formControlName="recommendedBy"
+                                            placeholder="Enter name"
+                                            aria-label="Recommended By"
+                                            class="bg-white dark:bg-gray-700">
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="general-info-field">
+                                    <label class="general-info-field__label">Deadline <span>(if any)</span></label>
+                                    <mat-form-field class="general-info-field__control">
+                                        <input
+                                            matInput
+                                            [matDatepicker]="deadlinePicker"
+                                            formControlName="deadline"
+                                            aria-label="Deadline"
+                                            class="bg-white dark:bg-gray-700">
+                                        <mat-datepicker-toggle matIconSuffix [for]="deadlinePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #deadlinePicker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="general-info-field">
+                                    <label class="general-info-field__label">Received From <span>(if any)</span></label>
+                                    <mat-form-field class="general-info-field__control">
+                                        <input
+                                            matInput
+                                            formControlName="receivedFrom"
+                                            placeholder="Enter source"
+                                            aria-label="Received From"
+                                            class="bg-white dark:bg-gray-700">
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="general-info-field general-info-field--full">
+                                    <label class="general-info-field__label general-info-field__label--required">Reasons for Purchase</label>
+                                    <mat-form-field class="general-info-field__control" id="control-reasonsForPurchase">
+                                        <textarea
+                                            matInput
+                                            formControlName="reasonsForPurchase"
+                                            placeholder="Please provide detailed reasons for this purchase request"
+                                            rows="3"
+                                            aria-label="Reasons for Purchase"
+                                            class="bg-white dark:bg-gray-700"></textarea>
+                                        <mat-error *ngIf="isFieldInvalid('reasonsForPurchase')" class="text-red-500">
+                                            {{ getErrorMessage('reasonsForPurchase') }}
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+
+                        <mat-divider class="my-8"></mat-divider>
+
+                        <!-- Itemized Purchase List -->
+                        <div class="pr-form-section pr-form-section--items mb-8 itemized-purchase-list">
+                            <div class="item-list-toolbar">
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center m-0">
+                                    <mat-icon class="mr-2 text-purple-600">list</mat-icon>
+                                    Itemized Purchase List
+                                </h3>
+
+                                <div class="item-list-toolbar__actions">
+                                    <div class="item-list-currency-field">
+                                        <label class="item-list-currency-label">Currency</label>
+                                        <mat-form-field class="item-list-currency-select" subscriptSizing="dynamic" id="control-currency">
+                                            <mat-select formControlName="currency" placeholder="Select currency">
+                                                <mat-option *ngFor="let opt of currencyOptions" [value]="opt.value">{{ opt.label }}</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        mat-raised-button
+                                        color="primary"
+                                        (click)="addItem()"
+                                        class="item-list-add-btn">
+                                        <mat-icon>add</mat-icon>
+                                        Add Item
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <div class="item-list-table-wrap">
+                                <table class="item-list-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-item">Item(s)</th>
+                                            <th class="col-desc">Description</th>
+                                            <th class="col-qty">Qty</th>
+                                            <th class="col-price">Unit Price ({{ selectedCurrency }})</th>
+                                            <th class="col-amount">Amount ({{ selectedCurrency }})</th>
+                                            <th class="col-action"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody formArrayName="items">
+                                        <tr *ngFor="let item of itemsFormArray.controls; let i = index" [formGroupName]="i">
+                                            <td class="col-item">
+                                                <mat-form-field class="item-list-field">
+                                                    <input matInput formControlName="item" placeholder="Item" class="bg-white dark:bg-gray-700">
+                                                </mat-form-field>
+                                            </td>
+                                            <td class="col-desc">
+                                                <mat-form-field class="item-list-field">
+                                                    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5" formControlName="description" placeholder="Description" rows="1" class="item-description-input bg-white dark:bg-gray-700" aria-label="Item description"></textarea>
+                                                </mat-form-field>
+                                            </td>
+                                            <td class="col-qty">
+                                                <mat-form-field class="item-list-field item-list-field-numeric">
+                                                    <input matInput type="number" formControlName="quantity" min="1" placeholder="0" class="bg-white dark:bg-gray-700 text-right">
+                                                </mat-form-field>
+                                            </td>
+                                            <td class="col-price">
+                                                <mat-form-field class="item-list-field item-list-field-numeric">
+                                                    <input matInput type="number" formControlName="unitPrice" min="0" step="0.01" placeholder="0.00" class="bg-white dark:bg-gray-700 text-right">
+                                                </mat-form-field>
+                                            </td>
+                                            <td class="col-amount">
+                                                <span class="item-list-amount">{{ toAmountNumber(item.get('amount')?.value) | currency:selectedCurrency:'symbol':'1.2-2' }}</span>
+                                            </td>
+                                            <td class="col-action">
+                                                <button
+                                                    type="button"
+                                                    mat-icon-button
+                                                    color="warn"
+                                                    (click)="removeItem(i)"
+                                                    [disabled]="itemsFormArray.length <= 1"
+                                                    aria-label="Remove item">
+                                                    <mat-icon>delete</mat-icon>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Totals -->
+                            <div class="item-list-totals">
+                                <div class="item-list-totals-inner">
+                                    <div class="item-list-totals-row">
+                                        <span>Discount</span>
+                                        <span class="item-list-totals-value">
+                                            <input type="number" formControlName="discount" min="0" step="0.01"
+                                                class="w-28 text-right border rounded px-2 py-1 bg-white dark:bg-gray-700"
+                                                placeholder="0">
+                                        </span>
+                                    </div>
+                                    <div class="item-list-totals-row">
+                                        <span>Sub Total</span>
+                                        <span class="item-list-totals-value">{{ form.get('subTotal')?.value | currency:selectedCurrency:'symbol':'1.2-2' }}</span>
+                                    </div>
+                                    <div class="item-list-totals-row item-list-totals-row-vat">
+                                        <label class="item-list-vat-label">
+                                            <input type="checkbox" formControlName="vat" class="item-list-vat-checkbox">
+                                            <span>VAT 7%</span>
+                                        </label>
+                                        <span class="item-list-totals-value">{{ form.get('vatValue')?.value | currency:selectedCurrency:'symbol':'1.2-2' }}</span>
+                                    </div>
+                                    <div class="item-list-totals-row item-list-totals-grand">
+                                        <span>Grand Total</span>
+                                        <span class="item-list-totals-grand-value">{{ form.get('grandTotal')?.value | currency:selectedCurrency:'symbol':'1.2-2' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <mat-divider class="my-8"></mat-divider>
+
+                        <!-- Notes and Terms Section -->
+                        <div class="pr-form-section pr-form-section--notes mb-8">
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                <mat-icon class="mr-2 text-orange-600">gavel</mat-icon>
+                                Notes and Terms
+                            </h3>
+
+                            <div class="space-y-4">
+                                <!-- Note -->
+                                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                                    <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                                        <strong>Note:</strong> In case of purchasing software and/or IT equipment, this request must be verified by IT department to confirm our existing hardware is adequate and doesn't need any further upgrading.
+                                    </p>
+                                </div>
+
+                                <!-- Payment Term -->
+                                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                                    <mat-form-field class="w-full">
+                                        <mat-label class="text-gray-700 dark:text-gray-300">Payment Term</mat-label>
+                                        <textarea
+                                            matInput
+                                            formControlName="paymentTerm"
+                                            [placeholder]="defaultPaymentTerm"
+                                            rows="3"
+                                            class="bg-white dark:bg-gray-700"></textarea>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Other Conditions -->
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">Other conditions (if any)</mat-label>
+                                    <textarea
+                                        matInput
+                                        formControlName="otherConditions"
+                                        placeholder="Enter other terms and conditions"
+                                        rows="3"
+                                        class="bg-white dark:bg-gray-700"></textarea>
+                                </mat-form-field>
+
+                                <!-- Quotation Attached -->
+                                <div class="flex items-center">
+                                    <p class="m-0 text-sm text-gray-800 dark:text-gray-200">
+                                        *Please fill in the price and attach quotation (if any)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <mat-divider class="my-8"></mat-divider>
+
+                        <!-- Approval and Action Workflow -->
+                        <div class="pr-form-section pr-form-section--approval approval-workflow-section mb-8">
+                            <h3 class="approval-workflow-section__title">
+                                <mat-icon class="approval-workflow-section__icon">verified_user</mat-icon>
+                                Approval and Action Workflow
+                            </h3>
+
+                            <div class="approval-workflow">
+                                <!-- Requested By -->
+                                <div class="approval-workflow__row">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('requested') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label approval-workflow__label--required">Requested By</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-requestedBy">
+                                            <mat-select formControlName="requestedBy" aria-label="Requested By">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="requestedSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredRequestedUsers" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('requestedBy')" class="text-red-500">
+                                                {{ getErrorMessage('requestedBy') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                
+                                <!-- Not IT Equipment Checkbox -->
+                                <div class="approval-workflow__row approval-workflow__row--checkbox">
+                                    <mat-checkbox formControlName="notITEquipment">
+                                        Not IT equipment (all IT equipment, confirmation form the IT person is also required)
+                                    </mat-checkbox>
+                                </div>
+
+                                <!-- Verified By IS -->
+                                <div class="approval-workflow__row" *ngIf="!form.get('notITEquipment')?.value">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('verifiedIS') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label">Verified By</span>
+                                            <span class="approval-workflow__hint">(IS – for IT equipment only)</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full">
+                                            <mat-select formControlName="verifiedByIS" aria-label="Verified By IS">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="verifiedISSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredVerifiedISUsers" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <!-- Verified By MD/DI/AD/TL -->
+                                <div class="approval-workflow__row">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('verified') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label approval-workflow__label--required">Verified By</span>
+                                            <span class="approval-workflow__hint">(MD / DI / AD / TL)</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-verifiedBy">
+                                            <mat-select formControlName="verifiedBy" aria-label="Verified By">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="verifiedSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredVerifiedUsers" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('verifiedBy')" class="text-red-500">
+                                                {{ getErrorMessage('verifiedBy') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <!-- Approved By -->
+                                <div class="approval-workflow__row">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('approved') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label approval-workflow__label--required">Approved By</span>
+                                            <span class="approval-workflow__hint">(MD / DI)</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-approvedBy">
+                                            <mat-select formControlName="approvedBy" aria-label="Approved By">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="approvedSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('approvedBy')" class="text-red-500">
+                                                {{ getErrorMessage('approvedBy') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <!-- Approved By 2 -->
+                                <div class="approval-workflow__row" *ngIf="requiresSecondApprover()">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('approved2') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label approval-workflow__label--required">Approved By 2</span>
+                                            <span class="approval-workflow__hint">(required when Grand Total &gt; 50,000, DI only)</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-approvedBy2">
+                                            <mat-select formControlName="approvedBy2" aria-label="Approved By 2">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="approvedSearchCtrl2"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredApprovedUsers2" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-hint>Required for PR total above 50,000. Must be DI.</mat-hint>
+                                            <mat-error *ngIf="isFieldInvalid('approvedBy2')" class="text-red-500">
+                                                {{ getErrorMessage('approvedBy2') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <!-- Acknowledged -->
+                                <div class="approval-workflow__row">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('acknowledged') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label approval-workflow__label--required">Acknowledged</span>
+                                            <span class="approval-workflow__hint">(CA)</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-acknowledgedBy">
+                                            <mat-select formControlName="acknowledgedBy" aria-label="Acknowledged">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="acknowledgedSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('acknowledgedBy')" class="text-red-500">
+                                                {{ getErrorMessage('acknowledgedBy') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <!-- Action by Admin -->
+                                <div class="approval-workflow__row">
+                                    <div class="approval-workflow__header">
+                                        <span class="approval-workflow__step">{{ getStepNumber('actionByAdmin') }}</span>
+                                        <div class="approval-workflow__label-wrap">
+                                            <span class="approval-workflow__label approval-workflow__label--required">Action by</span>
+                                            <span class="approval-workflow__hint">(ADM)</span>
+                                        </div>
+                                    </div>
+                                    <div class="approval-workflow__fields">
+                                        <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-actionByAdmin">
+                                            <mat-select formControlName="actionByAdmin" aria-label="Action by Admin">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="actionByAdminSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredActionByAdminUsers" [value]="user.code">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('actionByAdmin')" class="text-red-500">
+                                                {{ getErrorMessage('actionByAdmin') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <mat-divider class="my-8"></mat-divider>
+
+                        <!-- Documents Section -->
+                        <div class="pr-form-section pr-form-section--documents mb-8">
+                            <div class="mb-4">
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                    <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                                    Attached Documents
+                                </h2>
+                            </div>
+
+                            <div class="mb-4">
+                                <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Please attach PDF documents only</h3>
+                                <button
+                                    type="button"
+                                    mat-stroked-button
+                                    (click)="openUploadDialog()"
+                                    class="mb-4">
+                                    <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                                    Upload Document
+                                </button>
+
+                                <div *ngIf="attachmentsArray?.length" class="mt-4 space-y-2">
+                                    <div
+                                        *ngFor="let att of attachmentsArray.controls; index as i"
+                                        class="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                        <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                            <mat-icon
+                                                class="text-gray-400 dark:text-gray-500"
+                                                [svgIcon]="att.value.type === 'file' ? 'heroicons_outline:document' : 'heroicons_outline:link'">
+                                            </mat-icon>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                                                    {{ att.value.file_name || att.value.file_url || att.value.name || att.value.url || 'No file name' }}
+                                                </div>
+                                                <div *ngIf="attachmentsArray.controls[i].value.file_size" class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ (attachmentsArray.controls[i].value.file_size / 1024).toFixed(2) }} KB
+                                                </div>
+                                                <div *ngIf="attachmentsArray.controls[i].value.mime_type" class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ attachmentsArray.controls[i].value.mime_type }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            color="warn"
+                                            (click)="removeAttachment(i)"
+                                            aria-label="Remove document">
+                                            <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="!attachmentsArray?.length" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                    No documents attached yet
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div *ngIf="!isLoading" class="purchase-requisition-form-actions">
+        <div class="purchase-requisition-form-actions__inner">
+            <button
+                type="button"
+                mat-stroked-button
+                (click)="onCancel()"
+                class="purchase-requisition-form-actions__button purchase-requisition-form-actions__cancel">
+                Cancel
+            </button>
+            <button
+                *ngIf="canSaveDraft"
+                type="button"
+                mat-stroked-button
+                color="primary"
+                (click)="onSaveDraft()"
+                [disabled]="isSubmitting || isSavingDraft"
+                class="purchase-requisition-form-actions__button">
+                <mat-spinner *ngIf="isSavingDraft" diameter="20" class="mr-2"></mat-spinner>
+                {{ isSavingDraft ? 'Saving Draft...' : 'Save Draft' }}
+            </button>
+            <button
+                type="submit"
+                form="purchaseRequisitionForm"
+                mat-flat-button
+                color="primary"
+                [disabled]="isSubmitting || isSavingDraft"
+                class="purchase-requisition-form-actions__button purchase-requisition-form-actions__submit">
+                <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+                {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+            </button>
+        </div>
+    </div>
+</div>

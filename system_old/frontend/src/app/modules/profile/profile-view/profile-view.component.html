@@ -1,0 +1,192 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <button 
+            (click)="onBack()" 
+            class="mr-4 p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h1 class="text-xl font-semibold text-gray-900">Profile</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-center justify-center h-64">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Loading profile...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!isLoading && profile" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Profile Header -->
+    <mat-card class="p-6 mb-8">
+      <div class="flex items-start space-x-6">
+        <!-- Avatar -->
+        <div class="flex-shrink-0">
+          <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+            <img 
+              *ngIf="profile.avatar" 
+              [src]="profile.avatar" 
+              [alt]="profile.firstName + ' ' + profile.lastName"
+              class="w-full h-full object-cover">
+            <span 
+              *ngIf="!profile.avatar" 
+              class="text-2xl font-semibold text-blue-600">
+              {{ getInitials(profile.firstName, profile.lastName) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            {{ profile.firstName }} {{ profile.lastName }}
+          </h2>
+          <p class="text-lg text-gray-600 mb-2">{{ profile.position }}</p>
+          <p class="text-gray-500 mb-4">{{ profile.department }}</p>
+          
+          <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+            <div class="flex items-center">
+              <mat-icon class="mr-1 text-sm">email</mat-icon>
+              {{ profile.email }}
+            </div>
+            <div class="flex items-center">
+              <mat-icon class="mr-1 text-sm">phone</mat-icon>
+              {{ profile.phone }}
+            </div>
+            <div class="flex items-center">
+              <mat-icon class="mr-1 text-sm">location_on</mat-icon>
+              {{ profile.location }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Personal Information -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-blue-600">person</mat-icon>
+          <h3 class="text-lg font-semibold text-gray-900">Personal Information</h3>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Date of Birth:</span>
+            <span class="font-medium">{{ formatDate(profile.dateOfBirth) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Address:</span>
+            <span class="font-medium text-right max-w-xs">{{ profile.address || 'N/A' }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Professional Information -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-green-600">work</mat-icon>
+          <h3 class="text-lg font-semibold text-gray-900">Professional Information</h3>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Employee ID:</span>
+            <span class="font-medium">{{ profile.employeeId }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Start Date:</span>
+            <span class="font-medium">{{ formatDate(profile.startDate) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Manager:</span>
+            <span class="font-medium">{{ profile.manager || 'N/A' }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Emergency Contact -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-red-600">emergency</mat-icon>
+          <h3 class="text-lg font-semibold text-gray-900">Emergency Contact</h3>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Name:</span>
+            <span class="font-medium">{{ profile.emergencyContactName || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Phone:</span>
+            <span class="font-medium">{{ profile.emergencyContactPhone || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Relationship:</span>
+            <span class="font-medium">{{ profile.emergencyContactRelation || 'N/A' }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Skills & Certifications -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-purple-600">star</mat-icon>
+          <h3 class="text-lg font-semibold text-gray-900">Skills & Certifications</h3>
+        </div>
+        
+        <div class="space-y-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Skills</h4>
+            <div class="flex flex-wrap gap-2">
+              <mat-chip *ngFor="let skill of profile.skills" class="bg-blue-100 text-blue-800">
+                {{ skill }}
+              </mat-chip>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Certifications</h4>
+            <div class="flex flex-wrap gap-2">
+              <mat-chip *ngFor="let cert of profile.certifications" class="bg-green-100 text-green-800">
+                {{ cert }}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+    </div>
+
+    <!-- Bio Section -->
+    <mat-card *ngIf="profile.bio" class="p-6 mt-8">
+      <div class="flex items-center mb-6">
+        <mat-icon class="mr-3 text-indigo-600">info</mat-icon>
+        <h3 class="text-lg font-semibold text-gray-900">About</h3>
+      </div>
+      <p class="text-gray-700 leading-relaxed">{{ profile.bio }}</p>
+    </mat-card>
+
+    <!-- Notes Section -->
+    <mat-card *ngIf="profile.notes" class="p-6 mt-8">
+      <div class="flex items-center mb-6">
+        <mat-icon class="mr-3 text-gray-600">note</mat-icon>
+        <h3 class="text-lg font-semibold text-gray-900">Notes</h3>
+      </div>
+      <p class="text-gray-700 leading-relaxed">{{ profile.notes }}</p>
+    </mat-card>
+
+  </div>
+</div>

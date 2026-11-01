@@ -1,0 +1,133 @@
+<div class="import-page">
+  <div class="import-shell">
+    <div class="import-header">
+      <div>
+        <h1>Current Projects Import</h1>
+        <p>Proposal Contract Review</p>
+      </div>
+
+      <button type="button" mat-button class="header-button" (click)="onBack()">
+        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        <span>Back to List</span>
+      </button>
+    </div>
+
+    <fuse-alert
+      *ngIf="alert"
+      class="mb-6"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null">
+      {{ alert.message }}
+    </fuse-alert>
+
+    <div class="content-grid">
+      <section class="upload-section">
+        <div class="section-heading">
+          <div>
+            <h2>Import File</h2>
+            <p>Excel workbook</p>
+          </div>
+          <span class="format-pill">XLSX / XLS</span>
+        </div>
+
+        <input
+          #fileInput
+          class="file-input"
+          type="file"
+          accept=".xlsx,.xls"
+          (change)="onFileSelected($event)" />
+
+        <button
+          type="button"
+          class="drop-zone"
+          [class.dragging]="isDragging"
+          [class.has-file]="selectedFile"
+          (click)="openFilePicker()"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)">
+          <mat-icon [svgIcon]="selectedFile ? 'heroicons_outline:document-check' : 'heroicons_outline:document-arrow-up'"></mat-icon>
+          <span class="drop-title">{{ selectedFile ? selectedFile.name : 'Choose Excel file' }}</span>
+          <span class="drop-meta">{{ selectedFile ? formatFileSize(selectedFile.size) : 'No file selected' }}</span>
+        </button>
+
+        <div class="action-row">
+          <button type="button" mat-button class="secondary-button" (click)="clearFile()" [disabled]="isUploading || !selectedFile">
+            <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+            <span>Clear</span>
+          </button>
+
+          <button type="button" mat-stroked-button color="primary" (click)="runImport(false)" [disabled]="isUploading || !selectedFile">
+            <mat-spinner *ngIf="runningAction === 'dry-run'" [diameter]="18"></mat-spinner>
+            <mat-icon *ngIf="runningAction !== 'dry-run'" class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:clipboard-document-check'"></mat-icon>
+            <span>Dry Run</span>
+          </button>
+
+          <button type="button" mat-flat-button color="primary" (click)="runImport(true)" [disabled]="isUploading || !selectedFile">
+            <mat-spinner *ngIf="runningAction === 'commit'" [diameter]="18"></mat-spinner>
+            <mat-icon *ngIf="runningAction !== 'commit'" class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+            <span>Commit Import</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="result-section">
+        <div class="section-heading">
+          <div>
+            <h2>Result</h2>
+            <p>{{ lastResult ? (lastResult.imported ? 'Imported' : 'Checked') : 'Waiting' }}</p>
+          </div>
+          <span *ngIf="lastResult" class="status-pill" [class.imported]="lastResult.imported">
+            {{ lastResult.imported ? 'Committed' : 'Dry Run' }}
+          </span>
+        </div>
+
+        <div *ngIf="!lastResult" class="empty-state">
+          <mat-icon [svgIcon]="'heroicons_outline:table-cells'"></mat-icon>
+          <span>No import result yet.</span>
+        </div>
+
+        <ng-container *ngIf="lastResult">
+          <div class="summary-grid">
+            <div *ngFor="let item of summaryEntries; trackBy: trackByLabel" class="summary-item">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value | number }}</strong>
+            </div>
+          </div>
+
+          <div *ngIf="createdEntries.length > 0" class="created-band">
+            <div *ngFor="let item of createdEntries; trackBy: trackByLabel">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value | number }}</strong>
+            </div>
+          </div>
+
+          <div *ngIf="errors.length > 0" class="message-block error-block">
+            <div class="message-heading">
+              <mat-icon [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
+              <strong>Errors</strong>
+              <span>{{ errors.length | number }}</span>
+            </div>
+            <ul>
+              <li *ngFor="let error of errors; trackBy: trackByValue">{{ error }}</li>
+            </ul>
+          </div>
+
+          <div *ngIf="warnings.length > 0" class="message-block warning-block">
+            <div class="message-heading">
+              <mat-icon [svgIcon]="'heroicons_outline:information-circle'"></mat-icon>
+              <strong>Warnings</strong>
+              <span>{{ warnings.length | number }}</span>
+            </div>
+            <ul>
+              <li *ngFor="let warning of warnings; trackBy: trackByValue">{{ warning }}</li>
+            </ul>
+          </div>
+        </ng-container>
+      </section>
+    </div>
+  </div>
+</div>

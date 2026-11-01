@@ -1,0 +1,194 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ isEditMode ? 'Edit Permission' : 'Add Permission' }}
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    {{ isEditMode ? 'Update permission settings' : 'Create a new permission with menu access controls' }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="permissionForm" (ngSubmit)="onSubmit()">
+            <mat-card class="mb-6">
+                <mat-card-content class="p-6">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Permission Name</mat-label>
+                        <input matInput formControlName="name" placeholder="Enter permission name" required />
+                        <mat-error *ngIf="permissionForm.get('name')?.hasError('required')">
+                            Permission name is required
+                        </mat-error>
+                    </mat-form-field>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Menu Tree Selection -->
+            <mat-card>
+                <mat-card-header class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <mat-card-title class="text-lg font-semibold text-gray-900 dark:text-white">
+                        Select Permissions
+                    </mat-card-title>
+                    <mat-card-subtitle class="text-gray-600 dark:text-gray-400">
+                        Choose which menus and actions this permission can access
+                    </mat-card-subtitle>
+                </mat-card-header>
+
+                <mat-card-content class="p-6">
+                    <!-- Loading -->
+                    <div
+                        class="flex items-center justify-center py-8"
+                        *ngIf="isLoadingMenus"
+                    >
+                        <mat-progress-spinner
+                            mode="indeterminate"
+                            diameter="32"
+                        ></mat-progress-spinner>
+                    </div>
+
+                    <!-- Menu Tree -->
+                    <div *ngIf="!isLoadingMenus && mainMenus.length > 0" class="space-y-4">
+                        <mat-expansion-panel
+                            *ngFor="let mainMenu of mainMenus"
+                            class="mb-4"
+                            [expanded]="true"
+                        >
+                            <mat-expansion-panel-header>
+                                <mat-panel-title class="flex items-center justify-between w-full">
+                                    <span class="font-semibold text-lg">{{ mainMenu.name }}</span>
+                                    <button
+                                        type="button"
+                                        mat-stroked-button
+                                        color="primary"
+                                        class="ml-auto"
+                                        (click)="selectAllInMainMenu(mainMenu.id, !isAllSelectedInMainMenu(mainMenu.id)); $event.stopPropagation()"
+                                    >
+                                        <mat-icon>{{ isAllSelectedInMainMenu(mainMenu.id) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                                        {{ isAllSelectedInMainMenu(mainMenu.id) ? 'Deselect All' : 'Select All' }}
+                                    </button>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+
+                            <div class="mt-4 overflow-x-auto">
+                                <table class="w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100 dark:bg-gray-700">
+                                            <th class="px-4 py-3 text-left border-b border-gray-300 dark:border-gray-600 font-semibold text-gray-900 dark:text-white">
+                                                Menu
+                                            </th>
+                                            <th
+                                                *ngFor="let action of permissionActions"
+                                                class="px-4 py-3 text-center border-b border-gray-300 dark:border-gray-600 font-semibold text-gray-900 dark:text-white whitespace-nowrap"
+                                            >
+                                                {{ action.label }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <ng-container *ngFor="let menu of mainMenu.MenusTree">
+                                            <ng-container *ngTemplateOutlet="menuTreeItem; context: { $implicit: menu, level: 0 }"></ng-container>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </mat-expansion-panel>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div
+                        *ngIf="!isLoadingMenus && mainMenus.length === 0"
+                        class="flex flex-col items-center justify-center py-10 text-center text-gray-500"
+                    >
+                        <mat-icon
+                            class="mb-2 text-4xl text-gray-400"
+                            [svgIcon]="'heroicons_outline:folder-open'"
+                        ></mat-icon>
+                        <div class="font-medium">No menu data available</div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-4 mt-6">
+                <button
+                    type="button"
+                    mat-stroked-button
+                    (click)="onCancel()"
+                    [disabled]="isLoading"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="isLoading || permissionForm.invalid"
+                >
+                    <mat-progress-spinner
+                        *ngIf="isLoading"
+                        mode="indeterminate"
+                        diameter="20"
+                        class="inline-block mr-2"
+                    ></mat-progress-spinner>
+                    {{ isEditMode ? 'Update Permission' : 'Create Permission' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Menu Tree Item Component Template (recursive) -->
+<ng-template #menuTreeItem let-menu let-level="level">
+    <tr *ngIf="isHeaderMenu(menu); else permissionMenuRow" class="menu-item-row menu-header-row">
+        <td
+            class="px-4 py-3 border-b border-gray-200 dark:border-gray-700"
+            [style.padding-left.px]="level * 24 + 16"
+            [attr.colspan]="permissionActions.length + 1"
+        >
+            <div>
+                <div class="font-semibold text-gray-900 dark:text-white">
+                    {{ menu.name }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ menu.key }}</div>
+            </div>
+        </td>
+    </tr>
+
+    <ng-template #permissionMenuRow>
+        <tr
+            class="menu-item-row hover:bg-gray-50 dark:hover:bg-gray-800"
+            [style.padding-left.px]="level * 24"
+        >
+            <td
+                class="px-4 py-3 border-b border-gray-200 dark:border-gray-700"
+                [style.padding-left.px]="level * 24 + 16"
+            >
+                <div>
+                    <div class="font-medium text-gray-900 dark:text-white">{{ menu.name }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ menu.key }}</div>
+                </div>
+            </td>
+            <td
+                *ngFor="let action of permissionActions"
+                class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 text-center"
+            >
+                <mat-checkbox
+                    [checked]="isMenuActionSelected(menu, action.key)"
+                    (change)="togglePermission(menu, action.key, $event)"
+                    color="primary"
+                >
+                </mat-checkbox>
+            </td>
+        </tr>
+    </ng-template>
+
+    <!-- Children (recursive) -->
+    <ng-container *ngIf="menu.children && menu.children.length > 0">
+        <ng-container *ngFor="let child of menu.children">
+            <ng-container *ngTemplateOutlet="menuTreeItem; context: { $implicit: child, level: level + 1 }"></ng-container>
+        </ng-container>
+    </ng-container>
+</ng-template>

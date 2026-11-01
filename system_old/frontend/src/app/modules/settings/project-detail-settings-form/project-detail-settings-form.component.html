@@ -1,0 +1,116 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="w-full h-full p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ isEditMode ? 'Edit Project Detail' : 'Create Project Detail' }}
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    {{ isEditMode ? 'Update project detail information' : 'Add a new project detail for use in forms' }}
+                </p>
+            </div>
+
+            <a
+                mat-stroked-button
+                color="primary"
+                [routerLink]="['/settings/project-details']"
+            >
+                <mat-icon class="mr-2">arrow_back</mat-icon>
+                Back to Project Detail List
+            </a>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading indicator -->
+        <div
+            *ngIf="isLoading"
+            class="flex items-center justify-center py-12"
+        >
+            <mat-progress-spinner
+                mode="indeterminate"
+                diameter="48"
+            ></mat-progress-spinner>
+        </div>
+
+        <mat-card
+            *ngIf="!isLoading"
+            class="project-detail-card shadow-lg border border-gray-200 dark:border-gray-700 w-full"
+        >
+            <mat-card-content class="p-6 lg:p-8 space-y-8">
+                <section>
+                    <h2 class="section-title text-base font-semibold text-gray-900 dark:text-white mb-3">
+                        Project Detail Information
+                    </h2>
+                    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Code</mat-label>
+                                <input matInput formControlName="code" placeholder="e.g. PD001 (optional)" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Name</mat-label>
+                                <input matInput formControlName="name" placeholder="e.g. Concept Design" />
+                                <mat-error *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
+                                    Name is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Detail</mat-label>
+                                <textarea matInput formControlName="detail" rows="3" placeholder="Optional description"></textarea>
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Status</mat-label>
+                                <mat-select formControlName="is_active">
+                                    <mat-option [value]="1">Active</mat-option>
+                                    <mat-option [value]="0">Inactive</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                color="primary"
+                                [routerLink]="['/settings/project-details']"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="submit"
+                                [disabled]="isSubmitting"
+                                class="px-6"
+                            >
+                                <mat-progress-spinner
+                                    *ngIf="isSubmitting"
+                                    [diameter]="18"
+                                    mode="indeterminate"
+                                    class="mr-2"
+                                ></mat-progress-spinner>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

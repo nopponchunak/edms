@@ -1,0 +1,798 @@
+<div class="ims-view-page">
+    <div class="ims-view-shell">
+        <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">
+                    Proposal & Contract Review
+                </h1>
+                <p class="text-sm text-gray-600">
+                    View proposal & contract review details
+                </p>
+            </div>
+            <div class="proposal-view-actions">
+                <ng-container *ngIf="!isApprovalMode; else approvalBackAction">
+                    <app-view-actions
+                        [backPath]="'/proposal-contract-review'"
+                        [navId]="'proposal-contract-review'"
+                        (edit)="onEdit()"
+                    ></app-view-actions>
+                    <button
+                        *ngIf="canManageMtProjects()"
+                        type="button"
+                        mat-button
+                        class="proposal-create-mt-button"
+                        (click)="onManageMtProjects()">
+                        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:tag'"></mat-icon>
+                        <span>MT Projects</span>
+                    </button>
+                    <button
+                        *ngIf="canCreatePqa()"
+                        type="button"
+                        mat-button
+                        class="proposal-create-pqa-button"
+                        (click)="onCreatePqa()">
+                        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:document-plus'"></mat-icon>
+                        <span>Create PQP</span>
+                    </button>
+                </ng-container>
+                <ng-template #approvalBackAction>
+                    <button
+                        type="button"
+                        mat-button
+                        class="proposal-review-back-button"
+                        (click)="onBack()">
+                        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                        <span>Back to Action Request</span>
+                    </button>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type"
+            [showIcon]="'true'" [dismissible]="'true'" (dismissed)="alert = null">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+            <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <!-- Content -->
+        <div *ngIf="!isLoading && review" class="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Main Document Card -->
+                <div class="ims-card document-card">
+                    <div class="ims-card-header">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                            <div>
+                                <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase mb-1">
+                                    Meinhardt (Thailand) Ltd.
+                                </div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                    PROPOSAL & CONTRACT REVIEW FORM
+                                </h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    18 - FORM MTPR-01
+                                </p>
+                            </div>
+                            <div class="flex gap-3 flex-wrap items-center">
+                                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full"
+                                    [ngClass]="getStatusBadgeClass(review.status)">
+                                    {{ getStatusLabel(review.status) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Project Name & No at top, like document header -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                            <div class="document-field md:col-span-3">
+                                <label>Project Name</label>
+                                <div class="ims-field-box">{{ review.projectName }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Proposal Number</label>
+                                <div class="ims-field-box font-mono">{{ review.proposalNumber }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Project Number</label>
+                                <div class="ims-field-box font-mono">{{ review.projectNo }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="review.mtProjects?.length" class="mt-project-strip mt-4">
+                            <div class="mt-project-strip-heading">
+                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:tag'"></mat-icon>
+                                <span>MT Projects</span>
+                            </div>
+                            <div class="mt-project-chip-list">
+                                <span *ngFor="let project of review.mtProjects" class="mt-project-chip">
+                                    {{ project.mtProjectNo }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 flex items-center gap-3">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Proposal Attached:</span>
+                            <div class="document-check-row">
+                                <span class="document-check-box">{{ review.proposalAttached ? '✓' : '' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                            </div>
+                            <div class="document-check-row">
+                                <span class="document-check-box">{{ !review.proposalAttached ? '✓' : '' }}</span>
+                                <span class="text-sm text-gray-900 dark:text-white">No</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ims-card-body space-y-8">
+
+                        <!-- 1. Location -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">1</span>
+                                Location
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="document-field">
+                                    <label>City</label>
+                                    <div class="ims-field-box">{{ review.locationCity || '-' }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Country</label>
+                                    <div class="ims-field-box">{{ review.locationCountry || '-' }}</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 2. Client -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">2</span>
+                                Client
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="document-field">
+                                    <label>Client</label>
+                                    <div class="ims-field-box">{{ review.clientName }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Contact Name</label>
+                                    <div class="ims-field-box">{{ review.clientContact }}</div>
+                                </div>
+                                <div class="document-field md:col-span-2">
+                                    <label>Address</label>
+                                    <div class="ims-field-box">{{ review.clientAddress }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Tel. No.</label>
+                                    <div class="ims-field-box">{{ review.clientTel }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Fax No.</label>
+                                    <div class="ims-field-box">{{ review.clientFax }}</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 3. Architect -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">3</span>
+                                Architect
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="document-field">
+                                    <label>Architect</label>
+                                    <div class="ims-field-box">{{ review.architectName }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Contact Name</label>
+                                    <div class="ims-field-box">{{ review.architectContact }}</div>
+                                </div>
+                                <div class="document-field md:col-span-2">
+                                    <label>Address</label>
+                                    <div class="ims-field-box">{{ review.architectAddress }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Tel. No.</label>
+                                    <div class="ims-field-box">{{ review.architectTel }}</div>
+                                </div>
+                                <div class="document-field">
+                                    <label>Fax No.</label>
+                                    <div class="ims-field-box">{{ review.architectFax }}</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 4. Enquiry From -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">4</span>
+                                Enquiry From
+                            </h3>
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Attached:</span>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ review.enquiryFrom ? '✓' : '' }}</span>
+                                    <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ !review.enquiryFrom ? '✓' : '' }}</span>
+                                    <span class="text-sm text-gray-900 dark:text-white">No</span>
+                                </div>
+                            </div>
+                            <div *ngIf="review.enquiryAttachments?.length" class="mt-3 space-y-2">
+                                <div *ngFor="let file of review.enquiryAttachments"
+                                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    <div class="flex items-center space-x-3 overflow-hidden">
+                                        <mat-icon class="text-gray-500" [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                                        <div class="min-w-0">
+                                            <span class="text-sm font-medium text-blue-600 dark:text-blue-400 truncate block">{{ file.name }}</span>
+                                            <span *ngIf="file.type" class="text-xs text-gray-500 dark:text-gray-400">{{ file.type }}</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" mat-icon-button color="primary" matTooltip="Open File" (click)="openAttachment(file)">
+                                        <mat-icon [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 5. Project Details -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">5</span>
+                                Project Details
+                            </h3>
+                            <div class="document-check-grid">
+                                <div *ngFor="let detail of allProjectDetailOptions" class="document-check-row">
+                                    <span class="document-check-box">{{ isProjectDetailSelected(detail) ? '✓' : '' }}</span>
+                                    <span class="text-gray-900 dark:text-white">{{ detail }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 6. Discipline -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">6</span>
+                                Discipline
+                            </h3>
+                            <div class="document-check-grid">
+                                <div *ngFor="let disc of allDisciplineOptions" class="document-check-row">
+                                    <span class="document-check-box">{{ isDisciplineSelected(disc) ? '✓' : '' }}</span>
+                                    <span class="text-gray-900 dark:text-white">{{ disc }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 7. Project Type -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">7</span>
+                                Project Type
+                            </h3>
+                            <div class="ims-field-box">{{ review.projectType }}</div>
+                            <p class="document-help mt-2">e.g. Hospital, Commercial, Hotel, Industrial, Office, Restaurant etc.</p>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 8. Fee Calculation -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">8</span>
+                                Fee Calculation
+                            </h3>
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Attached:</span>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ review.feeCalculationAttached ? '✓' : '' }}</span>
+                                    <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ !review.feeCalculationAttached ? '✓' : '' }}</span>
+                                    <span class="text-sm text-gray-900 dark:text-white">No</span>
+                                </div>
+                            </div>
+                            <div *ngIf="review.feeAttachments?.length" class="mt-3 space-y-2">
+                                <div *ngFor="let file of review.feeAttachments"
+                                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    <div class="flex items-center space-x-3 overflow-hidden">
+                                        <mat-icon class="text-gray-500" [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                                        <div class="min-w-0">
+                                            <span class="text-sm font-medium text-blue-600 dark:text-blue-400 truncate block">{{ file.name }}</span>
+                                            <span *ngIf="file.type" class="text-xs text-gray-500 dark:text-gray-400">{{ file.type }}</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" mat-icon-button color="primary" matTooltip="Open File" (click)="openAttachment(file)">
+                                        <mat-icon [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 9. Estimated Value -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">9</span>
+                                Estimated Value of Total Fees (THB/USD)
+                            </h3>
+                            <div class="ims-field-box text-sm font-semibold">
+                                {{ formatCurrency(review.estimatedValue, review.currency) }}
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 10-13. Scope and Resources -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">10-13</span>
+                                Scope and Resources
+                            </h3>
+                            <div class="question-list">
+                                <div class="question-row">
+                                    <div class="document-question-text text-sm font-medium">10. Scope clearly defined?</div>
+                                    <div class="document-yes-no flex gap-4">
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ review.scopeClearlyDefined ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                                        </div>
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ !review.scopeClearlyDefined ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">No</span>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="review.scopeDetails" class="document-field mt-1">
+                                        <div class="ims-field-box text-sm">{{ review.scopeDetails }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="question-row">
+                                    <div class="document-question-text text-sm font-medium">11. Resources / Time / Experience available?</div>
+                                    <div class="document-yes-no flex gap-4">
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ review.adequateResources ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                                        </div>
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ !review.adequateResources ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">No</span>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="review.resourcesDetails" class="document-field mt-1">
+                                        <div class="ims-field-box text-sm">{{ review.resourcesDetails }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="question-row">
+                                    <div class="document-question-text text-sm font-medium">12. Technical risks / Competency available?</div>
+                                    <div class="document-yes-no flex gap-4">
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ review.helpFromOtherOffices ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                                        </div>
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ !review.helpFromOtherOffices ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">No</span>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="review.helpDetails" class="document-field mt-1">
+                                        <div class="ims-field-box text-sm">{{ review.helpDetails || '-' }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="question-row">
+                                    <div class="document-question-text text-sm font-medium">13. Sub-consultants / Sub-contractors required?</div>
+                                    <div class="document-yes-no flex gap-4">
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ review.subConsultantsRequired ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+                                        </div>
+                                        <div class="document-check-row">
+                                            <span class="document-check-box">{{ !review.subConsultantsRequired ? '✓' : '' }}</span>
+                                            <span class="text-sm text-gray-900 dark:text-white">No</span>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="review.subConsultantsDetails" class="document-field mt-1">
+                                        <div class="ims-field-box text-sm">{{ review.subConsultantsDetails || '-' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 14. Special Quality Assurance -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">14</span>
+                                Special Quality Assurance Requirement
+                            </h3>
+                            <div class="ims-field-box min-h-[4rem] text-sm">{{ review.specialQARequirements || '-' }}</div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 15. Special Considerations -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">15</span>
+                                Special Considerations
+                            </h3>
+                            <div class="ims-field-box min-h-[4rem] text-sm">{{ review.specialConsiderations || '-' }}</div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- 16. Comments -->
+                        <section>
+                            <h3 class="document-section-title">
+                                <span class="section-number">16</span>
+                                Comments
+                            </h3>
+                            <div class="ims-field-box min-h-[6rem] text-sm">{{ review.comments || '-' }}</div>
+                        </section>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                        <!-- Classification and Signatures -->
+                        <section class="document-tail-section">
+                            <div class="document-classification-row">
+                                <span class="document-inline-label">Government Project</span>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ review.governmentProject ? '✓' : '' }}</span>
+                                    <span>Yes</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ !review.governmentProject ? '✓' : '' }}</span>
+                                    <span>No</span>
+                                </div>
+                                <span class="document-separator">/</span>
+                                <span class="document-inline-label">MMCL Project</span>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ review.mmclProject ? '✓' : '' }}</span>
+                                    <span>Yes</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ !review.mmclProject ? '✓' : '' }}</span>
+                                    <span>No</span>
+                                </div>
+                                <span class="document-separator">/</span>
+                                <span class="document-inline-label">MTL</span>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ review.mtl ? '✓' : '' }}</span>
+                                    <span>Yes</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ !review.mtl ? '✓' : '' }}</span>
+                                    <span>No</span>
+                                </div>
+                            </div>
+
+                            <div class="document-signed-row">
+                                <div class="document-line-field">
+                                    <span class="document-inline-label">Filled in by</span>
+                                    <span class="document-value-line">{{ getEmployeeLabel(review.filledInBy) }}</span>
+                                </div>
+                                <div class="document-line-field document-date-field">
+                                    <span class="document-inline-label">Date:</span>
+                                    <span class="document-value-line">{{ formatDate(review.filledInDate) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="document-conclusion-block">
+                                <div class="document-conclusion-heading">
+                                    <strong>Conclusion of Proposal Review:</strong>
+                                    <div class="document-check-row">
+                                        <span class="document-check-box">{{ review.proposalToBeSubmitted ? '✓' : '' }}</span>
+                                        <span>Proposal to be submitted</span>
+                                    </div>
+                                    <div class="document-check-row">
+                                        <span class="document-check-box">{{ review.proposalDecline ? '✓' : '' }}</span>
+                                        <span>Decline</span>
+                                    </div>
+                                    <div class="document-win-probability">
+                                        <span class="document-value-line">{{ review.winProbability || '-' }}</span>
+                                        <span>% Win probability</span>
+                                    </div>
+                                </div>
+
+                                <div class="signature-grid">
+                                    <div *ngFor="let rev of review.proposalReviewers; let i = index" class="signature-cell">
+                                        <div class="signature-line">
+                                            <span>Signed:</span>
+                                            <span class="signature-value">{{ getEmployeeLabel(rev.name) }}</span>
+                                        </div>
+                                        <div class="signature-role">({{ i === 0 ? 'MD / DI' : 'DI' }})</div>
+                                        <div class="signature-line">
+                                            <span>Date:</span>
+                                            <span class="signature-value">{{ formatDate(rev.date) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="document-conclusion-block">
+                                <div class="document-conclusion-heading">
+                                    <strong>Conclusion of Contract Review:</strong>
+                                    <div class="document-check-row">
+                                        <span class="document-check-box">{{ review.contractAgreedToProceed ? '✓' : '' }}</span>
+                                        <span>Contract Agreed to Proceed</span>
+                                    </div>
+                                    <div class="document-check-row">
+                                        <span class="document-check-box">{{ review.contractDecline ? '✓' : '' }}</span>
+                                        <span>Decline</span>
+                                    </div>
+                                </div>
+
+                                <div class="document-signed-row compact">
+                                    <div class="document-line-field">
+                                        <span class="document-inline-label">Lead TL:</span>
+                                        <span class="document-value-line">{{ getEmployeeLabel(review.leadTL) }}</span>
+                                    </div>
+                                    <div class="document-line-field">
+                                        <span class="document-inline-label">TL:</span>
+                                        <span class="document-value-line">{{ getEmployeeLabel(review.tl) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="document-pqp-row">
+                                    <strong>Need to proceed a project Quality Plan (PQP):</strong>
+                                    <div class="document-check-row">
+                                        <span class="document-check-box">{{ review.needPQP ? '✓' : '' }}</span>
+                                        <span>Yes</span>
+                                    </div>
+                                    <div class="document-check-row">
+                                        <span class="document-check-box">{{ !review.needPQP ? '✓' : '' }}</span>
+                                        <span>No</span>
+                                    </div>
+                                </div>
+
+                                <div class="signature-grid">
+                                    <div *ngFor="let rev of review.contractReviewers; let i = index" class="signature-cell">
+                                        <div class="signature-line">
+                                            <span>Signed:</span>
+                                            <span class="signature-value">{{ getEmployeeLabel(rev.name) }}</span>
+                                        </div>
+                                        <div class="signature-role">({{ i === 0 ? 'MD / DI' : 'DI' }})</div>
+                                        <div class="signature-line">
+                                            <span>Date:</span>
+                                            <span class="signature-value">{{ formatDate(rev.date) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sticky Sidebar -->
+            <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+                <!-- Approval Workflow Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+                        Approval Workflow
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                    <mat-icon class="text-sm">person</mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                    Filled in by: <strong>{{ getEmployeeLabel(review.approvalWorkflow.requestedBy.person) }}</strong>
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Date: {{ formatDateTime(review.approvalWorkflow.requestedBy.date) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div *ngFor="let step of review.approvalWorkflow.proposalSteps" class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center" [ngClass]="getByStatusColor(step.status)">
+                                    <mat-icon class="text-sm" [ngClass]="getWorkflowIconClass(step.status)">
+                                        {{ getWorkflowIcon(step.status) }}
+                                    </mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ step.label }}<span *ngIf="step.role"> ({{ step.role }})</span>:
+                                    <strong>{{ getEmployeeLabel(step.person) }}</strong>
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Date: {{ formatDateTime(step.date) }}
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Status:
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1" [ngClass]="getByStatusColor(step.status)">
+                                        {{ getByStatusText(step.status) }}
+                                    </span>
+                                </p>
+                                <p *ngIf="step.comment" class="approval-workflow-comment">
+                                    <span>Comment:</span>
+                                    {{ step.comment }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div *ngFor="let step of review.approvalWorkflow.contractSteps" class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center" [ngClass]="getByStatusColor(step.status)">
+                                    <mat-icon class="text-sm" [ngClass]="getWorkflowIconClass(step.status)">
+                                        {{ getWorkflowIcon(step.status) }}
+                                    </mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ step.label }}<span *ngIf="step.role"> ({{ step.role }})</span>:
+                                    <strong>{{ getEmployeeLabel(step.person) }}</strong>
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Date: {{ formatDateTime(step.date) }}
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Status:
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1" [ngClass]="getByStatusColor(step.status)">
+                                        {{ getByStatusText(step.status) }}
+                                    </span>
+                                </p>
+                                <p *ngIf="step.comment" class="approval-workflow-comment">
+                                    <span>Comment:</span>
+                                    {{ step.comment }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Decision Card -->
+                <div *ngIf="isApprovalMode" class="approval-action-card bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                        Approval Decision
+                    </h2>
+
+                    <ng-container *ngIf="review.currentStage && review.currentApprovalRole; else noCurrentApproval">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="approval-label">Decision</label>
+                                <div class="approval-choice-grid">
+                                    <label class="approval-choice" [class.selected]="approvalDecision === 'approve'">
+                                        <input type="radio" name="approvalDecision" value="approve" [(ngModel)]="approvalDecision">
+                                        <span>Approve</span>
+                                    </label>
+                                    <label class="approval-choice decline" [class.selected]="approvalDecision === 'decline'">
+                                        <input type="radio" name="approvalDecision" value="decline" [(ngModel)]="approvalDecision">
+                                        <span>Decline</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div *ngIf="review.currentStage === 'proposal' && approvalDecision === 'approve'">
+                                <label class="approval-label">% Win probability</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    class="approval-input"
+                                    [(ngModel)]="winProbability">
+                            </div>
+
+                            <div *ngIf="review.currentStage === 'contract' && review.currentApprovalRole === 'MD_DI' && approvalDecision === 'approve'">
+                                <label class="approval-label">Need to proceed a Project Quality Plan</label>
+                                <div class="approval-choice-grid">
+                                    <label class="approval-choice" [class.selected]="needPQP === true">
+                                        <input type="radio" name="needPQP" [ngValue]="true" [(ngModel)]="needPQP">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="approval-choice" [class.selected]="needPQP === false">
+                                        <input type="radio" name="needPQP" [ngValue]="false" [(ngModel)]="needPQP">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="approval-label">Comments</label>
+                                <textarea
+                                    class="approval-textarea"
+                                    rows="4"
+                                    [(ngModel)]="approvalComments"
+                                    placeholder="Enter approval comments or remarks"></textarea>
+                            </div>
+
+                            <div class="approval-actions">
+                                <button type="button" mat-button class="approval-cancel-button" (click)="onBack()">
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    mat-flat-button
+                                    color="primary"
+                                    class="approval-submit-button"
+                                    (click)="onApprove()"
+                                    [disabled]="!approvalDecision || isLoading">
+                                    <mat-icon class="icon-size-5 mr-2" [svgIcon]="approvalDecision === 'decline' ? 'heroicons_outline:x-circle' : 'heroicons_outline:check-circle'"></mat-icon>
+                                    <span>{{ approvalDecision === 'decline' ? 'Decline' : 'Approve' }} Review</span>
+                                </button>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <ng-template #noCurrentApproval>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 py-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-700 rounded-lg">
+                            No pending approval is assigned to the current user.
+                        </div>
+                    </ng-template>
+                </div>
+
+                <!-- Attached Documents Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                        Attached Documents
+                    </h2>
+
+                    <div *ngIf="review.attachments?.length; else noDocs" class="space-y-3">
+                        <div *ngFor="let file of review.attachments"
+                            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <div class="flex items-center space-x-3 overflow-hidden">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                        <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-blue-600 dark:text-blue-400 truncate block">
+                                        {{ file.name }}
+                                    </span>
+                                    <span *ngIf="file.type" class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ file.type }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-2 flex-shrink-0">
+                                <button type="button" mat-icon-button color="primary" matTooltip="Open File" (click)="openAttachment(file)">
+                                    <mat-icon [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template #noDocs>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 py-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-700 rounded-lg">
+                            No documents attached.
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

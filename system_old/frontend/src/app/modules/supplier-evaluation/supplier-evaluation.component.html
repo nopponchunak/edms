@@ -1,0 +1,295 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            Supplier Evaluation Form
+          </h1>
+          <p class="text-base text-gray-600">
+            Meinhardt (Thailand) Ltd. - Form MTPC-04
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/supplier-evaluation'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">refresh</mat-icon>
+          Reset Form
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Form -->
+    <mat-card class="mb-6" style="background-color: var(--fuse-bg-card); backdrop-filter: none; opacity: 1;">
+      <mat-card-header>
+        <mat-card-title class="text-xl font-semibold">
+          <mat-icon class="mr-2" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+          Form Details
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="pt-6">
+        <form [formGroup]="evaluationForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Basic Information Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Basic Information <span class="text-red-500">*</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <mat-form-field appearance="outline">
+                <mat-label>Supplier Name</mat-label>
+                <input matInput formControlName="supplierName" placeholder="Enter supplier name">
+                <mat-error *ngIf="evaluationForm.get('supplierName')?.hasError('required')">
+                  Supplier name is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Project Name</mat-label>
+                <input matInput formControlName="projectName" placeholder="Enter project name">
+                <mat-error *ngIf="evaluationForm.get('projectName')?.hasError('required')">
+                  Project name is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Project No.</mat-label>
+                <input matInput formControlName="projectNo" placeholder="Enter project number">
+                <mat-error *ngIf="evaluationForm.get('projectNo')?.hasError('required')">
+                  Project number is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Department / Purchased Value / Duration</mat-label>
+                <input matInput formControlName="departmentPurchasedValueDuration" placeholder="Enter department, value, and duration">
+                <mat-error *ngIf="evaluationForm.get('departmentPurchasedValueDuration')?.hasError('required')">
+                  Department information is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Anti-Corruption Check Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Anti-Corruption / Legal Compliance Check <span class="text-red-500">*</span>
+            </h3>
+            
+            <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+              <p class="text-gray-800 font-medium mb-4">
+                Are there any reasonable grounds to believe that the Supplier has violated or failed to comply with Meinhardt's Anti-Corruption programme and/or applicable laws?
+              </p>
+              
+              <mat-radio-group formControlName="hasAntiCorruptionViolation" class="flex gap-6">
+                <mat-radio-button [value]="true" class="text-red-600">
+                  <strong>Yes - remove from approved list</strong>
+                </mat-radio-button>
+                <mat-radio-button [value]="false" class="text-green-600">
+                  <strong>No - proceed below</strong>
+                </mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Evaluation Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Evaluation (0-10 scale) <span class="text-red-500">*</span>
+            </h3>
+            
+            <div class="space-y-6">
+              <div *ngFor="let criteria of evaluationCriteria" class="bg-gray-50 p-4 rounded-lg">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label class="text-sm font-medium text-gray-700">{{ criteria.label }}</label>
+                  </div>
+                  
+                  <div>
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Rating (0-10)</mat-label>
+                      <input matInput type="number" 
+                             [formControlName]="criteria.key + 'Score'"
+                             min="0" max="10" 
+                             (input)="calculateAverageRating()">
+                      <mat-hint>{{ getRatingDescription(evaluationForm.get(criteria.key + 'Score')?.value || 0) }}</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div>
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Comment</mat-label>
+                      <textarea matInput 
+                                [formControlName]="criteria.key + 'Comment'"
+                                placeholder="Optional comment"
+                                rows="2"></textarea>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Average Rating Display -->
+            <div class="mt-6 p-6 rounded-lg border-2 transition-colors"
+                 [class.bg-green-50]="averageRating >= 5" 
+                 [class.border-green-300]="averageRating >= 5"
+                 [class.text-green-800]="averageRating >= 5"
+                 [class.bg-red-50]="averageRating < 5" 
+                 [class.border-red-300]="averageRating < 5"
+                 [class.text-red-800]="averageRating < 5">
+              <h4 class="text-xl font-bold mb-2">Average Rating: {{ averageRating.toFixed(1) }} / 10</h4>
+              <p class="font-medium">{{ getRatingDescription(averageRating) }}</p>
+            </div>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Decision Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Decision <span class="text-red-500">*</span>
+            </h3>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <mat-radio-group formControlName="decision" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="text-center p-4 rounded-lg"
+                     [class.bg-green-100]="calculatedDecision === 'maintain'"
+                     [class.border-green-300]="calculatedDecision === 'maintain'"
+                     [class.bg-red-100]="calculatedDecision === 'remove'"
+                     [class.border-red-300]="calculatedDecision === 'remove'"
+                     [class.border]="true">
+                  <mat-radio-button value="maintain" 
+                                   [disabled]="calculatedDecision !== 'maintain'">
+                    <div class="ml-3">
+                      <strong class="text-lg">Supplier to be maintained in approved lists</strong>
+                      <p class="text-sm text-gray-600">(Average Rating ≥ 5)</p>
+                    </div>
+                  </mat-radio-button>
+                </div>
+                
+                <div class="text-center p-4 rounded-lg"
+                     [class.bg-red-100]="calculatedDecision === 'remove'"
+                     [class.border-red-300]="calculatedDecision === 'remove'"
+                     [class.bg-green-100]="calculatedDecision === 'maintain'"
+                     [class.border-green-300]="calculatedDecision === 'maintain'"
+                     [class.border]="true">
+                  <mat-radio-button value="remove"
+                                   [disabled]="calculatedDecision !== 'remove'">
+                    <div class="ml-3">
+                      <strong class="text-lg">Supplier to be removed from approved lists</strong>
+                      <p class="text-sm text-gray-600">(Average Rating < 5)</p>
+                    </div>
+                  </mat-radio-button>
+                </div>
+              </mat-radio-group>
+            </div>
+
+            <mat-form-field appearance="outline" class="w-full mt-4">
+              <mat-label>Decision Reason (Optional)</mat-label>
+              <textarea matInput formControlName="decisionReason" 
+                       placeholder="Provide additional reasoning for the decision"
+                       rows="3"></textarea>
+            </mat-form-field>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <!-- Evaluation Details Section -->
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Evaluation Details <span class="text-red-500">*</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <mat-form-field appearance="outline">
+                <mat-label>Evaluated By (ADM)</mat-label>
+                <mat-select formControlName="evaluatedBy">
+                  <mat-option *ngFor="let evaluator of evaluators" [value]="evaluator.name">
+                    {{ evaluator.name }} - {{ evaluator.role }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="evaluationForm.get('evaluatedBy')?.hasError('required')">
+                  Evaluator is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Evaluation Date</mat-label>
+                <input matInput [matDatepicker]="evaluatedPicker" formControlName="evaluatedDate">
+                <mat-datepicker-toggle matSuffix [for]="evaluatedPicker"></mat-datepicker-toggle>
+                <mat-datepicker #evaluatedPicker></mat-datepicker>
+                <mat-error *ngIf="evaluationForm.get('evaluatedDate')?.hasError('required')">
+                  Evaluation date is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <mat-form-field appearance="outline">
+                <mat-label>Approved By (MD/DI/TL)</mat-label>
+                <mat-select formControlName="approvedBy">
+                  <mat-option *ngFor="let approver of approvers" [value]="approver.name">
+                    {{ approver.name }} - {{ approver.role }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Approval Date</mat-label>
+                <input matInput [matDatepicker]="approvedPicker" formControlName="approvedDate">
+                <mat-datepicker-toggle matSuffix [for]="approvedPicker"></mat-datepicker-toggle>
+                <mat-datepicker #approvedPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="w-full mb-6">
+              <mat-label>Approval Reason (Optional)</mat-label>
+              <textarea matInput formControlName="approvalReason" 
+                       placeholder="Additional remarks about the approval decision"
+                       rows="2"></textarea>
+            </mat-form-field>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <mat-form-field appearance="outline">
+                <mat-label>Acknowledged By (IMR)</mat-label>
+                <mat-select formControlName="acknowledgedBy">
+                  <mat-option *ngFor="let acknowledger of acknowledgers" [value]="acknowledger.name">
+                    {{ acknowledger.name }} - {{ acknowledger.role }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Acknowledgment Date</mat-label>
+                <input matInput [matDatepicker]="acknowledgedPicker" formControlName="acknowledgedDate">
+                <mat-datepicker-toggle matSuffix [for]="acknowledgedPicker"></mat-datepicker-toggle>
+                <mat-datepicker #acknowledgedPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-center mt-10 pt-8 border-t-2 border-gray-300">
+            <button mat-raised-button color="primary" type="submit" 
+                    [disabled]="!evaluationForm.valid" 
+                    class="bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed px-12 py-4 text-xl font-bold rounded-lg flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
+              <mat-icon class="text-2xl">save</mat-icon>
+              Submit Evaluation
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

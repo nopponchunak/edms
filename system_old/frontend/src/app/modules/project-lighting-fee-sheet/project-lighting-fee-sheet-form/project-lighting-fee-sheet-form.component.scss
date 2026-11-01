@@ -1,0 +1,53 @@
+/* Project Lighting Fee Sheet Form Component Styles */
+/* This component uses Tailwind CSS classes for styling */
+
+.non-bottom-margin {
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+/* Custom styles for form fields in tables */
+table {
+  .mat-mdc-form-field {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+/* Ensure proper spacing for form fields in tight spaces */
+.space-y-1 > * + * {
+  margin-top: 0.25rem;
+}
+
+/* Custom styling for readonly fields */
+input[readonly] {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.dark input[readonly] {
+  background-color: #374151;
+  color: #9ca3af;
+}
+
+/* Custom styling for fee table cells */
+.font-bold.text-blue-600 {
+  font-weight: 700;
+  color: #2563eb;
+}
+
+/* Grid layout for project types */
+.grid.grid-cols-2.gap-4 > * + * {
+  margin-top: 0;
+}
+
+/* Report section styling */
+.bg-gray-50.dark\:bg-gray-700 {
+  background-color: #f9fafb;
+}
+
+.dark .bg-gray-50.dark\:bg-gray-700 {
+  background-color: #374151;
+}

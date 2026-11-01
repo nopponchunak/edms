@@ -1,0 +1,215 @@
+<div class="min-h-full bg-gray-50">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-normal text-gray-900">Dashboard</h1>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                    <span>Personal workspace</span>
+                    <span class="hidden text-gray-300 sm:inline">|</span>
+                    <span *ngIf="userCode">User code: {{ userCode }}</span>
+                    <span class="hidden text-gray-300 sm:inline">|</span>
+                    <span>Updated {{ lastUpdated | date: 'dd MMM yyyy HH:mm' }}</span>
+                </div>
+            </div>
+
+            <button
+                mat-stroked-button
+                type="button"
+                class="border-gray-300 bg-white"
+                [disabled]="loading"
+                (click)="loadDashboard()"
+            >
+                <mat-icon class="mr-2 icon-size-5" [svgIcon]="'heroicons_outline:arrow-path'"></mat-icon>
+                Refresh
+            </button>
+        </div>
+
+        <div
+            *ngIf="errorMessage"
+            class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+        >
+            {{ errorMessage }}
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">My Action</span>
+                    <mat-icon class="text-blue-600 icon-size-5" [svgIcon]="'heroicons_outline:bolt'"></mat-icon>
+                </div>
+                <div class="mt-3 text-3xl font-semibold text-gray-900">{{ summary.pending_my_action_count }}</div>
+                <div class="mt-1 text-sm text-gray-500">Waiting for my decision</div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Pending</span>
+                    <mat-icon class="text-amber-600 icon-size-5" [svgIcon]="'heroicons_outline:clock'"></mat-icon>
+                </div>
+                <div class="mt-3 text-3xl font-semibold text-gray-900">{{ summary.pending_count }}</div>
+                <div class="mt-1 text-sm text-gray-500">My requests in progress</div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Draft</span>
+                    <mat-icon class="text-gray-600 icon-size-5" [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+                </div>
+                <div class="mt-3 text-3xl font-semibold text-gray-900">{{ summary.draft_count }}</div>
+                <div class="mt-1 text-sm text-gray-500">Saved but not submitted</div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Rejected</span>
+                    <mat-icon class="text-red-600 icon-size-5" [svgIcon]="'heroicons_outline:x-circle'"></mat-icon>
+                </div>
+                <div class="mt-3 text-3xl font-semibold text-gray-900">{{ summary.rejected_count }}</div>
+                <div class="mt-1 text-sm text-gray-500">Need revision</div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Completed</span>
+                    <mat-icon class="text-green-600 icon-size-5" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                </div>
+                <div class="mt-3 text-3xl font-semibold text-gray-900">{{ summary.completed_this_month_count }}</div>
+                <div class="mt-1 text-sm text-gray-500">This month</div>
+            </div>
+        </div>
+
+        <div *ngIf="loading" class="flex min-h-64 items-center justify-center rounded-lg border border-gray-200 bg-white">
+            <mat-progress-spinner mode="indeterminate" diameter="42"></mat-progress-spinner>
+        </div>
+
+        <div *ngIf="!loading" class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div class="flex flex-col gap-6">
+                <section class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+                        <div>
+                            <h2 class="text-base font-semibold text-gray-900">Waiting for my action</h2>
+                            <p class="mt-0.5 text-sm text-gray-500">Requests that are currently assigned to you</p>
+                        </div>
+                        <span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                            {{ actionItems.length }}
+                        </span>
+                    </div>
+
+                    <div *ngIf="actionItems.length === 0" class="px-5 py-10 text-center text-sm text-gray-500">
+                        No action requests found.
+                    </div>
+
+                    <div *ngIf="actionItems.length > 0" class="divide-y divide-gray-100">
+                        <div
+                            *ngFor="let item of actionItems; trackBy: trackByItemId"
+                            class="grid gap-3 px-5 py-4 md:grid-cols-[minmax(0,1fr)_160px_130px]"
+                        >
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="truncate text-sm font-semibold text-gray-900">{{ item.title }}</span>
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset" [ngClass]="statusClass(item.status)">
+                                        {{ statusLabel(item.status) }}
+                                    </span>
+                                </div>
+                                <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-gray-500">
+                                    <span>{{ item.formType }}</span>
+                                    <span>{{ item.referenceNo }}</span>
+                                    <span>{{ item.currentStep }}</span>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500 md:text-right">
+                                {{ item.updatedAt | date: 'dd MMM yyyy HH:mm' }}
+                            </div>
+                            <div class="flex items-center md:justify-end">
+                                <a mat-flat-button color="primary" [routerLink]="item.actionUrl">
+                                    Review
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-200 px-5 py-4">
+                        <h2 class="text-base font-semibold text-gray-900">My recent requests</h2>
+                        <p class="mt-0.5 text-sm text-gray-500">Latest requests created by or assigned to you</p>
+                    </div>
+
+                    <div *ngIf="recentRequests.length === 0" class="px-5 py-10 text-center text-sm text-gray-500">
+                        No recent requests found.
+                    </div>
+
+                    <div *ngIf="recentRequests.length > 0" class="divide-y divide-gray-100">
+                        <div
+                            *ngFor="let item of recentRequests; trackBy: trackByItemId"
+                            class="grid gap-3 px-5 py-4 md:grid-cols-[minmax(0,1fr)_130px_88px]"
+                        >
+                            <div class="min-w-0">
+                                <div class="truncate text-sm font-semibold text-gray-900">{{ item.title }}</div>
+                                <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-gray-500">
+                                    <span>{{ item.formType }}</span>
+                                    <span>{{ item.referenceNo }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset" [ngClass]="statusClass(item.status)">
+                                    {{ statusLabel(item.status) }}
+                                </span>
+                            </div>
+                            <div class="flex items-center md:justify-end">
+                                <a mat-stroked-button [routerLink]="item.viewUrl">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="flex flex-col gap-6">
+                <section class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-200 px-5 py-4">
+                        <h2 class="text-base font-semibold text-gray-900">Quick create</h2>
+                        <p class="mt-0.5 text-sm text-gray-500">Available forms based on your permission</p>
+                    </div>
+                    <div class="space-y-2 p-3">
+                        <a
+                            *ngFor="let item of visibleQuickCreateItems()"
+                            class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            [routerLink]="item.route"
+                        >
+                            <mat-icon class="text-gray-500 icon-size-5" [svgIcon]="item.icon"></mat-icon>
+                            <span>{{ item.label }}</span>
+                        </a>
+                        <div *ngIf="visibleQuickCreateItems().length === 0" class="px-3 py-6 text-center text-sm text-gray-500">
+                            No create permission available.
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div class="border-b border-gray-200 px-5 py-4">
+                        <h2 class="text-base font-semibold text-gray-900">Need revision</h2>
+                        <p class="mt-0.5 text-sm text-gray-500">Rejected requests to follow up</p>
+                    </div>
+
+                    <div *ngIf="needRevision.length === 0" class="px-5 py-10 text-center text-sm text-gray-500">
+                        No rejected requests.
+                    </div>
+
+                    <div *ngIf="needRevision.length > 0" class="divide-y divide-gray-100">
+                        <a
+                            *ngFor="let item of needRevision; trackBy: trackByItemId"
+                            class="block px-5 py-4 hover:bg-gray-50"
+                            [routerLink]="item.viewUrl"
+                        >
+                            <div class="truncate text-sm font-semibold text-gray-900">{{ item.title }}</div>
+                            <div class="mt-1 flex flex-wrap gap-x-2 text-xs text-gray-500">
+                                <span>{{ item.formType }}</span>
+                                <span>{{ item.referenceNo }}</span>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </div>
+</div>

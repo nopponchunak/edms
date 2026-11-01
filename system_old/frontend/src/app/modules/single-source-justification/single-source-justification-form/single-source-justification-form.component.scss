@@ -1,0 +1,336 @@
+// Single Source Justification Form Component Styles
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.workflow-section {
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .dark & {
+    background-color: #1f2937;
+  }
+}
+
+.required-field {
+  color: #ef4444;
+}
+
+.justification-type-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alternatives-section {
+  margin-top: 1rem;
+  
+  .reason-field {
+    margin-top: 1rem;
+  }
+}
+
+.date-field {
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+.comments-field {
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  
+  .dark & {
+    border-top-color: #374151;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Material Design overrides
+.mat-mdc-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mat-mdc-radio-button {
+  margin-bottom: 0.5rem;
+}
+
+.mat-mdc-form-field {
+  .mat-mdc-form-field-label {
+    color: #374151;
+    
+    .dark & {
+      color: #d1d5db;
+    }
+  }
+}
+
+.mat-mdc-text-field-wrapper {
+  background-color: white;
+  
+  .dark & {
+    background-color: #374151;
+  }
+}
+
+// Loading states
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  .dark & {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+// Alert styles
+.alert-container {
+  margin-bottom: 1rem;
+}
+
+// Card styles
+.mat-mdc-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  .mat-mdc-card-header {
+    background-color: #dbeafe;
+    
+    .dark & {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+  }
+}
+
+// Workflow section specific styles
+.workflow-section {
+  h4 {
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    
+    .dark & {
+      color: #f9fafb;
+    }
+  }
+}
+
+// Form field spacing
+.mat-mdc-form-field {
+  margin-bottom: 1rem;
+}
+
+// Textarea specific styles
+textarea.mat-mdc-input-element {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Date picker specific styles
+.mat-datepicker-toggle {
+  color: #6b7280;
+  
+  .dark & {
+    color: #9ca3af;
+  }
+}
+
+// Radio button styles
+.mat-mdc-radio-button {
+  .mdc-radio {
+    .mdc-radio__native-control:enabled:not(:checked) + .mdc-radio__background .mdc-radio__outer-circle {
+      border-color: #6b7280;
+    }
+    
+    .mdc-radio__native-control:enabled:checked + .mdc-radio__background .mdc-radio__outer-circle {
+      border-color: #3b82f6;
+    }
+    
+    .mdc-radio__native-control:enabled:checked + .mdc-radio__background .mdc-radio__inner-circle {
+      border-color: #3b82f6;
+    }
+  }
+}
+
+
+
+
+
+// ========== Approval and Action Workflow ==========
+.approval-workflow-section {
+  .approval-workflow-section__title {
+    display: flex;
+    align-items: center;
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #111827;
+    .dark & {
+      color: #f9fafb;
+    }
+  }
+  .approval-workflow-section__icon {
+    margin-right: 0.5rem;
+    color: #059669;
+  }
+}
+
+.approval-workflow {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafafa;
+  .dark & {
+    border-color: #374151;
+    background: rgba(31, 41, 55, 0.4);
+  }
+}
+
+.approval-workflow__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.15s ease;
+  .dark & {
+    border-bottom-color: #374151;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: rgba(255, 255, 255, 0.6);
+    .dark & {
+      background: rgba(55, 65, 81, 0.3);
+    }
+  }
+}
+
+.approval-workflow__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.approval-workflow__step {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+  background: #d1fae5;
+  .dark & {
+    color: #a7f3d0;
+    background: rgba(6, 95, 70, 0.4);
+  }
+}
+
+.approval-workflow__label-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.approval-workflow__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+  .dark & {
+    color: #e5e7eb;
+  }
+}
+
+.approval-workflow__hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  .dark & {
+    color: #9ca3af;
+  }
+}
+
+.approval-workflow__fields {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.approval-workflow__field {
+  width: 100%;
+
+  &--person {
+    flex: 0 0 calc(75% - 0.5rem);
+  }
+
+  &--date {
+    flex: 0 0 calc(25% - 0.5rem);
+  }
+}
+
+// Compact form fields in workflow (hide subscript to keep rows tidy)
+:host ::ng-deep .approval-workflow .mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .approval-workflow .mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    padding: 0 12px;
+  }
+  .mat-mdc-form-field-infix {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 768px) {
+  .approval-workflow__fields {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

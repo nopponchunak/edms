@@ -1,0 +1,52 @@
+<div class="workflow-card p-8">
+    <h2 class="mb-2 flex items-center text-xl font-semibold text-gray-900">
+        <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+        {{ title }}
+    </h2>
+    <p class="mb-6 text-sm text-gray-500">{{ subtitle }}</p>
+
+    <div class="space-y-4">
+        <div *ngFor="let step of steps" class="workflow-step">
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+                    [ngClass]="getStatusClass(step.status)"
+                >
+                    <mat-icon class="text-sm" [ngClass]="getIconClass(step.status)">
+                        {{ getIcon(step.status) }}
+                    </mat-icon>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-gray-900">
+                        {{ step.title }}: <strong>{{ step.assignee || '-' }}</strong>
+                    </p>
+                    <p class="mt-1 text-sm text-gray-500">Date: {{ step.date || '-' }}</p>
+                    <p class="mt-1 text-sm text-gray-700" *ngIf="step.status !== 'none'">
+                        Status:
+                        <span
+                            class="ml-1 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                            [ngClass]="getStatusClass(step.status)"
+                        >
+                            {{ getStatusText(step.status) }}
+                        </span>
+                    </p>
+                    <p *ngIf="step.comments" class="mt-1 text-sm text-gray-700">
+                        <strong>Comments:</strong> {{ step.comments }}
+                    </p>
+
+                    <button
+                        *ngIf="step.showAction && step.actionLabel"
+                        mat-flat-button
+                        type="button"
+                        (click)="onAction(step)"
+                        class="mt-3 !rounded-lg !px-4 !py-2 text-sm font-medium"
+                        [ngClass]="getActionButtonClass(step)"
+                    >
+                        {{ step.actionLabel }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

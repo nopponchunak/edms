@@ -1,0 +1,393 @@
+<div class="design-workflow-page">
+  <div class="page-header">
+    <div class="page-header__inner">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-950">Design Workflow</h1>
+          <p class="mt-1 text-base text-slate-600">Visual workflow status for Design Review documents</p>
+        </div>
+
+        <button
+          mat-stroked-button
+          color="primary"
+          [disabled]="!workflow"
+          (click)="openDocument()">
+          <mat-icon>open_in_new</mat-icon>
+          Open Document
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="design-workflow-content">
+    <mat-tab-group
+      class="design-workflow-tabs"
+      [selectedIndex]="selectedTabIndex"
+      (selectedIndexChange)="onTabChange($event)">
+      <mat-tab label="Workflow">
+        <div class="workflow-tab-panel">
+    <div class="filter-panel">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Document type</mat-label>
+        <mat-select
+          [(ngModel)]="selectedType"
+          [disabled]="loadingTypes"
+          (selectionChange)="loadDocuments()">
+          <mat-option *ngFor="let type of documentTypes" [value]="type.type">
+            {{ type.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-search">
+        <mat-label>Search document</mat-label>
+        <input
+          matInput
+          [(ngModel)]="documentSearch"
+          (keyup.enter)="loadDocuments()"
+          placeholder="Project, discipline, location" />
+        <button mat-icon-button matSuffix type="button" (click)="loadDocuments()" [disabled]="!selectedType || loadingDocuments">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-document">
+        <mat-label>Document</mat-label>
+        <mat-select
+          [(ngModel)]="selectedDocumentId"
+          [disabled]="!selectedType || loadingDocuments">
+          <mat-option *ngIf="loadingDocuments" disabled>Loading documents...</mat-option>
+          <mat-option *ngFor="let document of documents" [value]="document.id">
+            {{ document.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        class="apply-button"
+        [disabled]="loadingWorkflow || !selectedType || !selectedDocumentId"
+        (click)="apply()">
+        <mat-icon>account_tree</mat-icon>
+        Apply
+      </button>
+    </div>
+
+    <div *ngIf="loadingWorkflow" class="flex flex-col items-center justify-center py-16">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="mt-4 text-slate-500">Loading workflow...</p>
+    </div>
+
+    <ng-container *ngIf="!loadingWorkflow && workflow">
+      <div class="workflow-result-grid">
+        <section class="workflow-surface">
+          <div class="workflow-heading">
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-wide text-blue-600">{{ workflow.typeLabel }}</p>
+              <h2 class="mt-1 text-2xl font-bold text-slate-950">{{ workflow.document.projectName }}</h2>
+              <p class="mt-1 text-sm text-slate-500">{{ workflow.document.projectNumber }} | {{ workflow.document.discipline }}</p>
+            </div>
+            <div class="progress-pill">
+              <span class="text-2xl font-bold">{{ workflow.summary.progressPercent }}%</span>
+              <span class="text-xs font-semibold uppercase">Progress</span>
+            </div>
+          </div>
+
+          <mat-progress-bar class="mt-5" mode="determinate" [value]="workflow.summary.progressPercent"></mat-progress-bar>
+
+          <div class="workflow-canvas">
+            <ng-container *ngFor="let row of workflowRows; let rowIndex = index">
+              <div [class]="getWorkflowRowClass(row)">
+                <ng-container *ngFor="let step of row.steps; let i = index">
+                  <article [class]="getStepClass(step)">
+                    <div class="node-status">
+                      <mat-icon>{{ getStatusIcon(step) }}</mat-icon>
+                      <span>{{ getStatusLabel(step) }}</span>
+                    </div>
+                    <div class="node-body">
+                      <p class="node-role">{{ step.role }}</p>
+                      <h3>{{ step.action }}</h3>
+                      <div class="node-meta">
+                        <span>{{ displayAssignee(step.assignee) }}</span>
+                        <span>{{ formatDate(step.date) }}</span>
+                      </div>
+                      <div *ngIf="step.isOverdue || step.status === 'overdue'" class="node-overdue">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ getOverdueText(step) }}</span>
+                      </div>
+                    </div>
+                  </article>
+
+                  <div *ngIf="i < row.steps.length - 1" [class]="getRowConnectorClass(row, i)">
+                    <span>
+                      <mat-icon>{{ getRowConnectorIcon(row) }}</mat-icon>
+                    </span>
+                  </div>
+                </ng-container>
+              </div>
+
+              <div *ngIf="rowIndex < workflowRows.length - 1" [class]="getRowBridgeClass(row, rowIndex)">
+                <span>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </span>
+              </div>
+            </ng-container>
+          </div>
+        </section>
+
+        <aside class="summary-panel">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Current status</p>
+            <h3 class="mt-2 text-xl font-bold text-slate-950">
+              {{ workflow.summary.currentStep ? workflow.summary.currentStep.role + ' - ' + workflow.summary.currentStep.action : 'Completed' }}
+            </h3>
+            <p
+              *ngIf="workflow.summary.currentStep?.isOverdue || workflow.summary.currentStep?.status === 'overdue'"
+              class="current-overdue">
+              {{ getOverdueText(workflow.summary.currentStep) }}
+            </p>
+          </div>
+
+          <div class="summary-stat">
+            <span>Completed steps</span>
+            <strong>{{ completedSteps }} / {{ totalSteps }}</strong>
+          </div>
+
+          <div class="summary-stat">
+            <span>Updated</span>
+            <strong>{{ formatDate(workflow.document.updatedAt) }}</strong>
+          </div>
+
+          <div *ngIf="workflow.document.documentLocation" class="summary-location">
+            <span>File location</span>
+            <p>{{ workflow.document.documentLocation }}</p>
+          </div>
+
+          <div *ngIf="workflow.document.documentTypes.length > 0" class="flex flex-wrap gap-2">
+            <mat-chip *ngFor="let docType of workflow.document.documentTypes">{{ docType }}</mat-chip>
+          </div>
+
+          <div class="legend">
+            <div><span class="legend-dot legend-dot--complete"></span>Complete</div>
+            <div><span class="legend-dot legend-dot--process"></span>On process</div>
+            <div><span class="legend-dot legend-dot--overdue"></span>Overdue</div>
+            <div><span class="legend-dot legend-dot--pending"></span>Pending</div>
+            <div><span class="legend-dot legend-dot--rejected"></span>Rejected</div>
+          </div>
+        </aside>
+      </div>
+    </ng-container>
+
+    <div *ngIf="!loadingWorkflow && !workflow" class="empty-state">
+      <div class="empty-icon">
+        <mat-icon>account_tree</mat-icon>
+      </div>
+      <h2>Select a document to view workflow</h2>
+      <p>Choose a Design Review document type and document, then apply the filter.</p>
+    </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Overdue Report">
+        <div class="report-toolbar">
+          <div>
+            <h2>Design Review Online Report</h2>
+            <p>
+              {{ reportResultCount }} of {{ reportTotalCount }} overdue item{{ reportTotalCount === 1 ? '' : 's' }}
+            </p>
+          </div>
+
+          <div class="report-actions">
+            <button mat-stroked-button type="button" [disabled]="loadingReport" (click)="loadReport()">
+              <mat-icon>refresh</mat-icon>
+              Refresh
+            </button>
+            <button mat-flat-button color="primary" type="button" [disabled]="loadingReport || !report" (click)="printReport()">
+              <mat-icon>print</mat-icon>
+              Print
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="report" class="report-filter-panel">
+          <mat-form-field appearance="outline">
+            <mat-label>Responsible Person</mat-label>
+            <mat-select
+              multiple
+              [(ngModel)]="reportResponsibleFilter"
+              (selectionChange)="onReportResponsibleFilterChange($event.value)">
+              <mat-select-trigger>{{ reportResponsibleFilterLabel }}</mat-select-trigger>
+              <mat-option [value]="allReportFilterValue">All</mat-option>
+              <mat-option *ngFor="let person of reportResponsibleOptions" [value]="person">
+                {{ person }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Discipline</mat-label>
+            <mat-select
+              multiple
+              [(ngModel)]="reportDisciplineFilter"
+              (selectionChange)="onReportDisciplineFilterChange($event.value)">
+              <mat-select-trigger>{{ reportDisciplineFilterLabel }}</mat-select-trigger>
+              <mat-option [value]="allReportFilterValue">All</mat-option>
+              <mat-option *ngFor="let discipline of reportDisciplineOptions" [value]="discipline">
+                {{ discipline }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date range</mat-label>
+            <mat-date-range-input [rangePicker]="reportDateRangePicker">
+              <input matStartDate [(ngModel)]="reportDateStart" (dateChange)="onReportFilterChange()" placeholder="Start date" />
+              <input matEndDate [(ngModel)]="reportDateEnd" (dateChange)="onReportFilterChange()" placeholder="End date" />
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="reportDateRangePicker"></mat-datepicker-toggle>
+            <mat-date-range-picker #reportDateRangePicker></mat-date-range-picker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Stage</mat-label>
+            <mat-select [(ngModel)]="reportStageFilter" (selectionChange)="onReportFilterChange()">
+              <mat-option value="all">All</mat-option>
+              <mat-option *ngFor="let stage of reportStageOptions" [value]="stage">
+                {{ stage }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="reportStatusFilter" (selectionChange)="onReportFilterChange()">
+              <mat-option value="all">All</mat-option>
+              <mat-option *ngFor="let status of reportStatusOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-stroked-button type="button" class="report-clear-button" (click)="resetReportFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+            Clear
+          </button>
+        </div>
+
+        <div *ngIf="loadingReport" class="flex flex-col items-center justify-center py-16">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p class="mt-4 text-slate-500">Loading report...</p>
+        </div>
+
+        <section *ngIf="!loadingReport && report" class="report-sheet print-area">
+          <header class="report-header">
+            <div></div>
+            <h2>DESIGN REVIEW ONLINE ({{ reportTitleDisciplineLabel }})</h2>
+            <div class="report-brand">
+              <img src="images/logo/meinhardt-logo.svg" alt="Meinhardt" />
+              <strong>LAST UPDATE: {{ formatReportDate(report.generatedAt) }}</strong>
+            </div>
+          </header>
+
+          <table class="report-table">
+            <colgroup>
+              <col class="report-col-person" />
+              <col class="report-col-mt" />
+              <col class="report-col-project" />
+              <col class="report-col-discipline" />
+              <col class="report-col-stage" />
+              <col class="report-col-status" />
+              <col class="report-col-days" />
+              <col class="report-col-active" />
+            </colgroup>
+            <thead class="report-table-head">
+              <tr>
+                <th><span>Responsible<br />Person</span></th>
+                <th><span>MT</span></th>
+                <th><span>Project Name</span></th>
+                <th><span>Discipline</span></th>
+                <th><span>Stage</span></th>
+                <th><span>Status</span></th>
+                <th><span>Days</span></th>
+                <th><span>Status</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let group of reportGroups">
+                <tr *ngFor="let row of group.rows; let rowIndex = index">
+                  <td *ngIf="rowIndex === 0" class="responsible-cell" [attr.rowspan]="group.rows.length">
+                    {{ group.responsiblePerson }}
+                  </td>
+                  <td class="center-cell">{{ row.projectNumber }}</td>
+                  <td>{{ row.projectName }}</td>
+                  <td>{{ row.discipline }}</td>
+                  <td class="center-cell">{{ row.stage }}</td>
+                  <td class="status-cell">{{ row.statusLabel }}</td>
+                  <td class="days-cell">{{ row.days }}</td>
+                  <td class="active-cell">{{ row.lastStatus }}</td>
+                </tr>
+              </ng-container>
+
+              <tr *ngIf="filteredReportRows.length === 0">
+                <td colspan="8" class="empty-report-cell">No overdue workflow items</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </mat-tab>
+    </mat-tab-group>
+
+    <section *ngIf="report" class="report-sheet report-print-sheet print-area">
+      <header class="report-header">
+        <div></div>
+        <h2>DESIGN REVIEW ONLINE ({{ reportTitleDisciplineLabel }})</h2>
+        <div class="report-brand">
+          <img src="images/logo/meinhardt-logo.svg" alt="Meinhardt" />
+          <strong>LAST UPDATE: {{ formatReportDate(report.generatedAt) }}</strong>
+        </div>
+      </header>
+
+      <table class="report-table">
+        <colgroup>
+          <col class="report-col-person" />
+          <col class="report-col-mt" />
+          <col class="report-col-project" />
+          <col class="report-col-discipline" />
+          <col class="report-col-stage" />
+          <col class="report-col-status" />
+          <col class="report-col-days" />
+          <col class="report-col-active" />
+        </colgroup>
+        <thead class="report-table-head">
+          <tr>
+            <th><span>Responsible<br />Person</span></th>
+            <th><span>MT</span></th>
+            <th><span>Project Name</span></th>
+            <th><span>Discipline</span></th>
+            <th><span>Stage</span></th>
+            <th><span>Status</span></th>
+            <th><span>Days</span></th>
+            <th><span>Status</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of printReportRows">
+            <td [class]="row.responsibleCellClass">{{ row.responsiblePersonDisplay }}</td>
+            <td class="center-cell">{{ row.projectNumber }}</td>
+            <td>{{ row.projectName }}</td>
+            <td>{{ row.discipline }}</td>
+            <td class="center-cell">{{ row.stage }}</td>
+            <td class="status-cell">{{ row.statusLabel }}</td>
+            <td class="days-cell">{{ row.days }}</td>
+            <td class="active-cell">{{ row.lastStatus }}</td>
+          </tr>
+
+          <tr *ngIf="filteredReportRows.length === 0">
+            <td colspan="8" class="empty-report-cell">No overdue workflow items</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>

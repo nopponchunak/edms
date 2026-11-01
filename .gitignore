@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.angular/
+.env
+*.log
+.idea/
+.vscode/
+
+# Keep the legacy source as a read-only migration reference.
+system_old/**/node_modules/
+system_old/**/vendor/
+
+# Local data that must not be published: database dumps (real employee records) and uploaded attachments.
+dump-*.sql
+apps/api/uploads/

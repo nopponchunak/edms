@@ -1,0 +1,318 @@
+<div class="h-full bg-gray-50">
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">{{ getActionTitle() }}</h1>
+          <p class="text-base text-gray-600 mt-1">{{ getActionDescription() }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/engineering-audit-review'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full px-6 py-6" *ngIf="loading && !recordData">
+    <div class="flex flex-col items-center justify-center py-12">
+      <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+      <p class="text-gray-500 text-lg">Loading action request...</p>
+    </div>
+  </div>
+
+  <div class="w-full px-6 py-6" *ngIf="recordData">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div class="lg:col-span-3 space-y-6">
+      <mat-card class="ims-card">
+        <div class="ims-card-header">
+          <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+            <span class="section-pill">A</span>
+            Project & Review Information
+          </h2>
+        </div>
+        <div class="ims-card-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="document-field">
+              <label>Project Name</label>
+              <div class="view-field-box">{{ recordData.project_name || recordData.projectName || '-' }}</div>
+            </div>
+            <div class="document-field">
+              <label>Project No.</label>
+              <div class="view-field-box font-semibold">{{ recordData.project_number || recordData.projectNumber || '-' }}</div>
+            </div>
+            <div class="document-field">
+              <label>Prepared By</label>
+              <div class="view-field-box">{{ getEmployeeLabel(recordData.prepared_by || recordData.preparedBy) }}</div>
+            </div>
+            <div class="document-field">
+              <label>Discipline</label>
+              <div class="view-field-box">{{ getDisciplineDisplay() }}</div>
+            </div>
+            <div class="document-field">
+              <label>Document(s) Reviewed</label>
+              <div class="view-field-box">{{ getDocumentsReviewedDisplay() }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <form [formGroup]="actionForm" (ngSubmit)="onSubmit()">
+        <div class="space-y-6">
+          <mat-card class="ims-card" [class.locked-card]="!isReviewedAction()">
+            <div class="ims-card-header">
+              <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                <span class="section-pill">B</span>
+                Method Of Review / Record Of Review
+              </h2>
+            </div>
+            <div class="ims-card-body">
+              <div class="space-y-6">
+                <div class="overflow-x-auto border rounded-xl">
+                  <table class="w-full text-sm border-collapse checklist-table">
+                    <thead>
+                      <tr class="bg-gray-50 text-gray-700">
+                        <th class="px-4 py-3 border-b text-left font-semibold">Checklist Item</th>
+                        <th class="px-4 py-3 border-b text-center font-semibold w-24">Yes</th>
+                        <th class="px-4 py-3 border-b text-center font-semibold w-24">No</th>
+                        <th class="px-4 py-3 border-b text-center font-semibold w-24">N/A</th>
+                      </tr>
+                    </thead>
+                    <tbody formArrayName="checklistResponses">
+                      <tr *ngFor="let item of checklistItems; let i = index" class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-4 border-b align-top">
+                          <div class="flex items-start">
+                            <span class="font-bold text-blue-600 mr-3 w-4">{{ i + 1 }}</span>
+                            <span class="text-gray-900">{{ item.question }}</span>
+                          </div>
+                        </td>
+                        <td class="px-1 py-4 border-b" colspan="3">
+                          <mat-radio-group [formControlName]="i" class="flex justify-around">
+                            <mat-radio-button value="yes"></mat-radio-button>
+                            <mat-radio-button value="no"></mat-radio-button>
+                            <mat-radio-button value="n/a"></mat-radio-button>
+                          </mat-radio-group>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="document-field">
+                  <label>Comments</label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <textarea matInput formControlName="comments" rows="4" placeholder="Enter comments"></textarea>
+                  </mat-form-field>
+                </div>
+
+                <div class="document-field">
+                  <label>Recommended action(s) if any</label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <textarea matInput formControlName="recommendedActions" rows="4" placeholder="Enter recommended actions"></textarea>
+                  </mat-form-field>
+                </div>
+
+                <div *ngIf="canShowDetailedDiscussion() && !isRespondedAction()" class="mt-6 flex justify-start">
+                  <div
+                    (click)="openCommentDialog()"
+                    class="group cursor-pointer flex items-center gap-4 p-3 pr-6 rounded-2xl border transition-all duration-300"
+                    [ngClass]="hasDiscussionComments ? 'border-orange-200 bg-orange-50/60 hover:border-orange-300 hover:bg-orange-50' : 'border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-200'">
+                    <div
+                      class="w-12 h-12 rounded-xl text-white flex items-center justify-center group-hover:scale-110 transition-transform"
+                      [ngClass]="hasDiscussionComments ? 'bg-orange-500' : 'bg-blue-600'">
+                      <mat-icon class="text-white">forum</mat-icon>
+                    </div>
+                    <div class="flex flex-col">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-bold text-base leading-tight" [ngClass]="hasDiscussionComments ? 'text-orange-700' : 'text-blue-700'">Detailed Discussion & Items tracking</span>
+                        <span *ngIf="hasDiscussionComments" class="design-review-comment-badge--pulse rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700">Has comments</span>
+                      </div>
+                      <span class="text-xs mt-0.5" [ngClass]="hasDiscussionComments ? 'text-orange-500' : 'text-blue-400'">Track itemized reviewer comments and team responses</span>
+                    </div>
+                    <mat-icon class="group-hover:translate-x-1 transition-transform" [ngClass]="hasDiscussionComments ? 'text-orange-300' : 'text-blue-300'">chevron_right</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="ims-card review-confirmation-card" *ngIf="isReviewedAction()">
+            <div class="ims-card-header">
+              <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                <span class="section-pill">C</span>
+                Review Confirmation
+              </h2>
+            </div>
+            <div class="ims-card-body">
+              <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+                <div class="review-confirmation-item">
+                  <label class="text-gray-900 font-semibold block">
+                    Attentive calculations are attached. Done?
+                  </label>
+                  <mat-radio-group formControlName="performingCalculationsDone" class="review-confirmation-radio">
+                    <mat-radio-button value="yes">Yes</mat-radio-button>
+                    <mat-radio-button value="no">No</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+
+                <div class="review-confirmation-item">
+                  <label class="text-gray-900 font-semibold block">
+                    Any finding constitutes non-conformance to Quality Procedure?
+                  </label>
+                  <mat-radio-group formControlName="nonConformanceToQP" class="review-confirmation-radio">
+                    <mat-radio-button value="yes">Yes</mat-radio-button>
+                    <mat-radio-button value="no">No</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="ims-card" *ngIf="isRespondedAction()">
+            <div class="ims-card-header">
+              <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                <span class="section-pill">C</span>
+                Response Submission
+              </h2>
+            </div>
+            <div class="ims-card-body">
+              <div class="flex justify-start">
+                <div
+                  (click)="openCommentDialog()"
+                  class="group cursor-pointer flex items-center gap-4 p-3 pr-6 rounded-2xl border transition-all duration-300"
+                  [ngClass]="hasDiscussionComments ? 'border-orange-200 bg-orange-50/60 hover:border-orange-300 hover:bg-orange-50' : 'border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-200'">
+                  <div
+                    class="w-12 h-12 rounded-xl text-white flex items-center justify-center group-hover:scale-110 transition-transform"
+                    [ngClass]="hasDiscussionComments ? 'bg-orange-500' : 'bg-blue-600'">
+                    <mat-icon class="text-white">forum</mat-icon>
+                  </div>
+                  <div class="flex flex-col">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="font-bold text-base leading-tight" [ngClass]="hasDiscussionComments ? 'text-orange-700' : 'text-blue-700'">Detailed Discussion & Items tracking</span>
+                      <span *ngIf="hasDiscussionComments" class="design-review-comment-badge--pulse rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700">Has comments</span>
+                    </div>
+                    <span class="text-xs mt-0.5" [ngClass]="hasDiscussionComments ? 'text-orange-500' : 'text-blue-400'">Track itemized reviewer comments and team responses</span>
+                  </div>
+                  <mat-icon class="group-hover:translate-x-1 transition-transform" [ngClass]="hasDiscussionComments ? 'text-orange-300' : 'text-blue-300'">chevron_right</mat-icon>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="ims-card" *ngIf="isSignedAction()">
+            <div class="ims-card-header">
+              <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                <span class="section-pill">C</span>
+                Recommended Actions Tracking
+              </h2>
+            </div>
+            <div class="ims-card-body">
+              <div class="space-y-6">
+                <div>
+                  <label class="text-gray-900 font-semibold mb-4 block">
+                    Recommended action(s) have been satisfactorily taken
+                  </label>
+                  <mat-radio-group formControlName="recommendedActionsSatisfactorilyTaken" class="flex flex-wrap gap-8">
+                    <mat-radio-button value="yes">Yes</mat-radio-button>
+                    <mat-radio-button value="no">No</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+
+                <div class="document-field">
+                  <label>Note</label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <textarea matInput formControlName="recommendedActionsNote" rows="4" placeholder="Describe outstanding actions"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="ims-card" *ngIf="isClientFeedbackAction()">
+            <div class="ims-card-header">
+              <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                <span class="section-pill">C</span>
+                Client / Project Manager Feedback
+              </h2>
+            </div>
+            <div class="ims-card-body">
+              <div class="space-y-6">
+                <div>
+                  <label class="text-gray-900 font-semibold mb-4 block">
+                    Has the Client, Project Manager given any feedback on any shortcomings in the documentation that need amendment, within 1 month after issuing?
+                  </label>
+                  <mat-radio-group formControlName="clientProjectManagerFeedback" class="flex flex-wrap gap-8">
+                    <mat-radio-button value="yes">Yes</mat-radio-button>
+                    <mat-radio-button value="no">No</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+
+                <div class="document-field">
+                  <label>Comments</label>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <textarea matInput formControlName="clientProjectManagerComments" rows="4" placeholder="Enter comments"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="ims-card action-footer-card">
+            <div class="ims-card-body p-6 md:p-8">
+              <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-900">{{ getStepLabel() }}</h3>
+                <p class="text-gray-500">You are updating the status for this request</p>
+              </div>
+
+              <div class="grid grid-cols-1 gap-6">
+                <mat-form-field *ngIf="canShowStatusSelect()" appearance="outline" class="w-full">
+                  <mat-label>Status</mat-label>
+                  <mat-select formControlName="status" panelClass="engineering-audit-status-panel">
+                    <mat-option value="pending">Pending</mat-option>
+                    <mat-option value="approved">Approved</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Action Date</mat-label>
+                  <input matInput [matDatepicker]="actionDatePicker" formControlName="signedDate" placeholder="Select date">
+                  <mat-datepicker-toggle matSuffix [for]="actionDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #actionDatePicker></mat-datepicker>
+                </mat-form-field>
+
+                <div class="verified-by-container">
+                  <p class="verified-by-label">{{ getStepLabel() }}:</p>
+                  <p class="verified-by-name">{{ getCurrentAssigneeLabel() }}</p>
+                </div>
+              </div>
+
+              <div class="mt-10 flex justify-end gap-3">
+                <button
+                  type="button"
+                  (click)="router.navigate(['/engineering-audit-review'])"
+                  class="px-6 py-2.5 border border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all min-w-[120px]">
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-base font-medium shadow-sm disabled:opacity-50 transition-all flex items-center justify-center min-w-[160px]">
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-spinner *ngIf="loading" diameter="20" class="ml-2"></mat-spinner>
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+      </form>
+      </div>
+
+      <div class="space-y-6 lg:col-span-1">
+        <app-approval-workflow [steps]="workflowSteps"></app-approval-workflow>
+      </div>
+    </div>
+  </div>
+</div>

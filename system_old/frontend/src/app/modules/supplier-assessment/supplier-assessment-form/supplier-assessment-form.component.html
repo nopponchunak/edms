@@ -1,0 +1,515 @@
+    <div class="h-full bg-gray-50">
+        <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                    SUPPLIER ASSESSMENT FORM
+                </h1>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    Form MTPC-10
+                </span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ isEditMode ? 'Update assessment information' : 'Meinhardt (Thailand) Ltd.' }}
+            </p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+                    Assessment Details
+                </h2>
+            </div>
+
+            <div class="p-6">
+                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                    <!-- Item(s) supplied -->
+                    <div class="mb-8">
+                        <mat-form-field class="w-full">
+                            <mat-label class="text-gray-700 dark:text-gray-300">Item(s) supplied:</mat-label>
+                            <mat-select
+                                formControlName="itemsSupplied"
+                                class="bg-white dark:bg-gray-700"
+                                placeholder="Select item supplied"
+                                (openedChange)="onSupplierTypeDropdownOpened($event)">
+                                <mat-select-trigger>
+                                    {{ selectedSupplierTypeLabel() || 'Select item supplied' }}
+                                </mat-select-trigger>
+                                <mat-option>
+                                    <ngx-mat-select-search
+                                        [formControl]="supplierTypeSearchCtrl"
+                                        placeholderLabel="Search Supplier Type..."
+                                        noEntriesFoundLabel="No supplier types found">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option *ngFor="let type of filteredSupplierTypes" [value]="type.name">
+                                    {{ getSupplierTypeLabel(type) }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Information used for Assessment -->
+                    <div class="mb-8">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white">
+                            Information used for Assessment:
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left Column -->
+                            <div class="">
+                                <div class="checkbox-option">
+                                    <mat-checkbox class="checkbox-option__control" formControlName="companyProfile">
+                                        Company Profile / Biodata
+                                    </mat-checkbox>
+                                </div>
+                                <div class="checkbox-option">
+                                    <mat-checkbox class="checkbox-option__control" formControlName="projectReference">
+                                        Project Reference / Certificates
+                                    </mat-checkbox>
+                                </div>
+                                <div class="checkbox-option">
+                                    <mat-checkbox class="checkbox-option__control" formControlName="siteVisit">
+                                        Site Visit
+                                    </mat-checkbox>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="">
+                                <div class="checkbox-option">
+                                    <mat-checkbox class="checkbox-option__control" formControlName="previousAssessment">
+                                        Previous Assessment Record
+                                    </mat-checkbox>
+                                </div>
+                                <div class="checkbox-option">
+                                    <mat-checkbox class="checkbox-option__control" formControlName="previousEvaluation">
+                                        Previous Evaluation Record
+                                    </mat-checkbox>
+                                </div>
+                                <div class="checkbox-option">
+                                    <mat-checkbox class="checkbox-option__control" formControlName="isoCertificates">
+                                        ISO Certificates
+                                    </mat-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assessment -->
+                    <div class="mb-8">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
+                            Assessment:
+                        </h3>
+
+                        <!-- Company -->
+                        <div class="mb-6">
+                            <mat-form-field class="w-full" id="control-company">
+                                <mat-label class="text-gray-700 dark:text-gray-300">1. Company:</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="company"
+                                    placeholder="Enter company name"
+                                    class="bg-white dark:bg-gray-700">
+                                <mat-error *ngIf="form.get('company')?.hasError('required')">Company is required</mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Assessment Table -->
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        <th rowspan="2" class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b">Assessment Areas</th>
+                                        <th rowspan="2" class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">Score (1 to 10)</th>
+                                        <th colspan="4" class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">Criteria of Scores</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">
+                                            <div class="text-sm">1-2</div>
+                                        </th>
+                                        <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">
+                                            <div class="text-sm">3-5</div>
+                                        </th>
+                                        <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">
+                                            <div class="text-sm">6-8</div>
+                                        </th>
+                                        <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">
+                                            <div class="text-sm">9-10</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Experience since establishment -->
+                                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                                        <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                            • Experience since establishment
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <mat-form-field class="w-20 non-bottom-margin">
+                                                <input
+                                                    matInput
+                                                    type="number"
+                                                    formControlName="experienceScore"
+                                                    min="1"
+                                                    max="10"
+                                                    class="bg-white dark:bg-gray-700 text-center">
+                                            </mat-form-field>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>1-2</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>3-5</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>6-10</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>10+ years</div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Fully qualified staff -->
+                                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                                        <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                            • Fully qualified staff
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <mat-form-field class="w-20 non-bottom-margin">
+                                                <input
+                                                    matInput
+                                                    type="number"
+                                                    formControlName="staffScore"
+                                                    min="1"
+                                                    max="10"
+                                                    class="bg-white dark:bg-gray-700 text-center">
+                                            </mat-form-field>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>1-4</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>5-10</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>11-20</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <div>20+ staff</div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Product compliances -->
+                                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                                        <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                            • Product compliances with accepted standards
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <mat-form-field class="w-20 non-bottom-margin">
+                                                <input
+                                                    matInput
+                                                    type="number"
+                                                    formControlName="complianceScore"
+                                                    min="1"
+                                                    max="10"
+                                                    class="bg-white dark:bg-gray-700 text-center">
+                                            </mat-form-field>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            <div>Poor</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            <div>Fair</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            <div>Good</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            <div>Excellent</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Total Score -->
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">Total Score =</div>
+                            <mat-form-field class="w-32 non-bottom-margin">
+                                <input
+                                    matInput
+                                    type="number"
+                                    formControlName="totalScore"
+                                    min="0"
+                                    max="30"
+                                    readonly
+                                    class="bg-gray-100 dark:bg-gray-800 text-center cursor-not-allowed">
+                            </mat-form-field>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">(must exceed 15)</span>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- References -->
+                    <div class="mb-8">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
+                            2. References
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            Contact at least one external reference and record name and opinion
+                        </p>
+
+                        <div class="space-y-6">
+                            <!-- Reference 1 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">a) Name:</mat-label>
+                                    <input
+                                        matInput
+                                        formControlName="reference1Name"
+                                        placeholder="Enter reference name"
+                                        class="bg-white dark:bg-gray-700">
+                                </mat-form-field>
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">Opinion:</mat-label>
+                                    <mat-select formControlName="reference1Opinion" class="bg-white dark:bg-gray-700">
+                                        <mat-option value="negative">Negative</mat-option>
+                                        <mat-option value="neutral">Neutral</mat-option>
+                                        <mat-option value="positive">Positive</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Reference 2 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">b) Name:</mat-label>
+                                    <input
+                                        matInput
+                                        formControlName="reference2Name"
+                                        placeholder="Enter reference name"
+                                        class="bg-white dark:bg-gray-700">
+                                </mat-form-field>
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">Opinion:</mat-label>
+                                    <mat-select formControlName="reference2Opinion" class="bg-white dark:bg-gray-700">
+                                        <mat-option value="negative">Negative</mat-option>
+                                        <mat-option value="neutral">Neutral</mat-option>
+                                        <mat-option value="positive">Positive</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="mb-8">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
+                            Recommendation:
+                        </h3>
+
+                        <div class="space-y-4">
+                            <!-- Accept/Not Accept -->
+                            <div class="space-y-2">
+                                <mat-radio-group formControlName="recommendation" class="flex flex-col space-y-2">
+                                    <div class="flex">
+                                        <mat-radio-button value="accept">
+                                        </mat-radio-button>
+                                        <div class="h-10 flex items-center text-sm">
+                                            Accept (Score in item 1 must be 15 or better and must have at least one good positive reference.)
+                                        </div>
+                                    </div>
+                                    <div class="flex">
+                                        <mat-radio-button value="not_accept">
+                                        </mat-radio-button>
+                                        <div class="h-10 flex items-center text-sm">
+                                            Not accept
+                                        </div>
+                                    </div>
+                                </mat-radio-group>
+                            </div>
+
+                            <!-- Reason -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Reason:</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="reason"
+                                    placeholder="Enter reason for recommendation"
+                                    rows="4"
+                                    class="bg-white dark:bg-gray-700">
+                                </textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- Approval and Action Workflow -->
+                    <div class="approval-workflow-section mb-8">
+                        <h3 class="approval-workflow-section__title">
+                            <mat-icon class="approval-workflow-section__icon">verified_user</mat-icon>
+                            Approval and Action Workflow
+                        </h3>
+
+                        <div class="approval-workflow">
+                            <!-- 1. Assessed By -->
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">1</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Assessed By</span>
+                                        <span class="approval-workflow__hint">(DI/TL)</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields w-full">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-assessedBy">
+                                        <mat-label>Person</mat-label>
+                                        <mat-select formControlName="assessedBy">
+                                            <mat-option>
+                                                <ngx-mat-select-search [formControl]="assessedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredAssessedUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="form.get('assessedBy')?.hasError('required')">Assessed By is required</mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <!-- 2. Approved By -->
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">2</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Approved By</span>
+                                        <span class="approval-workflow__hint">(MD/DI)</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields w-full">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-approvedBy">
+                                        <mat-label>Person</mat-label>
+                                        <mat-select formControlName="approvedBy">
+                                            <mat-option>
+                                                <ngx-mat-select-search [formControl]="approvedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="form.get('approvedBy')?.hasError('required')">Approved By is required</mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <!-- 3. Acknowledged By -->
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">3</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Acknowledged By</span>
+                                        <span class="approval-workflow__hint">(IMR)</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields w-full">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person w-full" id="control-acknowledgedBy">
+                                        <mat-label>Person</mat-label>
+                                        <mat-select formControlName="acknowledgedBy">
+                                            <mat-option>
+                                                <ngx-mat-select-search [formControl]="acknowledgedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.code">{{ user.displayLabel }}</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="form.get('acknowledgedBy')?.hasError('required')">Acknowledged By is required</mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Documents Section -->
+                    <div class="mb-8">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700 mb-4">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                                Attached Documents
+                            </h2>
+                        </div>
+
+                        <div class="mb-4">
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Please attach documents</h3>
+                            <button
+                                type="button"
+                                mat-stroked-button
+                                (click)="openUploadDialog()"
+                                class="mb-4">
+                                <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                                Upload Document
+                            </button>
+
+                            <div *ngIf="attachmentsArray?.length" class="mt-4 space-y-2">
+                                <div
+                                    *ngFor="let att of attachmentsArray.controls; index as i"
+                                    class="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                    <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                        <mat-icon
+                                         class="text-gray-400 dark:text-gray-500 flex-shrink-0 self-center"
+                                         [svgIcon]="att.value.type === 'file' ? 'heroicons_outline:document-text' : 'heroicons_outline:link'">
+                                         </mat-icon>
+
+
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                                                {{ att.value.file_name || att.value.file_url || att.value.name || att.value.url || 'No file name' }}
+                                            </div>
+                                            <div *ngIf="attachmentsArray.controls[i].value.file_size" class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ (attachmentsArray.controls[i].value.file_size / 1024).toFixed(2) }} KB
+                                            </div>
+                                            <div *ngIf="attachmentsArray.controls[i].value.mime_type" class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ attachmentsArray.controls[i].value.mime_type }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        mat-icon-button
+                                        color="warn"
+                                        (click)="removeAttachment(i)"
+                                        aria-label="Remove document">
+                                        <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div *ngIf="!attachmentsArray?.length" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                No documents attached yet
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
+                        <button
+                            type="button"
+                            mat-button
+                            (click)="onCancel()"
+                            class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            mat-flat-button
+                            color="primary"
+                            [disabled]="isSubmitting"
+                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                            <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+                            {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

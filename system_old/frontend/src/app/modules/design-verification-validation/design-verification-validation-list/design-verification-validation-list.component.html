@@ -1,0 +1,141 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Design Verification/Validation</h1>
+          <p class="text-sm text-gray-600">MTDD-03 - Design Verification/Validation Checklist/Action Sheet</p>
+        </div>
+        <button
+          (click)="navigateToNew()"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <mat-icon class="mr-2 text-white">add</mat-icon>
+          New Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="px-6">
+      <mat-tab-group [(selectedIndex)]="currentTab" (selectedIndexChange)="currentTab = $event">
+        <mat-tab label="All ({{ allCount }})"></mat-tab>
+        <mat-tab label="Draft ({{ draftCount }})"></mat-tab>
+        <mat-tab label="In Review ({{ inReviewCount }})"></mat-tab>
+        <mat-tab label="Responded ({{ respondedCount }})"></mat-tab>
+        <mat-tab label="Signed ({{ signedCount }})"></mat-tab>
+        <mat-tab label="Acknowledged ({{ acknowledgedCount }})"></mat-tab>
+        <mat-tab label="Completed ({{ completedCount }})"></mat-tab>
+        <mat-tab label="Rejected ({{ rejectedCount }})"></mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-6">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && getFilteredDesignVerificationValidations().length === 0" class="text-center py-12">
+      <mat-icon class="text-gray-400 text-6xl mb-4">assignment</mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No design verification/validation found</h3>
+      <p class="text-gray-500 mb-6">Get started by creating a new design verification/validation.</p>
+      <button
+        (click)="navigateToNew()"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <mat-icon class="mr-2 text-white">add</mat-icon>
+        New Request</button>
+    </div>
+
+    <!-- Design Verification/Validation List -->
+    <div *ngIf="!loading && getFilteredDesignVerificationValidations().length > 0" class="space-y-4">
+      <mat-card *ngFor="let verification of getFilteredDesignVerificationValidations()" class="hover:shadow-md transition-shadow duration-200">
+        <mat-card-content class="p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-2">
+                <h3 class="text-lg font-semibold text-gray-900">{{ verification.projectName }}</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(verification.status)">
+                  {{ getStatusLabel(verification.status) }}
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {{ getTypeLabel(verification.verification, verification.validation) }}
+                </span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <p class="text-sm text-gray-500">Project Number</p>
+                  <p class="text-sm font-medium text-gray-900">{{ verification.projectNumber }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Discipline</p>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <mat-chip *ngFor="let discipline of verification.discipline" class="text-xs">{{ discipline }}</mat-chip>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Document Types</p>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <mat-chip *ngFor="let docType of verification.documentTypes" class="text-xs">{{ docType }}</mat-chip>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Design Stage</p>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <mat-chip *ngFor="let stage of verification.designStage" class="text-xs">{{ stage }}</mat-chip>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Reviewed By</p>
+                  <p class="text-sm font-medium text-gray-900">{{ verification.reviewedBy }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Reviewed Date</p>
+                  <p class="text-sm font-medium text-gray-900">{{ formatDate(verification.reviewedByDate) }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center text-sm text-gray-500">
+                <mat-icon class="mr-1 text-gray-400" style="font-size: 16px;">schedule</mat-icon>
+                <span>Created {{ formatDate(verification.createdAt) }}</span>
+                <span class="mx-2">•</span>
+                <span>Updated {{ formatDate(verification.updatedAt) }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 ml-4">
+              <button 
+                mat-flat-button 
+                color="primary"
+                (click)="navigateToView(verification.id)"
+                class="px-4 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded">
+                <mat-icon class="mr-1 text-sm" [svgIcon]="'heroicons_outline:eye'"></mat-icon>
+                View
+              </button>
+              <button 
+                mat-flat-button 
+                color="accent"
+                (click)="navigateToEdit(verification.id)"
+                class="px-4 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded">
+                <mat-icon class="mr-1 text-sm" [svgIcon]="'heroicons_outline:pencil'"></mat-icon>
+                Edit
+              </button>
+              <button 
+                mat-flat-button 
+                (click)="deleteDesignVerificationValidation(verification.id)"
+                class="px-4 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded">
+                <mat-icon class="mr-1 text-sm" [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                Delete
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

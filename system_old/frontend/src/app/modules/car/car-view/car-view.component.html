@@ -1,0 +1,492 @@
+<div class="ims-view-page">
+    <div class="ims-view-shell">
+    <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">
+                Corrective Action Request
+            </h1>
+            <p class="text-sm text-gray-600">
+                View corrective action request details
+            </p>
+        </div>
+        <app-view-actions
+            [backPath]="'/cars'"
+            [navId]="'cars'"
+            (print)="onPrint()"
+            (edit)="editCar()"
+        ></app-view-actions>
+    </div>
+
+    <!-- Alert -->
+    <fuse-alert class="mb-6" *ngIf="showAlert" [appearance]="'outline'" [type]="alert.type"
+        [showIcon]="'true'" [dismissible]="'true'" (dismissed)="showAlert = false">
+        {{ alert.message }}
+    </fuse-alert>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+        <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!loading && car" class="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <!-- Left Column: Details -->
+        <div class="md:col-span-2 space-y-6">
+        <div class="ims-card document-card mb-6">
+            <div class="ims-card-header">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div>
+                        <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase mb-1">
+                            Meinhardt (Thailand) Ltd.
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                            CAR - Corrective Action Request
+                        </h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            FORM MTNC-01
+                        </p>
+                    </div>
+                    <div class="flex gap-3 flex-wrap">
+                        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full" [ngClass]="getSeverityColor(car.severity)">
+                            {{ getSeverityLabel(car.severity) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ims-card-body space-y-8">
+                <section>
+                    <h3 class="document-section-title">
+                        <mat-icon class="mr-2 text-orange-600" [svgIcon]="'heroicons_solid:exclamation-triangle'"></mat-icon>
+                        Severity & Basic Information
+                    </h3>
+
+                    <div class="mb-6">
+                        <div class="document-field-label">Severity</div>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full" [ngClass]="getSeverityColor(car.severity)">
+                                {{ getSeverityLabel(car.severity) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="document-field">
+                            <label>Department</label>
+                            <div class="ims-field-box">{{ car.department || '-' }}</div>
+                        </div>
+                        <div class="document-field">
+                            <label>Ref No.</label>
+                            <div class="ims-field-box">{{ car.refNo || '-' }}</div>
+                        </div>
+                        <div class="document-field">
+                            <label>Project No.</label>
+                            <div class="ims-field-box">{{ car.projectNo || '-' }}</div>
+                        </div>
+                        <div class="document-field">
+                            <label>Project Name</label>
+                            <div class="ims-field-box">{{ car.projectName || '-' }}</div>
+                        </div>
+                        <div class="document-field">
+                            <label>To</label>
+                            <div class="ims-field-box">{{ getEmployeeLabel(car.to) || car.to || '-' }}</div>
+                        </div>
+                        <div class="document-field">
+                            <label>Date</label>
+                            <div class="ims-field-box">{{ car.date || '-' }}</div>
+                        </div>
+                        <div class="document-field md:col-span-2 lg:col-span-3">
+                            <label>CAR Issued By</label>
+                            <div class="ims-field-box">{{ getEmployeeLabel(car.carIssuedBy) || car.carIssuedBy || '-' }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                <!-- 4. Verification -->
+                <section *ngIf="car.verifiedByStatus && car.verifiedByStatus !== 'pending'">
+                    <h3 class="document-section-title">
+                        <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:check-badge'"></mat-icon>
+                        4. Verification (by Auditor/Issuer)
+                    </h3>
+                    <div class="ims-field-box flex flex-wrap items-center gap-6">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Verified By</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ getEmployeeLabel(car.verifiedBy) }}</span>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Date</span>
+                            <span class="text-gray-900 dark:text-white">{{ formatDate(car.verifiedByDate) }}</span>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Status</span>
+                            <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                                  [ngClass]="getStatusBadgeClass(car.verifiedByStatus)">
+                                {{ getStatusText(car.verifiedByStatus) }}
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                <section>
+                    <h3 class="document-section-title">
+                        <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+                        CAR Source (Multiple selections allowed)
+                    </h3>
+
+                    <div class="document-check-grid mb-4">
+                        <div *ngFor="let source of sourceOptions" class="document-check-row">
+                            <span class="document-check-box">{{ isSourceSelected(source.value) ? '✓' : '' }}</span>
+                            <span class="text-gray-900 dark:text-white">{{ source.label }}</span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="car.otherSourceDescription" class="document-field">
+                        <label>Other Source Description</label>
+                        <div class="ims-field-box">{{ car.otherSourceDescription }}</div>
+                    </div>
+                </section>
+
+                <div class="border-t border-gray-200 dark:border-gray-600"></div>
+
+                <section>
+                    <h3 class="document-section-title">
+                        1. Details of Non-Conformity: (completed by auditor / issuer)
+                    </h3>
+
+                    <div class="document-check-grid mb-6">
+                        <div *ngFor="let type of nonConformityTypeOptions" class="document-check-row">
+                            <span class="document-check-box">{{ isNonConformityTypeSelected(type.value) ? '✓' : '' }}</span>
+                            <span class="text-gray-900 dark:text-white">{{ type.label }}</span>
+                        </div>
+                    </div>
+
+                    <div class="document-field">
+                        <label>Description</label>
+                        <div class="ims-field-box min-h-[96px] whitespace-pre-wrap">{{ car.nonConformityDescription || '-' }}</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div *ngIf="car.causeOfNonConformity || car.remedialAction || car.correctiveAction || car.completedBy || car.acknowledgedBy" 
+             class="ims-card mb-6">
+            <div class="ims-card-body">
+                <h3 class="document-section-title mb-6">
+                    2 & 3. Disposition and Acknowledgment
+                </h3>
+                <div class="space-y-4 mb-6">
+                    <div *ngIf="car.causeOfNonConformity">
+                        <div class="document-field">
+                            <label>Cause of Non-Conformity</label>
+                            <div class="ims-field-box min-h-[72px] whitespace-pre-wrap">{{ car.causeOfNonConformity }}</div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="car.remedialAction">
+                        <div class="document-field">
+                            <label>Remedial Action</label>
+                            <div class="ims-field-box min-h-[72px] whitespace-pre-wrap">{{ car.remedialAction }}</div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="car.correctiveAction">
+                        <div class="document-field">
+                            <label>Corrective Action</label>
+                            <div class="ims-field-box whitespace-pre-wrap">{{ car.correctiveAction }}</div>
+                        </div>
+                    </div>
+                </div> <!-- space-y-4 -->
+
+                <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div *ngIf="car.completedBy">
+                        <h4 class="text-md font-medium text-gray-800 dark:text-gray-300 mb-3 leading-snug">
+                            Completed By
+                            <span class="block text-sm font-normal text-gray-500">(Responsible Person)</span>
+                        </h4>
+                        <div class="ims-field-box space-y-2">
+                            <p class="text-gray-900 dark:text-white text-xl font-semibold leading-tight">{{ getEmployeeLabel(car.completedBy) }}</p>
+                            <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm pt-1">
+                                <div *ngIf="getStepDate(2) && !isPendingStatus(getStepStatus(2))" class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                    <span class="font-medium">Date:</span>
+                                    <span>{{ formatDate(getStepDate(2)) }}</span>
+                                </div>
+                                <div *ngIf="car.completedByStatus" class="flex items-center gap-2">
+                                    <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                                    <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                                          [ngClass]="getStatusBadgeClass(car.completedByStatus)">
+                                        {{ getStatusText(car.completedByStatus) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="car.acknowledgedBy">
+                        <h4 class="text-md font-medium text-gray-800 dark:text-gray-300 mb-3 leading-snug">
+                            Acknowledged By
+                            <span class="block text-sm font-normal text-gray-500">(MD/DI/TL/Supervisor of Responsible Person)</span>
+                        </h4>
+                        <div class="ims-field-box space-y-2">
+                            <p class="text-gray-900 dark:text-white text-xl font-semibold leading-tight">{{ getEmployeeLabel(car.acknowledgedBy) }}</p>
+                            <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm pt-1">
+                                <div *ngIf="getStepDate(3) && !isPendingStatus(getStepStatus(3))" class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                     <span class="font-medium">Date:</span>
+                                     <span>{{ formatDate(getStepDate(3)) }}</span>
+                                 </div>
+                                <div *ngIf="car.acknowledgedByStatus" class="flex items-center gap-2">
+                                    <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                                    <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                                          [ngClass]="getStatusBadgeClass(car.acknowledgedByStatus)">
+                                        {{ getStatusText(car.acknowledgedByStatus) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- grid -->
+
+                <!-- 4. Approve of Action Plan -->
+                <div *ngIf="car.approvedByStatus && car.approvedByStatus !== 'pending'" class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700">
+                    <h4 class="text-md font-medium text-gray-800 dark:text-gray-300 mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-indigo-600" [svgIcon]="'heroicons_solid:check-badge'"></mat-icon>
+                        1. Approval of Action Plan (by IMR)
+                    </h4>
+                    <div class="ims-field-box flex flex-wrap items-center gap-6">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Approved By</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ getEmployeeLabel(car.approvedBy) }}</span>
+                        </div>
+                        <div *ngIf="getStepDate(1) && !isPendingStatus(car.approvedByStatus)">
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Date</span>
+                            <span class="text-gray-900 dark:text-white">{{ formatDate(getStepDate(1)) }}</span>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Status</span>
+                            <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                                  [ngClass]="getStatusBadgeClass(car.approvedByStatus)">
+                                {{ getStatusText(car.approvedByStatus) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- ims-card-body -->
+        </div> <!-- ims-card -->
+
+        <!-- Follow-up (if completed) -->
+        <div *ngIf="car.raCaSatisfactory !== undefined || car.raCaSatisfactoryDescription || car.furtherActionRequired !== undefined || car.verifiedBy || car.furtherActionDescription" 
+             class="ims-card mb-6">
+            <div class="ims-card-body">
+                <h3 class="document-section-title mb-6">
+                    5. Follow Up Remedial and Corrective Results (by Issuer)
+                </h3>
+                <div class="space-y-4 mb-6">
+                    <div *ngIf="!isPendingStatus(getFinalVerifiedStatus()) && car.raCaSatisfactory !== undefined">
+                        <div class="document-check-row">
+                            <span class="document-check-box">{{ car.raCaSatisfactory ? '✓' : '' }}</span>
+                            <span class="text-gray-900 dark:text-white">RA &amp; CA satisfactory</span>
+                        </div>
+                        <div *ngIf="car.raCaSatisfactory && car.raCaSatisfactoryDescription" class="ims-field-box mt-2">
+                            <p class="text-gray-900 dark:text-white whitespace-pre-wrap">{{ car.raCaSatisfactoryDescription }}</p>
+                        </div>
+                    </div>
+
+                    <div *ngIf="car.furtherActionRequired || (!isPendingStatus(getFinalVerifiedStatus()) && car.furtherActionRequired !== undefined)">
+                        <div class="document-check-row mb-2">
+                            <span class="document-check-box">{{ car.furtherActionRequired ? '✓' : '' }}</span>
+                            <span class="text-gray-900 dark:text-white">Further Action to be taken specify</span>
+                        </div>
+                        <div *ngIf="car.furtherActionRequired && car.furtherActionDescription" class="ims-field-box mt-2">
+                            <p class="text-gray-900 dark:text-white whitespace-pre-wrap">{{ car.furtherActionDescription }}</p>
+                        </div>
+                    </div>
+
+                    <div *ngIf="car.verifiedBy">
+                        <h4 class="text-md font-medium text-gray-800 dark:text-gray-300 mb-3">Verified By <span class="text-sm text-gray-500">(Issuer)</span></h4>
+                        <div class="ims-field-box space-y-2">
+                            <p class="text-gray-900 dark:text-white font-semibold">{{ getEmployeeLabel(car.verifiedBy) }}</p>
+                            <div class="flex items-center gap-4 text-sm">
+                                <p *ngIf="!isPendingStatus(getFinalVerifiedStatus()) && getFinalVerifiedDate()" class="text-gray-600 dark:text-gray-400">
+                                    <span class="font-medium">Date:</span> {{ formatDate(getFinalVerifiedDate()) }}
+                                </p>
+                                <p *ngIf="getFinalVerifiedStatus()" class="flex items-center gap-2">
+                                    <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                                    <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                                          [ngClass]="getStatusBadgeClass(getFinalVerifiedStatus())">
+                                        {{ getStatusText(getFinalVerifiedStatus()) }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IMR Review (if completed) -->
+        <div *ngIf="car.imrComments || car.responseTimeCheck !== undefined || car.approvedBy" 
+             class="ims-card mb-6">
+            <div class="ims-card-body">
+                <h3 class="document-section-title mb-6">
+                    5. Final Review by IMR
+                </h3>
+                <div *ngIf="!isPendingStatus(getFinalApprovedStatus()) && car.imrComments && car.imrComments !== '-'" class="mb-6">
+                    <h4 class="text-md font-medium text-gray-800 dark:text-gray-300 mb-3">Comments / Is it a new risk?</h4>
+                    <div class="ims-field-box">
+                        <p class="text-gray-900 dark:text-white whitespace-pre-wrap leading-relaxed">{{ car.imrComments }}</p>
+                    </div>
+                </div>
+
+                <div *ngIf="!isPendingStatus(getFinalApprovedStatus()) && car.responseTimeCheck !== undefined" class="mb-6">
+                    <div class="document-check-row">
+                        <span class="document-check-box">{{ car.responseTimeCheck ? '✓' : '' }}</span>
+                        <span class="text-gray-900 dark:text-white">
+                            {{ car.responseTimeCheck ? 'Did recipient respond in the specified time? Yes' : 'Did recipient respond in the specified time? No - if No, issue a follow-up CAR' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div *ngIf="car.approvedBy">
+                    <h4 class="text-md font-medium text-gray-800 dark:text-gray-300 mb-3">Approved By <span class="text-sm text-gray-500">(IMR)</span></h4>
+                    <div class="ims-field-box space-y-2">
+                        <p class="text-gray-900 dark:text-white font-semibold">{{ getEmployeeLabel(car.approvedBy) }}</p>
+                        <div class="flex items-center gap-4 text-sm">
+                            <p *ngIf="!isPendingStatus(getFinalApprovedStatus()) && getFinalApprovedDate()" class="text-gray-600 dark:text-gray-400">
+                                <span class="font-medium">Date:</span> {{ formatDate(getFinalApprovedDate()) }}
+                            </p>
+                            <p *ngIf="getFinalApprovedStatus()" class="flex items-center gap-2">
+                                <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                                <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                                      [ngClass]="getStatusBadgeClass(getFinalApprovedStatus())">
+                                    {{ getStatusText(getFinalApprovedStatus()) }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div> <!-- Left Column -->
+
+        <!-- Right Column: Status -->
+        <div class="md:col-span-1 space-y-6 sticky top-6 self-start">
+            <!-- Workflow Status -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Workflow Status</h3>
+                <div class="space-y-4">
+                    <!-- 1. Verify By -->
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                 [class]="getByStatusColor(getStepStatus(1))">
+                                <mat-icon [class]="getByStatusColor(getStepStatus(1)).includes('green') ? 'text-green-600' : 'text-blue-600'" class="text-sm">
+                                    {{ isPendingStatus(getStepStatus(1)) ? 'schedule' : 'check' }}
+                                </mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-semibold text-gray-900 dark:text-white">
+                                <span class="block text-xs font-normal text-gray-500">1. Approve by (IMR):</span>
+                                <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(getStepPerson(1)).split('|')[0] }}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {{ formatDateTime(getStepDate(1)) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Complete By -->
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                 [class]="getByStatusColor(getStepStatus(2))">
+                                <mat-icon [class]="getByStatusColor(getStepStatus(2)).includes('green') ? 'text-green-600' : 'text-orange-600'" class="text-sm">
+                                    {{ isPendingStatus(getStepStatus(2)) ? 'schedule' : 'check' }}
+                                </mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-semibold text-gray-900 dark:text-white">
+                                <span class="block text-xs font-normal text-gray-500">2. Complete by (Responsible):</span>
+                                <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(getStepPerson(2)).split('|')[0] }}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {{ formatDateTime(getStepDate(2)) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3. Acknowledge By -->
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                 [class]="getByStatusColor(getStepStatus(3))">
+                                <mat-icon [class]="getByStatusColor(getStepStatus(3)).includes('green') ? 'text-green-600' : 'text-purple-600'" class="text-sm">
+                                    {{ isPendingStatus(getStepStatus(3)) ? 'schedule' : 'check' }}
+                                </mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-semibold text-gray-900 dark:text-white">
+                                <span class="block text-xs font-normal text-gray-500">3. Acknowledge by (Supervisor):</span>
+                                <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(getStepPerson(3)).split('|')[0] }}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {{ formatDateTime(getStepDate(3)) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Verify By -->
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                 [class]="getByStatusColor(getStepStatus(4))">
+                                <mat-icon [class]="getByStatusColor(getStepStatus(4)).includes('green') ? 'text-green-600' : 'text-gray-600'" class="text-sm">
+                                    {{ isPendingStatus(getStepStatus(4)) ? 'schedule' : 'check' }}
+                                </mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-semibold text-gray-900 dark:text-white">
+                                <span class="block text-xs font-normal text-gray-500">4. Verify by (Issuer):</span>
+                                <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(getStepPerson(4)).split('|')[0] }}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {{ formatDateTime(getStepDate(4)) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 5. Approve 2 By -->
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                 [class]="getByStatusColor(getStepStatus(5))">
+                                <mat-icon [class]="getByStatusColor(getStepStatus(5)).includes('green') ? 'text-green-600' : 'text-cyan-600'" class="text-sm">
+                                    {{ isPendingStatus(getStepStatus(5)) ? 'schedule' : 'check' }}
+                                </mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-semibold text-gray-900 dark:text-white">
+                                <span class="block text-xs font-normal text-gray-500">5. Approve 2 by (IMR):</span>
+                                <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(getStepPerson(5)).split('|')[0] }}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1">
+                                {{ formatDateTime(getStepDate(5)) }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div> <!-- Right Column -->
+    </div> <!-- Grid -->
+    </div> <!-- Shell -->
+</div> <!-- Page -->

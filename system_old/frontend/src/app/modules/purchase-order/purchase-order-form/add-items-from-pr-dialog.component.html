@@ -1,0 +1,209 @@
+<div class="pr-dialog">
+    <div class="pr-dialog__header">
+        <div class="min-w-0">
+            <h2 mat-dialog-title class="pr-dialog__title">Add items from Purchase Requisition</h2>
+            <p class="pr-dialog__subtitle">Select approved purchase requisitions and review their item details before adding them to this PO.</p>
+        </div>
+
+        <div class="pr-dialog__summary" aria-label="Selected purchase requisitions">
+            <span>{{ selectedIds.size }} PR selected</span>
+            <strong>{{ itemsCount }} item(s)</strong>
+        </div>
+    </div>
+
+    <mat-dialog-content class="pr-dialog__content">
+        <div class="pr-dialog-toolbar">
+            <mat-form-field class="pr-dialog-search" appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Search PRs</mat-label>
+                <input
+                    matInput
+                    [(ngModel)]="searchTerm"
+                    (ngModelChange)="applySearch()"
+	                    placeholder="Search by PR ID, subject, request by, or no."
+                    autocomplete="off">
+                <mat-icon matPrefix>search</mat-icon>
+                <button *ngIf="searchTerm" matSuffix mat-icon-button type="button" (click)="searchTerm = ''; applySearch()" aria-label="Clear search">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <div class="pr-dialog-toolbar__meta">
+                <mat-icon>fact_check</mat-icon>
+                <span>{{ list.length }} approved PRs</span>
+            </div>
+        </div>
+
+        <div *ngIf="loading" class="flex justify-center items-center py-12">
+            <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <div *ngIf="error" class="pr-dialog-error">
+            {{ error }}
+        </div>
+
+        <div *ngIf="!loading && !error && list.length === 0" class="pr-dialog-empty">
+            <mat-icon class="pr-dialog-empty__icon" [inline]="true">search_off</mat-icon>
+            <span>No matching purchase requisitions found.</span>
+        </div>
+
+        <div *ngIf="!loading && !error && list.length > 0" class="pr-table-wrap">
+            <table mat-table [dataSource]="list" class="pr-dialog-table" multiTemplateDataRows>
+                <ng-container matColumnDef="expand">
+                    <th mat-header-cell *matHeaderCellDef class="pr-table__icon-col"></th>
+                    <td mat-cell *matCellDef="let pr" class="pr-table__icon-col" (click)="toggleExpand(pr)">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="pr-expand-btn"
+                            [class.pr-expand-btn--open]="isExpanded(pr)"
+                            aria-label="Expand row">
+                            <mat-icon>{{ isExpanded(pr) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef class="pr-table__check-col">
+                        <mat-checkbox
+                            [checked]="allSelected"
+                            [indeterminate]="someSelected && !allSelected"
+                            (change)="toggleAll()"
+                            aria-label="Select all">
+                        </mat-checkbox>
+                    </th>
+                    <td mat-cell *matCellDef="let pr" class="pr-table__check-col" (click)="$event.stopPropagation()">
+                        <mat-checkbox
+                            [checked]="isSelected(pr)"
+                            (change)="toggleSelection(pr)"
+                            aria-label="Select PR {{ pr.id }}">
+                        </mat-checkbox>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="no">
+                    <th mat-header-cell *matHeaderCellDef>No.</th>
+                    <td mat-cell *matCellDef="let pr">
+                        <span class="pr-number-pill">{{ pr.No ?? pr.id }}</span>
+                    </td>
+                </ng-container>
+
+	                <ng-container matColumnDef="id">
+	                    <th mat-header-cell *matHeaderCellDef>PR ID</th>
+	                    <td mat-cell *matCellDef="let pr">
+	                        <span class="pr-muted">#{{ pr.id }}</span>
+	                    </td>
+	                </ng-container>
+
+	                <ng-container matColumnDef="subject">
+	                    <th mat-header-cell *matHeaderCellDef>Subject</th>
+	                    <td mat-cell *matCellDef="let pr">
+	                        <div class="pr-requester" [title]="pr.subject || '-'">{{ pr.subject || '-' }}</div>
+	                    </td>
+	                </ng-container>
+
+                <ng-container matColumnDef="to">
+                    <th mat-header-cell *matHeaderCellDef>Request By</th>
+                    <td mat-cell *matCellDef="let pr">
+                        <div class="pr-requester" [title]="pr.to || '-'">{{ pr.to || '-' }}</div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef>Date</th>
+                    <td mat-cell *matCellDef="let pr">
+                        <span class="pr-date">{{ formatDate(pr.date) }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="currency">
+                    <th mat-header-cell *matHeaderCellDef>Currency</th>
+                    <td mat-cell *matCellDef="let pr">
+                        <span class="pr-currency">{{ pr.currency_code || 'THB' }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="totalAmount">
+                    <th mat-header-cell *matHeaderCellDef class="text-right">Total</th>
+                    <td mat-cell *matCellDef="let pr" class="text-right">
+                        <span class="pr-total">{{ formatAmount(pr) }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="itemsCount">
+                    <th mat-header-cell *matHeaderCellDef class="text-center">Items</th>
+                    <td mat-cell *matCellDef="let pr" class="text-center">
+                        <span class="pr-count-badge">{{ pr.items?.length ?? 0 }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="expandedDetail">
+                    <td mat-cell *matCellDef="let pr" [attr.colspan]="displayedColumns.length" class="pr-expanded-cell" [class.pr-expanded-cell--open]="isExpanded(pr)">
+                        <div class="pr-expanded-detail" [class.pr-expanded-detail--open]="isExpanded(pr)">
+                            <div class="pr-expanded-detail__header">
+                                <div class="pr-expanded-detail__title">
+                                    <mat-icon>receipt_long</mat-icon>
+                                    <span>Items in PR {{ pr.No ?? pr.id }}</span>
+                                </div>
+                                <span class="pr-expanded-detail__count">{{ pr.items?.length ?? 0 }} item(s)</span>
+                            </div>
+
+                            <div class="pr-items-table-wrap">
+                                <table class="pr-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-index">No.</th>
+                                            <th class="col-item">Item(s)</th>
+                                            <th class="col-desc">Description</th>
+                                            <th class="col-asset">Asset Code?</th>
+                                            <th class="text-right col-qty">Qty</th>
+                                            <th class="text-right col-price">Unit Price</th>
+                                            <th class="text-right col-amount">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let it of pr.items || []; let i = index">
+                                            <td class="col-index">
+                                                <span class="pr-line-no">{{ i + 1 }}</span>
+                                            </td>
+                                            <td class="col-item">
+                                                <span class="pr-item-code">{{ it.item || '-' }}</span>
+                                            </td>
+                                            <td class="col-desc">
+                                                <span class="pr-item-desc">{{ it.description || '-' }}</span>
+                                            </td>
+                                            <td class="col-asset">
+                                                <span class="asset-badge" [class.asset-badge--needed]="isAssetCodeRequired(it.need_asset_code_registration)">
+                                                    {{ isAssetCodeRequired(it.need_asset_code_registration) ? 'Required' : 'No' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-right col-qty">{{ it.quantity || '0' }}</td>
+                                            <td class="text-right col-price">{{ formatItemAmount(it.unit_price) }}</td>
+                                            <td class="text-right col-amount">{{ formatItemAmount(it.amount) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="pr-header-row"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns" class="pr-row" [class.pr-row--selected]="isSelected(row)" [class.pr-row--expanded]="isExpanded(row)"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="pr-detail-row"></tr>
+            </table>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="pr-dialog-actions">
+        <button mat-stroked-button type="button" class="pr-dialog-actions__cancel" (click)="cancel()">Cancel</button>
+        <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            class="pr-dialog-actions__submit"
+            [disabled]="loading || selectedIds.size === 0"
+            (click)="confirm()">
+            Add {{ itemsCount }} item(s)
+        </button>
+    </mat-dialog-actions>
+</div>

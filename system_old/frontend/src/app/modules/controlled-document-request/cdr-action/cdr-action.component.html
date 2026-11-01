@@ -1,0 +1,321 @@
+<div class="ims-view-page">
+  <div class="ims-view-shell">
+    <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+      <div class="w-full px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">
+              {{ getActionTitle() }}
+            </h1>
+            <p class="text-sm text-gray-600">
+              FORM MTCD-01 - Controlled Document Request / Change
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="router.navigate(['/controlled-document-request/list'])"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          >
+            <mat-icon class="mr-2">arrow_back</mat-icon>
+            Back to List
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !request" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && request" class="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Main Content (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <mat-card class="ims-card document-card">
+          <div class="ims-card-body space-y-8">
+            <!-- Header Section -->
+            <section>
+              <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+                <div>
+                  <div class="text-xs tracking-[0.2em] text-gray-500 uppercase mb-1">
+                    Meinhardt (Thailand) Ltd.
+                  </div>
+                  <h2 class="text-xl font-semibold text-gray-900">CDR Details</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <div class="text-sm text-gray-500">
+                    CDR No: <span class="font-medium text-gray-900">{{ request.cdr_no || request.cdrNo || '-' }}</span>
+                  </div>
+                  <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full"
+                        [ngClass]="statusClass">
+                    {{ getStatusText(request.status) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="document-field">
+                  <label>To</label>
+                  <div class="ims-field-box">{{ getRecipientLabels(request.to) }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Date</label>
+                  <div class="ims-field-box">{{ formatDate(request.date) || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>From</label>
+                  <div class="ims-field-box">{{ request.from || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>CDR No. (by IMS/ADM)</label>
+                  <div class="ims-field-box">{{ request.cdr_no || request.cdrNo || '-' }}</div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <!-- Categories -->
+            <section>
+              <h3 class="document-subtitle">Categories</h3>
+              <div class="document-check-grid">
+                <div *ngFor="let category of categoryViewOptions" class="document-check-row">
+                  <span class="document-check-box">{{ category.checked ? '✓' : '' }}</span>
+                  <span class="text-gray-900">{{ category.label }}</span>
+                </div>
+              </div>
+              <div class="document-field mt-4" *ngIf="showOtherCategory">
+                <label>Other (please specify)</label>
+                <div class="ims-field-box">{{ otherCategoryText }}</div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <!-- Part 1: Request For -->
+            <section>
+              <h3 class="document-subtitle">Part 1: Request For</h3>
+              <div class="document-check-grid mb-6">
+                <div *ngFor="let option of requestForViewOptions" class="document-check-row">
+                  <span class="document-check-box">{{ option.checked ? '✓' : '' }}</span>
+                  <span class="text-gray-900">{{ option.label }}</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="document-field">
+                  <label>Document Name</label>
+                  <div class="ims-field-box">{{ request.document_name || request.documentName || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Current Revision</label>
+                  <div class="ims-field-box">{{ request.current_revision || request.currentRevision || '-' }}</div>
+                </div>
+              </div>
+
+              <div class="document-field mb-6">
+                <label>Reason and Description</label>
+                <div class="ims-field-box min-h-[96px] whitespace-pre-wrap">{{ request.reason_description || request.reasonDescription || '-' }}</div>
+              </div>
+
+              <div class="document-field mb-6">
+                <label>Purpose of Effective Date</label>
+                <div class="ims-field-box">{{ formatDate(request.effective_date_purpose || request.effectiveDatePurpose) || '-' }}</div>
+              </div>
+
+
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="document-field">
+                  <label>Requested by</label>
+                  <div class="ims-field-box">{{ getEmployeeLabel(request.requested_by || request.requestedBy) || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Date</label>
+                  <div class="ims-field-box">{{ formatDate(request.requested_date || request.requestedDate) || '-' }}</div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider *ngIf="shouldShowReviewDetails()"></mat-divider>
+
+            <!-- Part 2: Review -->
+            <section *ngIf="shouldShowReviewDetails()">
+              <h3 class="document-subtitle">Part 2: Review</h3>
+              <div class="space-y-4">
+                <div class="document-field">
+                  <label>Review Comments</label>
+                  <div class="ims-field-box min-h-[80px] whitespace-pre-wrap">{{ request.review_comments || '-' }}</div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                  <div class="text-right">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Signed by</div>
+                    <div class="text-sm font-semibold text-gray-900 mt-0.5">ISC/HRM/DI/EE/DL</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider *ngIf="shouldShowApprovalDetails()"></mat-divider>
+
+            <!-- Part 3: Approval -->
+            <section *ngIf="shouldShowApprovalDetails()">
+              <h3 class="document-subtitle">Part 3: Ask for Approval</h3>
+              <div class="space-y-4">
+                <div class="document-field">
+                  <label>Approval Comments</label>
+                  <div class="ims-field-box min-h-[80px] whitespace-pre-wrap">{{ request.approval_comments || '-' }}</div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                  <div class="text-right">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Signed by</div>
+                    <div class="text-sm font-semibold text-gray-900 mt-0.5">IMR/DI/MD</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </mat-card>
+
+        <!-- Action Form Card (Update Status) -->
+        <mat-card class="ims-card">
+          <div class="ims-card-header border-b-0 pb-0">
+            <h3 class="text-xl font-bold text-gray-900">{{ getActionTitle() }}</h3>
+            <p class="text-sm text-gray-500 mt-1">You are updating the status for this request</p>
+          </div>
+          <div class="ims-card-body pt-6 space-y-6">
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Status Select -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Part 4 fields (Only for Final Action) -->
+              <div *ngIf="actionType === 'acknowledged_by_status_2'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Completed: New Revision</mat-label>
+                    <input
+                      matInput
+                      required
+                      formControlName="newRevision"
+                      placeholder="Enter new revision..."
+                    />
+                    <mat-error *ngIf="actionForm.get('newRevision')?.invalid && actionForm.get('newRevision')?.touched">
+                      Completed: New Revision is required
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Effective Date</mat-label>
+                    <input matInput [matDatepicker]="effDatePicker" formControlName="actionEffectiveDate" placeholder="dd/MM/yyyy" />
+                    <mat-datepicker-toggle matSuffix [for]="effDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #effDatePicker></mat-datepicker>
+                  </mat-form-field>
+              </div>
+
+              <!-- Comments (Only for Review/Approval) -->
+              <mat-form-field appearance="outline" class="w-full" *ngIf="actionType === 'reviewed_by_status' || actionType === 'approved_by_status'">
+                <mat-label>Review/Approval Comments</mat-label>
+                <textarea matInput formControlName="comments" rows="4" placeholder="Enter your comments..."></textarea>
+              </mat-form-field>
+
+              <!-- Assignee Box (Blue Box as in Image 2) -->
+              <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-sm font-bold text-blue-700 mb-1">
+                  {{ actionType === 'reviewed_by_status' ? 'Reviewed By' : 
+                     actionType === 'approved_by_status' ? 'Approved By' :
+                     'Action By' }}:
+                </p>
+                <p class="text-base font-semibold text-blue-900">
+                  {{ request ? getEmployeeLabel(request[actionType.indexOf('acknowledged') !== -1 ? 'acknowledged_by' : actionType.replace('_status', '')]) : 'N/A' }}
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex justify-end items-center gap-4 pt-2">
+                <button
+                  type="button"
+                  mat-stroked-button
+                  (click)="router.navigate(['/controlled-document-request/list'])"
+                  class="px-8"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  mat-flat-button
+                  color="primary"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-8"
+                >
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-progress-spinner *ngIf="loading" [diameter]="20" [mode]="'indeterminate'"></mat-progress-spinner>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Sidebar (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+        <app-approval-workflow [steps]="workflowSteps"></app-approval-workflow>
+
+        <!-- Attached Documents Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 mt-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                Attached Documents
+            </h2>
+
+            <div *ngIf="attachments?.length; else noDocs" class="space-y-3">
+                <div *ngFor="let doc of attachments"
+                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <a *ngIf="doc.url" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                                class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 truncate block">
+                                {{ doc.name }}
+                            </a>
+                            <div *ngIf="!doc.url" class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate block">
+                                {{ doc.name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="doc.url" class="ml-2 flex-shrink-0">
+                        <a mat-icon-button [href]="doc.url" target="_blank" rel="noopener noreferrer" download
+                            matTooltip="Download">
+                            <mat-icon class="text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #noDocs>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    No documents attached.
+                </div>
+            </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

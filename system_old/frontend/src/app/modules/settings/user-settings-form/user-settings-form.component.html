@@ -1,0 +1,126 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="w-full h-full p-6 bg-white dark:bg-gray-900">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ isEdit ? 'User Details' : 'Add New User' }}
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    {{ isEdit
+                        ? (userType === 'sync_ad' ? 'View user details. Only permission can be edited.' : 'View and edit name, email, phone, and permission.')
+                        : 'Enter information to create a new user account' }}
+                </p>
+            </div>
+
+            <a
+                mat-stroked-button
+                color="primary"
+                [routerLink]="['/settings/users']"
+            >
+                <mat-icon class="mr-2">arrow_back</mat-icon>
+                Back to User List
+            </a>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <mat-card class="shadow-lg border border-gray-200 dark:border-gray-700 w-full">
+            <mat-card-content class="p-6 lg:p-8">
+                <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Permission (แก้ได้เฉพาะในโหมด edit) -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Permission</mat-label>
+                            <mat-select formControlName="permission_id">
+                                <mat-option *ngFor="let permission of permissions" [value]="permission.id">
+                                    {{ permission.name }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="form.get('permission_id')?.hasError('required')">
+                                Permission is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Username (เฉพาะตอนเพิ่ม user ใหม่) -->
+                        <mat-form-field *ngIf="!isEdit" appearance="outline" class="w-full">
+                            <mat-label>Username</mat-label>
+                            <input matInput formControlName="username" />
+                        </mat-form-field>
+
+                        <!-- ชื่อ (Full Name): แก้ได้เมื่อ type === local -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>ชื่อ (Full Name)</mat-label>
+                            <input matInput formControlName="name" [readonly]="isEdit && userType === 'sync_ad'" />
+                        </mat-form-field>
+
+                        <!-- อีเมล (Email): แก้ได้เมื่อ type === local -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>อีเมล (Email)</mat-label>
+                            <input matInput formControlName="email" [readonly]="isEdit && userType === 'sync_ad'" />
+                        </mat-form-field>
+
+                        <!-- Phone: แก้ได้เมื่อ type === local; แสดงทั้งโหมดเพิ่มและแก้ไข -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Phone</mat-label>
+                            <input matInput formControlName="phone" [readonly]="isEdit && userType === 'sync_ad'" />
+                        </mat-form-field>
+
+                        <!-- Password (เฉพาะตอนเพิ่ม user ใหม่) -->
+                        <mat-form-field *ngIf="!isEdit" appearance="outline" class="w-full md:col-span-2 lg:col-span-3">
+                            <mat-label>Password</mat-label>
+                            <input matInput type="password" formControlName="password" />
+                        </mat-form-field>
+
+                        <!-- Image path -->
+                        <mat-form-field *ngIf="false" appearance="outline" class="w-full md:col-span-2 lg:col-span-3">
+                            <mat-label>Image (path)</mat-label>
+                            <input matInput formControlName="image" placeholder="e.g., assets/images/test.png" />
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            color="primary"
+                            [routerLink]="['/settings/users']"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="submit"
+                            [disabled]="isSubmitting"
+                            class="px-6"
+                        >
+                            <mat-progress-spinner
+                                *ngIf="isSubmitting"
+                                [diameter]="18"
+                                mode="indeterminate"
+                                class="mr-2"
+                            ></mat-progress-spinner>
+                            <span>{{ isEdit ? 'Update Permission' : 'Save' }}</span>
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+
+

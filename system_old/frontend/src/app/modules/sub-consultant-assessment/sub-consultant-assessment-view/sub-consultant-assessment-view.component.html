@@ -1,0 +1,395 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                    SUB-CONSULTANT ASSESSMENT FORM
+                </h1>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    10 - FORM MTSC-01 | View assessment information
+                </p>
+            </div>
+
+            <app-view-actions
+                [backPath]="'/sub-consultant-assessment'"
+                [navId]="'sub-consultant-assessment'"
+                (print)="onPrint()"
+                (edit)="onEdit()"
+            ></app-view-actions>
+        </div>
+
+        <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type"
+            [showIcon]="'true'" [dismissible]="'true'" (dismissed)="alert = null">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+            <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <div *ngIf="!isLoading && assessment" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="document-card bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="document-header p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                            <div class="space-y-1">
+                                <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase">
+                                    Meinhardt (Thailand) Ltd.
+                                </div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                    Sub-Consultant Assessment Form
+                                </h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Detail view in document format
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-3 self-start">
+                                <div class="text-right text-sm text-gray-500 dark:text-gray-400">
+                                    <div>{{ assessment.form_code || '/AM/T6SC' }}</div>
+                                    <div>10 - FORM MTSC-01</div>
+                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                                      [class]="getStatusBadgeClass(assessment.status)">
+                                    {{ getStatusLabel(assessment.status) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="document-field">
+                                <label>To</label>
+                                <div class="document-value">{{ assessment.to || '-' }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Circ</label>
+                                <div class="document-value">{{ assessment.circ || '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-8">
+                        <section>
+                            <h3 class="section-title">
+                                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:clipboard-document-check'"></mat-icon>
+                                Scope of service required
+                            </h3>
+                            <div class="document-value min-h-[48px]">
+                                {{ assessment.scope_of_service || '-' }}
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section>
+                            <h3 class="section-title">
+                                <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                                Information used for Assessment
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div *ngFor="let item of assessmentInformationOptions" class="document-check-row">
+                                    <span class="document-check-box">
+                                        {{ isAssessmentInfoChecked(item.key) ? '✓' : '' }}
+                                    </span>
+                                    <span class="text-gray-900 dark:text-white">{{ item.label }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b-2 border-blue-600 dark:border-blue-400">
+                                ASSESSMENT
+                            </h2>
+
+                            <h3 class="section-title">
+                                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:building-office'"></mat-icon>
+                                1. Company
+                            </h3>
+                            <div class="document-value mb-6">
+                                {{ assessment.company || '-' }}
+                            </div>
+
+                            <div class="overflow-x-auto mb-6">
+                                <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                        <tr>
+                                            <th rowspan="2" class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle">
+                                                Assessment Areas
+                                            </th>
+                                            <th rowspan="2" class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-28 align-middle">
+                                                Score<br/>(1 to 10)
+                                            </th>
+                                            <th colspan="4" class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+                                                Criteria of Scores
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-24">1-2</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-24">3-5</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-24">6-8</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 w-24">9-10</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let area of assessmentAreas" class="border-b border-gray-200 dark:border-gray-700">
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle">
+                                                {{ area.label }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-700 align-middle">
+                                                <span class="inline-flex min-w-[56px] justify-center rounded-md bg-blue-50 px-3 py-1 text-lg font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    {{ getAssessmentScore(area.scoreKey) }}
+                                                </span>
+                                            </td>
+                                            <td *ngFor="let criterion of area.criteria; let last = last"
+                                                class="px-3 py-3 text-center text-xs text-gray-600 dark:text-gray-400 align-middle"
+                                                [ngClass]="!last ? 'border-r border-gray-200 dark:border-gray-700' : ''">
+                                                {{ criterion }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="flex items-center flex-wrap gap-x-4 gap-y-2">
+                                <div class="text-lg font-medium text-gray-900 dark:text-white">Total Score =</div>
+                                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ assessment.item1_total_score || 0 }}/30</div>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">(must exceed 15)</span>
+                                <span *ngIf="meetsMinimumScore" class="text-green-600 text-sm font-medium">
+                                    ✓ Score meets minimum
+                                </span>
+                                <span *ngIf="!meetsMinimumScore" class="text-red-600 text-sm font-medium">
+                                    ✕ Score below minimum
+                                </span>
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section>
+                            <h3 class="section-title">
+                                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+                                2. Compliance to EMS and OHSMS
+                            </h3>
+
+                            <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                                Obtained certificates of ISO 14001 and/or OHSAS 18001/ISO 45001
+                            </p>
+
+                            <div class="flex flex-wrap gap-6 mb-4">
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ hasCompliance ? '✓' : '' }}</span>
+                                    <span>Yes</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ !hasCompliance ? '✓' : '' }}</span>
+                                    <span>No</span>
+                                </div>
+                            </div>
+
+                            <div *ngIf="hasCompliance" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ assessment.ems_iso_14001 === 1 ? '✓' : '' }}</span>
+                                    <span>ISO 14001</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ assessment.ems_ohsas_18001 === 1 ? '✓' : '' }}</span>
+                                    <span>OHSAS 18001</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ assessment.ems_iso_45001 === 1 ? '✓' : '' }}</span>
+                                    <span>ISO 45001</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section>
+                            <h3 class="section-title">
+                                <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:users'"></mat-icon>
+                                3. References
+                            </h3>
+
+                            <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">
+                                Contact at least one external reference and record name and opinion
+                            </p>
+
+                            <div class="space-y-4">
+                                <div *ngFor="let reference of assessment.references; let i = index" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50/60 dark:bg-gray-900/20">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="document-field">
+                                            <label>Reference {{ getReferenceLabel(i) }}) Name</label>
+                                            <div class="document-value">{{ reference.reference_name || '-' }}</div>
+                                        </div>
+                                        <div class="document-field">
+                                            <label>Opinion</label>
+                                            <div class="document-value">{{ getOpinionLabel(reference.opinion) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b-2 border-blue-600 dark:border-blue-400">
+                                Recommendation
+                            </h2>
+
+                            <div class="space-y-4">
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ assessment.recommendation === 'accept' ? '✓' : '' }}</span>
+                                    <span>Accept (Score in item 1 must be 15 or better and must have at least one good positive reference.)</span>
+                                </div>
+                                <div class="document-check-row">
+                                    <span class="document-check-box">{{ assessment.recommendation === 'not_accept' ? '✓' : '' }}</span>
+                                    <span>Not accept</span>
+                                </div>
+
+                                <div class="document-field">
+                                    <label>Reason</label>
+                                    <div class="document-value min-h-[48px]">
+                                        {{ assessment.recommendation_reason || '-' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+                        Approval Workflow
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                    <mat-icon class="text-sm">person</mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                    Assessed by (DI/TL): <strong>{{ getEmployeeLabel(assessment.assessed_by) }}</strong>
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Date: {{ formatDateTime(assessment.assessed_by_date) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                                     [class]="getByStatusColor(assessment.approved_by_status)">
+                                    <mat-icon class="text-sm" [class]="getWorkflowIconClass(assessment.approved_by_status)">
+                                        {{ getWorkflowIcon(assessment.approved_by_status) }}
+                                    </mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                    Approved by (MD/DI): <strong>{{ getEmployeeLabel(assessment.approved_by) }}</strong>
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Date: {{ formatDateTime(assessment.approved_by_date) }}
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Status:
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                                          [class]="getByStatusColor(assessment.approved_by_status)">
+                                        {{ getByStatusText(assessment.approved_by_status) }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                                     [class]="getByStatusColor(assessment.acknowledged_by_status)">
+                                    <mat-icon class="text-sm" [class]="getWorkflowIconClass(assessment.acknowledged_by_status)">
+                                        {{ getWorkflowIcon(assessment.acknowledged_by_status) }}
+                                    </mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                    Acknowledged by (MR): <strong>{{ getEmployeeLabel(assessment.acknowledged_by) }}</strong>
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Date: {{ formatDateTime(assessment.acknowledged_by_date) }}
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Status:
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                                          [class]="getByStatusColor(assessment.acknowledged_by_status)">
+                                        {{ getByStatusText(assessment.acknowledged_by_status) }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attached Documents Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                        Attached Documents
+                    </h2>
+
+                    <div *ngIf="assessment.files && assessment.files.length > 0; else noDocs" class="space-y-4">
+                        <div *ngFor="let file of assessment.files"
+                            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                        <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <a [href]="getAttachmentUrl(file.path)" target="_blank" rel="noopener noreferrer"
+                                        class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                        {{ file.name }}
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <a mat-stroked-button color="primary" [href]="getAttachmentUrl(file.path)" target="_blank" rel="noopener noreferrer" download class="text-xs">
+                                    <mat-icon class="mr-1 text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template #noDocs>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            No documents attached.
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!isLoading && !assessment" class="text-center py-12">
+            <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:building-office'"></mat-icon>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Assessment not found</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">The assessment you're looking for doesn't exist or has been deleted.</p>
+            <button
+                mat-flat-button
+                color="primary"
+                (click)="onBack()"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                Back to List
+            </button>
+        </div>
+    </div>
+</div>

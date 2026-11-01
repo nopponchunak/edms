@@ -1,0 +1,856 @@
+<div class="screen-view h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6">
+    <div class="mb-8">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-blue-600 uppercase">
+            Engineering Audit/Study Review
+          </h1>
+          <p class="text-sm text-gray-600 mt-1">
+            {{ isEdit ? 'Update checklist / action sheet details' : isView ? 'View submitted checklist / action sheet' : 'Prepare a new checklist / action sheet' }}
+          </p>
+        </div>
+
+        <div class="flex flex-col items-start gap-3 lg:items-end">
+          <div class="flex flex-col items-start gap-2 lg:items-end">
+            <span class="text-sm text-gray-500 whitespace-nowrap">
+              23 - FORM MTEA-01
+            </span>
+          </div>
+
+          <div *ngIf="isView" class="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
+          <app-view-actions
+            [backPath]="'/engineering-audit-review'"
+            [navId]="'engineering-audit-review'"
+            (edit)="onEdit()"
+            (print)="onPrint()"
+          ></app-view-actions>
+
+          <app-legacy-source-button
+            [recordData]="recordData"
+          ></app-legacy-source-button>
+          </div>
+
+          <button
+            *ngIf="!isView"
+            type="button"
+            (click)="goBack()"
+            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+            <mat-icon class="mr-2 text-base">arrow_back</mat-icon>
+            Back to List
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <div class="form-layout" [class.form-layout--with-aside]="isView">
+        <div class="bg-white rounded-lg shadow-lg border border-gray-200">
+          <div class="p-6 lg:p-8">
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">A</span>
+              Project And Review Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div class="document-field xl:col-span-2">
+                <label>Project Name</label>
+                <div *ngIf="isView; else editProjectName" class="view-field-box">
+                  {{ form.get('projectName')?.value || '-' }}
+                </div>
+                <ng-template #editProjectName>
+                  <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                    <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)">
+                      <mat-option>
+                        <ngx-mat-select-search
+                          [formControl]="projectSearchCtrl"
+                          placeholderLabel="Search Project..."
+                          noEntriesFoundLabel="No projects found">
+                        </ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                        {{ project.name }} ({{ project.code }})
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-template>
+              </div>
+
+              <div class="document-field">
+                <label>Project No.</label>
+                <div *ngIf="isView; else editProjectNumber" class="view-field-box">
+                  {{ form.get('projectNumber')?.value || '-' }}
+                </div>
+                <ng-template #editProjectNumber>
+                  <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                    <input matInput formControlName="projectNumber" readonly />
+                  </mat-form-field>
+                </ng-template>
+              </div>
+
+              <div class="document-field">
+                <label>Prepared By</label>
+                <div *ngIf="isView; else editPreparedBy" class="view-field-box">
+                  {{ getEmployeeDisplay(form.get('preparedBy')?.value) }}
+                </div>
+                <ng-template #editPreparedBy>
+                  <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                    <mat-select formControlName="preparedBy" placeholder="Select employee">
+                      <mat-option>
+                        <ngx-mat-select-search [formControl]="preparedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option *ngFor="let employee of filteredPreparedByOptions" [value]="employee.code">
+                        {{ employee.displayLabel }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-template>
+              </div>
+            </div>
+
+            <div class="document-field mt-5">
+              <label>Discipline</label>
+              <div *ngIf="isView; else editDisciplines" class="selection-panel">
+                <div class="selection-item selection-item--view" *ngFor="let discipline of disciplines">
+                  <mat-icon class="selection-icon" [class.selection-icon--active]="getSelectedDisciplines().includes(discipline)">
+                    {{ getSelectedDisciplines().includes(discipline) ? 'check_box' : 'check_box_outline_blank' }}
+                  </mat-icon>
+                  <span>
+                    {{ discipline === 'Other' && getSelectedDisciplines().includes('Other') ? (form.get('disciplineOther')?.value || 'Other') : discipline }}
+                  </span>
+                </div>
+              </div>
+              <ng-template #editDisciplines>
+                <div class="selection-panel" formArrayName="discipline">
+                  <div class="selection-item" *ngFor="let discipline of disciplines; let i = index">
+                    <mat-checkbox [formControlName]="i" (change)="onDisciplineChange()"></mat-checkbox>
+                    <span>{{ discipline }}</span>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4" *ngIf="!isView && getSelectedDisciplines().includes('Other')">
+              <div class="document-field">
+                <label>Specify Other Discipline</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="disciplineOther" placeholder="Enter other discipline" />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="document-field mt-5">
+              <label>Document(s) Reviewed</label>
+              <div *ngIf="isView; else editDocuments" class="selection-panel selection-panel--compact">
+                <div class="selection-item selection-item--view" *ngFor="let docType of documentTypes">
+                  <mat-icon class="selection-icon" [class.selection-icon--active]="getSelectedDocuments().includes(docType)">
+                    {{ getSelectedDocuments().includes(docType) ? 'check_box' : 'check_box_outline_blank' }}
+                  </mat-icon>
+                  <span>{{ docType }}</span>
+                </div>
+              </div>
+              <ng-template #editDocuments>
+                <div class="selection-panel selection-panel--compact" formArrayName="documentsReviewed">
+                  <div class="selection-item" *ngFor="let docType of documentTypes; let i = index">
+                    <mat-checkbox [formControlName]="i" (change)="onDocumentsReviewedChange()"></mat-checkbox>
+                    <span>{{ docType }}</span>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4" *ngIf="getSelectedDocuments().includes('Other')">
+              <div class="document-field">
+                <label>Specify Other Document Type</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="documentsReviewedOther" placeholder="Enter other document type" [readonly]="isView" />
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section section-divider-top">
+            <h3 class="document-section-title">
+              <span class="section-number">B</span>
+              Method Of Review / Record Of Review
+            </h3>
+
+            <ng-container *ngIf="isView || isEdit; else editSectionB">
+              <div class="document-subsection">
+                <div class="document-subsection-title">
+                  <span class="document-subsection-marker">A.</span>
+                  <span>Performing Alternative Calculations/Design</span>
+                </div>
+
+                <div class="document-inline-label">
+                  Attentive calculations are attached. Done?
+                </div>
+
+                <div class="inline-status">
+                  <div class="status-options">
+                    <div class="status-option status-option--readonly">
+                      <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="form.get('performingCalculations.done')?.value === true">
+                        <mat-icon *ngIf="form.get('performingCalculations.done')?.value === true">check</mat-icon>
+                      </span>
+                      <span>Yes</span>
+                    </div>
+                    <div class="status-option status-option--readonly">
+                      <span class="checklist-view-indicator" [class.checklist-view-indicator--active]="form.get('performingCalculations.done')?.value === false">
+                        <mat-icon *ngIf="form.get('performingCalculations.done')?.value === false">check</mat-icon>
+                      </span>
+                      <span>No</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="document-subsection section-divider-top">
+                <div class="document-subsection-title">
+                  <span class="document-subsection-marker">B.</span>
+                  <span>Reviewing The Audit/Study Documents Before/After Release</span>
+                </div>
+
+                <div class="overflow-x-auto mt-4">
+                  <table class="w-full border border-gray-200 text-sm border-collapse checklist-table">
+                    <thead>
+                      <tr class="bg-gray-50 text-gray-700">
+                        <th class="px-4 py-3 border border-gray-200 text-left font-semibold checklist-col-question">Checklist Item</th>
+                        <th class="px-4 py-3 border border-gray-200 text-center font-semibold checklist-col-answer">Yes</th>
+                        <th class="px-4 py-3 border border-gray-200 text-center font-semibold checklist-col-answer">No</th>
+                        <th class="px-4 py-3 border border-gray-200 text-center font-semibold checklist-col-answer">N/A</th>
+                      </tr>
+                    </thead>
+                    <tbody formArrayName="checklistResponses">
+                      <tr *ngFor="let item of checklistItems; let i = index" class="odd:bg-white even:bg-gray-50">
+                        <td class="px-4 py-4 border border-gray-200 align-top">
+                          <div class="checklist-question">
+                            <span class="checklist-number">{{ i + 1 }}</span>
+                            <span>{{ item.question }}</span>
+                          </div>
+                        </td>
+                        <ng-container *ngIf="isView; else editChecklistRow">
+                          <td class="px-3 py-3 border border-gray-200 text-center">
+                            <span class="checklist-view-indicator checklist-checkbox-indicator" [class.checklist-view-indicator--active]="isChecklistResponse(i, 'yes')">
+                              <mat-icon *ngIf="isChecklistResponse(i, 'yes')">check</mat-icon>
+                            </span>
+                          </td>
+                          <td class="px-3 py-3 border border-gray-200 text-center">
+                            <span class="checklist-view-indicator checklist-checkbox-indicator" [class.checklist-view-indicator--active]="isChecklistResponse(i, 'no')">
+                              <mat-icon *ngIf="isChecklistResponse(i, 'no')">check</mat-icon>
+                            </span>
+                          </td>
+                          <td class="px-3 py-3 border border-gray-200 text-center">
+                            <span class="checklist-view-indicator checklist-checkbox-indicator" [class.checklist-view-indicator--active]="isChecklistResponse(i, 'n/a')">
+                              <mat-icon *ngIf="isChecklistResponse(i, 'n/a')">check</mat-icon>
+                            </span>
+                          </td>
+                        </ng-container>
+
+                        <ng-template #editChecklistRow>
+                          <td class="px-3 py-3 border border-gray-200" colspan="3">
+                            <mat-radio-group [formControlName]="i" class="checklist-options">
+                              <div class="checklist-option">
+                                <mat-radio-button value="yes"></mat-radio-button>
+                                <span>Yes</span>
+                              </div>
+                              <div class="checklist-option">
+                                <mat-radio-button value="no"></mat-radio-button>
+                                <span>No</span>
+                              </div>
+                              <div class="checklist-option">
+                                <mat-radio-button value="n/a"></mat-radio-button>
+                                <span>N/A</span>
+                              </div>
+                            </mat-radio-group>
+                          </td>
+                        </ng-template>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="document-field mt-6">
+                <label>Comments</label>
+                <div class="view-field-box view-field-box--multiline">
+                  {{ form.get('comments')?.value || '-' }}
+                </div>
+              </div>
+
+              <div class="document-field mt-4">
+                <label>Recommended action(s) if any</label>
+                <div class="view-field-box view-field-box--multiline">
+                  {{ form.get('recommendedActions')?.value || '-' }}
+                </div>
+              </div>
+
+              <div class="signature-block mt-6">
+                <label class="document-inline-label">Any finding constitutes non-conformance to Quality Procedure?</label>
+                <div class="view-field-box">
+                  {{ getBooleanDisplay(form.get('nonConformanceToQP')?.value) }}
+                </div>
+              </div>
+
+            </ng-container>
+
+            <ng-template #editSectionB>
+              <!-- Reviewed By is auto-synced from Signed By -->
+            </ng-template>
+          </section>
+
+          <section class="document-section borderless section-divider-top">
+            <h3 class="document-section-title">
+              <span class="section-number">C</span>
+              Review Comments And Signatures
+            </h3>
+
+            <div class="signature-stack" *ngIf="isView; else editSectionC">
+              <div class="signature-block">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="document-field">
+                    <label>Responded By <span class="field-meta">(PE/TE)</span></label>
+                    <div class="view-field-box">
+                      {{ getEmployeeDisplay(form.get('respondedBy')?.value) }}
+                    </div>
+                  </div>
+
+                  <div class="document-field">
+                    <label>Date</label>
+                    <div class="view-field-box">
+                      {{ formatDate(form.get('respondedByDate')?.value) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="signature-block">
+                <label class="document-inline-label">Recommended action(s) have been satisfactorily taken</label>
+                <div class="view-field-box">
+                  {{ getBooleanDisplay(form.get('recommendedActionsSatisfactorilyTaken')?.value) }}
+                </div>
+
+                <div class="document-field mt-4">
+                  <label>Note</label>
+                  <div class="view-field-box view-field-box--multiline">
+                    {{ form.get('note')?.value || '-' }}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div class="document-field">
+                    <label>Signed By <span class="field-meta">(TL/DL/VVE)</span></label>
+                    <div class="view-field-box">
+                      {{ getEmployeeDisplay(form.get('signedBy')?.value) }}
+                    </div>
+                  </div>
+
+                  <div class="document-field">
+                    <label>Date</label>
+                    <div class="view-field-box">
+                      {{ formatDate(form.get('signedByDate')?.value) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="signature-block">
+                <label class="document-inline-label">Has the Client, Project Manager given any feedback on any shortcomings in the documentation that need amendment, within 1 month after issuing?</label>
+                <div class="view-field-box">
+                  {{ getBooleanDisplay(form.get('clientProjectManagerFeedback')?.value) }}
+                </div>
+
+                <div class="document-field mt-4">
+                  <label>Comments</label>
+                  <div class="view-field-box view-field-box--multiline">
+                    {{ form.get('clientProjectManagerComments')?.value || '-' }}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div class="document-field">
+                    <label>Signed By <span class="field-meta">(TL/PE)</span></label>
+                    <div class="view-field-box">
+                      {{ getEmployeeDisplay(form.get('clientProjectManagerSignedBy')?.value) }}
+                    </div>
+                  </div>
+
+                  <div class="document-field">
+                    <label>Date</label>
+                    <div class="view-field-box">
+                      {{ formatDate(form.get('clientProjectManagerSignedByDate')?.value) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="signature-block">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="document-field">
+                    <label>Acknowledged By <span class="field-meta">(DI)</span></label>
+                    <div class="view-field-box">
+                      {{ getEmployeeDisplay(form.get('acknowledgedBy')?.value) }}
+                    </div>
+                  </div>
+
+                  <div class="document-field">
+                    <label>Date</label>
+                    <div class="view-field-box">
+                      {{ formatDate(form.get('acknowledgedByDate')?.value) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #editSectionC>
+              <div class="signature-stack">
+                <div class="signature-block">
+                  <div class="document-field">
+                    <label>Responded By <span class="field-meta">(PE/TE)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="respondedBy" placeholder="Select employee">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="respondedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredRespondedByOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+
+                <div class="signature-block">
+                  <div class="document-field">
+                    <label>Signed By <span class="field-meta">(TL/DL/VVE)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="signedBy" placeholder="Select employee">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="signedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredSignedByOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="signature-block">
+                  <div class="document-field">
+                    <label>Signed By <span class="field-meta">(TL/PE)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="clientProjectManagerSignedBy" placeholder="Select employee">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="clientProjectManagerSignedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredClientProjectManagerSignedByOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="signature-block">
+                  <div class="document-field">
+                    <label>Acknowledged By <span class="field-meta">(DI)</span></label>
+                    <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                      <mat-select formControlName="acknowledgedBy" placeholder="Select employee">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="acknowledgedBySearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let employee of filteredAcknowledgedByOptions" [value]="employee.code">
+                          {{ employee.displayLabel }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </section>
+          </div>
+        </div>
+
+        <div *ngIf="isView" class="workflow-aside">
+          <app-approval-workflow [steps]="workflowSteps"></app-approval-workflow>
+        </div>
+      </div>
+
+      <div *ngIf="!isView" class="mt-6 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="goBack()"
+          class="rounded-full border-gray-300 text-gray-700">
+          Cancel
+        </button>
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="saveForm()"
+          [disabled]="loading"
+          class="rounded-full border-gray-300 text-blue-600">
+          <mat-icon *ngIf="loading" class="animate-spin mr-2">refresh</mat-icon>
+          Save Draft
+        </button>
+        <button
+          type="submit"
+          mat-flat-button
+          color="primary"
+          [disabled]="loading">
+          <mat-icon *ngIf="loading" class="animate-spin mr-2">refresh</mat-icon>
+          {{ loading ? 'Submitting...' : (isEdit ? 'Update Review' : 'Submit Review') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div *ngIf="isView" class="print-only engineering-audit-review-print-root">
+  <article class="easr-print-document">
+    <header class="easr-print-header">
+      <div class="easr-print-company">
+        <div>Meinhardt (Thailand) Ltd.</div>
+      </div>
+      <div class="easr-print-brand">
+        <img src="/images/logo/logo-meinharde.png" alt="Meinhardt">
+        <div>23 - FORM MTEA-01</div>
+      </div>
+    </header>
+
+    <h1 class="easr-print-title">ENGINEERING AUDIT/STUDY REVIEW CHECKLIST/ACTION SHEET</h1>
+
+    <section class="easr-print-box">
+      <div class="easr-print-info-row easr-print-info-row--project">
+        <div class="easr-print-line-field">
+          <span class="easr-print-label">Project Name:</span>
+          <span class="easr-print-dotted-value">{{ getPrintControlValue('projectName') }}</span>
+        </div>
+        <div class="easr-print-line-field easr-print-project-no">
+          <span class="easr-print-label">Project No.:</span>
+          <span class="easr-print-dotted-value">{{ getPrintControlValue('projectNumber') }}</span>
+        </div>
+      </div>
+
+      <div class="easr-print-info-row easr-print-info-row--setup">
+        <div class="easr-print-options-row easr-print-discipline-row">
+          <span class="easr-print-label easr-print-options-label">Discipline:</span>
+          <div class="easr-print-options-grid easr-print-options-grid--discipline">
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Foundation/Substructure')">
+                <span *ngIf="isPrintDisciplineSelected('Foundation/Substructure')">&#10003;</span>
+              </span>
+              <span>Foundation/Substructure</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Superstructure')">
+                <span *ngIf="isPrintDisciplineSelected('Superstructure')">&#10003;</span>
+              </span>
+              <span>Superstructure</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Lighting')">
+                <span *ngIf="isPrintDisciplineSelected('Lighting')">&#10003;</span>
+              </span>
+              <span>Lighting</span>
+            </div>
+
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('MVAC')">
+                <span *ngIf="isPrintDisciplineSelected('MVAC')">&#10003;</span>
+              </span>
+              <span>MVAC</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Geotechnical/Site Formation')">
+                <span *ngIf="isPrintDisciplineSelected('Geotechnical/Site Formation')">&#10003;</span>
+              </span>
+              <span>Geotechnical/Site Formation</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Façade')">
+                <span *ngIf="isPrintDisciplineSelected('Façade')">&#10003;</span>
+              </span>
+              <span>Façade</span>
+            </div>
+
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Sanitary')">
+                <span *ngIf="isPrintDisciplineSelected('Sanitary')">&#10003;</span>
+              </span>
+              <span>Sanitary</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Electrical')">
+                <span *ngIf="isPrintDisciplineSelected('Electrical')">&#10003;</span>
+              </span>
+              <span>Electrical</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Lifts')">
+                <span *ngIf="isPrintDisciplineSelected('Lifts')">&#10003;</span>
+              </span>
+              <span>Lifts</span>
+            </div>
+
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Fire Protection')">
+                <span *ngIf="isPrintDisciplineSelected('Fire Protection')">&#10003;</span>
+              </span>
+              <span>Fire Protection</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Transportation')">
+                <span *ngIf="isPrintDisciplineSelected('Transportation')">&#10003;</span>
+              </span>
+              <span>Transportation</span>
+            </div>
+            <div class="easr-print-check-option easr-print-check-option--other">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDisciplineSelected('Other')">
+                <span *ngIf="isPrintDisciplineSelected('Other')">&#10003;</span>
+              </span>
+              <span>Other (</span>
+              <span class="easr-print-dotted-value easr-print-dotted-value--paren">{{ getPrintControlValue('disciplineOther') }}</span>
+              <span>)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="easr-print-options-row easr-print-documents-row">
+          <span class="easr-print-label easr-print-options-label">Document(s) Reviewed:</span>
+          <div class="easr-print-options-grid easr-print-options-grid--documents">
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDocumentSelected('Reports')">
+                <span *ngIf="isPrintDocumentSelected('Reports')">&#10003;</span>
+              </span>
+              <span>Reports</span>
+            </div>
+            <div class="easr-print-check-option">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDocumentSelected('Calculations')">
+                <span *ngIf="isPrintDocumentSelected('Calculations')">&#10003;</span>
+              </span>
+              <span>Calculations</span>
+            </div>
+            <div class="easr-print-check-option easr-print-check-option--other">
+              <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPrintDocumentSelected('Other')">
+                <span *ngIf="isPrintDocumentSelected('Other')">&#10003;</span>
+              </span>
+              <span>Other (</span>
+              <span class="easr-print-dotted-value easr-print-dotted-value--paren">{{ getPrintControlValue('documentsReviewedOther') }}</span>
+              <span>)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="easr-print-method-section">
+        <div class="easr-print-side-mark">A</div>
+
+        <div class="easr-print-section-title">METHOD OF REVIEW/RECORD OF REVIEW:</div>
+
+        <div class="easr-print-method-a">
+          <div class="easr-print-method-text">
+            <span class="easr-print-method-marker">A.</span>
+            <strong>Performing Alternative Calculations/Design</strong>
+            <span>(Attentive calculations are attached)</span>
+            <strong>Done?</strong>
+          </div>
+          <div class="easr-print-yn-head">
+            <span>Yes</span>
+            <span>No</span>
+          </div>
+          <div class="easr-print-yn-checks">
+            <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPerformingCalculationsYes()">
+              <span *ngIf="isPerformingCalculationsYes()">&#10003;</span>
+            </span>
+            <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isPerformingCalculationsNo()">
+              <span *ngIf="isPerformingCalculationsNo()">&#10003;</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="easr-print-method-b">
+          <div class="easr-print-method-b-title">
+            <span class="easr-print-method-marker">B.</span>
+            <strong>Reviewing the Audit/Study documents before/after release:</strong>
+          </div>
+
+          <table class="easr-print-checklist">
+            <thead>
+              <tr>
+                <th class="easr-print-checklist-number"></th>
+                <th class="easr-print-checklist-question"></th>
+                <th>Yes</th>
+                <th>No</th>
+                <th>N/A</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of checklistItems; let i = index">
+                <td class="easr-print-checklist-number">{{ i + 1 }}.</td>
+                <td class="easr-print-checklist-question">{{ getPrintChecklistQuestion(item, i) }}</td>
+                <td>
+                  <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isChecklistResponse(i, 'yes')">
+                    <span *ngIf="isChecklistResponse(i, 'yes')">&#10003;</span>
+                  </span>
+                </td>
+                <td>
+                  <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isChecklistResponse(i, 'no')">
+                    <span *ngIf="isChecklistResponse(i, 'no')">&#10003;</span>
+                  </span>
+                </td>
+                <td>
+                  <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isChecklistResponse(i, 'n/a')">
+                    <span *ngIf="isChecklistResponse(i, 'n/a')">&#10003;</span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="easr-print-comments-block">
+          <div class="easr-print-line-field easr-print-comments-line">
+            <span class="easr-print-label">Comments:</span>
+            <span class="easr-print-dotted-value easr-print-dotted-value--multiline">{{ getPrintControlValue('comments') }}</span>
+          </div>
+          <div class="easr-print-dotted-row"></div>
+        </div>
+
+        <div class="easr-print-line-field easr-print-recommended-any-line">
+          <span class="easr-print-label">Recommended action(s) if any:</span>
+          <span class="easr-print-dotted-value">{{ getPrintControlValue('recommendedActions') }}</span>
+        </div>
+
+        <div class="easr-print-nonconformance-line">
+          <span>Any finding constitutes non-conformance to Quality Procedure?</span>
+          <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isNonConformanceYes()">
+            <span *ngIf="isNonConformanceYes()">&#10003;</span>
+          </span>
+          <span>Yes</span>
+          <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isNonConformanceNo()">
+            <span *ngIf="isNonConformanceNo()">&#10003;</span>
+          </span>
+          <span>No</span>
+        </div>
+
+        <div class="easr-print-sign-block">
+          <div class="easr-print-sign-grid">
+            <div class="easr-print-line-field">
+              <span class="easr-print-label">Reviewed by:</span>
+              <span class="easr-print-dotted-value">{{ getPrintEmployeeValue('reviewedBy', 'reviewedBy', 'reviewed_by', 'reviewerForAction', 'reviewer_for_action') }}</span>
+            </div>
+            <div class="easr-print-line-field">
+              <span class="easr-print-label">Date:</span>
+              <span class="easr-print-dotted-value">{{ getPrintDate('reviewed_by_date', 'reviewedByDate') }}</span>
+            </div>
+          </div>
+          <div class="easr-print-role">(TL/DL/VVE)</div>
+        </div>
+      </div>
+
+      <div class="easr-print-sign-block easr-print-sign-block--bordered">
+        <div class="easr-print-sign-grid">
+          <div class="easr-print-line-field">
+            <span class="easr-print-label">Responded by:</span>
+            <span class="easr-print-dotted-value">{{ getPrintEmployeeValue('respondedBy', 'respondedBy', 'responded_by') }}</span>
+          </div>
+          <div class="easr-print-line-field">
+            <span class="easr-print-label">Date:</span>
+            <span class="easr-print-dotted-value">{{ getPrintDate('responded_by_date', 'respondedByDate', 'pe_response_date', 'peResponseDate') }}</span>
+          </div>
+        </div>
+        <div class="easr-print-role">(PE/TE)</div>
+      </div>
+
+      <div class="easr-print-recommended-section">
+        <div class="easr-print-recommended-line">
+          <span>Recommended action (s) have been satisfactorily taken:</span>
+          <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isRecommendedActionYes()">
+            <span *ngIf="isRecommendedActionYes()">&#10003;</span>
+          </span>
+          <span>Yes</span>
+          <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isRecommendedActionNo()">
+            <span *ngIf="isRecommendedActionNo()">&#10003;</span>
+          </span>
+          <span>No</span>
+        </div>
+
+        <div class="easr-print-line-field easr-print-note-line">
+          <span class="easr-print-label">Note:</span>
+          <span class="easr-print-dotted-value">{{ getPrintControlValue('note') }}</span>
+        </div>
+
+        <div class="easr-print-sign-block">
+          <div class="easr-print-sign-grid">
+            <div class="easr-print-line-field">
+              <span class="easr-print-label">Signed by:</span>
+              <span class="easr-print-dotted-value">{{ getPrintEmployeeValue('signedBy', 'signedBy', 'signed_by', 'teamLeadForAction', 'team_lead_for_action') }}</span>
+            </div>
+            <div class="easr-print-line-field">
+              <span class="easr-print-label">Date:</span>
+              <span class="easr-print-dotted-value">{{ getPrintDate('signed_by_date', 'signedByDate', 'reviewer_follow_up_date', 'reviewerFollowUpDate') }}</span>
+            </div>
+          </div>
+          <div class="easr-print-role">(TL/DL/VVE)</div>
+        </div>
+      </div>
+
+      <div class="easr-print-client-section">
+        <div class="easr-print-client-question">
+          <span>Has the Client, Project Manager given any feedback on any shortcomings in<br>the documentation that need amendment, within 1 month after issuing?</span>
+          <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isClientProjectManagerFeedbackYes()">
+            <span *ngIf="isClientProjectManagerFeedbackYes()">&#10003;</span>
+          </span>
+          <span>Yes</span>
+          <span class="easr-print-checkbox" [class.easr-print-checkbox--checked]="isClientProjectManagerFeedbackNo()">
+            <span *ngIf="isClientProjectManagerFeedbackNo()">&#10003;</span>
+          </span>
+          <span>No</span>
+        </div>
+
+        <div class="easr-print-line-field easr-print-client-comments-line">
+          <span class="easr-print-label">Comments:</span>
+          <span class="easr-print-dotted-value">{{ getPrintControlValue('clientProjectManagerComments') }}</span>
+        </div>
+
+        <div class="easr-print-sign-block">
+          <div class="easr-print-sign-grid">
+            <div class="easr-print-line-field">
+              <span class="easr-print-label">Signed by:</span>
+              <span class="easr-print-dotted-value">{{ getPrintEmployeeValue('clientProjectManagerSignedBy', 'clientProjectManagerSignedBy', 'client_project_manager_signed_by') }}</span>
+            </div>
+            <div class="easr-print-line-field">
+              <span class="easr-print-label">Date:</span>
+              <span class="easr-print-dotted-value">{{ getPrintDate('client_project_manager_signed_by_date', 'clientProjectManagerSignedByDate', 'tl_review_date', 'tlReviewDate') }}</span>
+            </div>
+          </div>
+          <div class="easr-print-role">(TL/PE)</div>
+        </div>
+      </div>
+
+      <div class="easr-print-sign-block easr-print-sign-block--bordered easr-print-sign-block--acknowledged">
+        <div class="easr-print-sign-grid">
+          <div class="easr-print-line-field">
+            <span class="easr-print-label">Acknowledged by:</span>
+            <span class="easr-print-dotted-value">{{ getPrintEmployeeValue('acknowledgedBy', 'acknowledgedBy', 'acknowledged_by', 'directorForAction', 'director_for_action') }}</span>
+          </div>
+          <div class="easr-print-line-field">
+            <span class="easr-print-label">Date:</span>
+            <span class="easr-print-dotted-value">{{ getPrintDate('acknowledged_by_date', 'acknowledgedByDate', 'di_acknowledge_date', 'diAcknowledgeDate') }}</span>
+          </div>
+        </div>
+        <div class="easr-print-role">(DI)</div>
+      </div>
+    </section>
+
+    <footer class="easr-print-footer">
+      <div>M:\MTL_INDEX\IMS DOCUMENTATION\FORMS\TEC\NC\MTEA\MTL-ENG-AUDIT-STUDY-REVIEW-CHECKLIST-ACTION-SHEET.DOC REV A (01/01/2016) WR/KK/NP/CRC</div>
+      <div>Page 1 of 2</div>
+    </footer>
+  </article>
+</div>

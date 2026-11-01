@@ -1,0 +1,287 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ getActionTitle() }}
+          </h1>
+          <p class="text-base text-gray-600 mt-1">
+            {{ getActionDescription() }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/supplier-assessment'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !assessment" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="assessment" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Assessment Details -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Assessment Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Company Name</label>
+              <p class="mt-1 text-sm text-gray-900">{{ assessment.companyName || '-' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Items Supplied</label>
+              <p class="mt-1 text-sm text-gray-900">{{ assessment.itemsSupplied || '-' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Assessment Date</label>
+              <p class="mt-1 text-sm text-gray-900">{{ formatDate(assessment.assessedDate) }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Total Score</label>
+              <p class="mt-1 text-lg font-semibold text-gray-900">{{ assessment.totalScore || 0 }}/30</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Recommendation</label>
+              <p class="mt-1 text-sm text-gray-900">
+                <span *ngIf="assessment.recommendation === 'accept'" class="text-green-600 font-medium">Accept</span>
+                <span *ngIf="assessment.recommendation === 'not_accept'" class="text-red-600 font-medium">Not Accept</span>
+                <span *ngIf="!assessment.recommendation">-</span>
+              </p>
+            </div>
+            <div *ngIf="assessment.reason" class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Reason</label>
+              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-lg border border-gray-100">{{ assessment.reason }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assessment Areas -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Assessment Areas</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-gray-200 rounded-lg">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">Area</th>
+                  <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 w-24">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-gray-200">
+                  <td class="px-4 py-3 text-gray-900">Experience since establishment</td>
+                  <td class="px-4 py-3 text-center text-gray-900 font-medium">{{ assessment.experienceScore || 0 }}</td>
+                </tr>
+                <tr class="border-t border-gray-200">
+                  <td class="px-4 py-3 text-gray-900">Fully qualified staff</td>
+                  <td class="px-4 py-3 text-center text-gray-900 font-medium">{{ assessment.qualifiedStaffScore || 0 }}</td>
+                </tr>
+                <tr class="border-t border-gray-200">
+                  <td class="px-4 py-3 text-gray-900">Product compliances with accepted standards</td>
+                  <td class="px-4 py-3 text-center text-gray-900 font-medium">{{ assessment.productComplianceScore || 0 }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- References -->
+        <div *ngIf="assessment.references && assessment.references.length > 0" class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">References</h3>
+          <div class="space-y-4">
+            <div *ngFor="let ref of assessment.references" class="border border-gray-100 rounded-xl p-4 bg-gray-50">
+              <p class="text-xs font-semibold text-gray-900">{{ ref.name }}</p>
+              <p class="text-sm text-gray-600 mt-1">
+                Opinion: <span [class]="ref.opinion === 'positive' ? 'text-green-600' : ref.opinion === 'negative' ? 'text-red-600' : 'text-gray-600'">{{ ref.opinion === 'positive' ? 'Positive' : ref.opinion === 'negative' ? 'Negative' : 'Neutral' }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Action Form -->
+        <mat-card class="shadow-sm rounded-xl mt-6">
+          <mat-card-header>
+            <mat-card-title class="text-lg font-medium text-gray-900">{{ getActionTitle() }}</mat-card-title>
+            <mat-card-subtitle class="text-sm text-gray-500">You are updating the status for this request</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="pt-4">
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Status -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Approved Supplier List (only for approve by action) -->
+              <ng-container *ngIf="actionType === 'approved_by_status'">
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <p class="text-sm font-medium text-gray-700 mb-3">
+                    Is available on Approved Supplier List?
+                  </p>
+                  <mat-radio-group formControlName="approvedSupplierList" class="flex gap-6">
+                    <mat-radio-button [value]="1" class="text-green-600">
+                      <span class="text-sm text-gray-700">Yes</span>
+                    </mat-radio-button>
+                    <mat-radio-button value="-" class="text-red-600">
+                      <span class="text-sm text-gray-700">No</span>
+                    </mat-radio-button>
+                  </mat-radio-group>
+                </div>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Remark</mat-label>
+                  <textarea matInput formControlName="remark" placeholder="Enter any remarks" rows="4"></textarea>
+                </mat-form-field>
+              </ng-container>
+
+              <!-- Display current "by" field -->
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-sm text-blue-800 mb-2">
+                  <strong>{{ actionType === 'assessed_by_status' ? 'Assessed By' :
+                              actionType === 'approved_by_status' ? 'Approved By' :
+                              actionType === 'acknowledged_by_status' ? 'Acknowledged By' : 'By' }}:</strong>
+                </p>
+                <p class="text-base font-semibold text-blue-900">
+                  {{ assessment && actionType === 'assessed_by_status' ? getEmployeeLabel(assessment.assessedBy) :
+                     assessment && actionType === 'approved_by_status' ? getEmployeeLabel(assessment.approvedBy) :
+                     assessment && actionType === 'acknowledged_by_status' ? getEmployeeLabel(assessment.acknowledgedBy) : 'N/A' }}
+                </p>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  (click)="router.navigate(['/supplier-assessment'])"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+
+
+        <!-- Workflow Status -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Workflow Status</h3>
+          <div class="space-y-2">
+            <!-- Assessed By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-100">
+                  <mat-icon class="text-base text-green-600">check</mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Assess by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(assessment.assessedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(assessment.assessedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(assessment.assessedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(assessment.assessedByDate) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(assessment.approvedByStatus)">
+                  <mat-icon [class]="getByStatusColor(assessment.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(assessment.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-base">
+                    {{ assessment.approvedByStatus === 'approve' || assessment.approvedByStatus === 'approved' ? 'check' : assessment.approvedByStatus === 'reject' || assessment.approvedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(assessment.approvedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(assessment.approvedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(assessment.approvedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(assessment.approvedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(assessment.approvedByStatus)">
+                    {{ getByStatusText(assessment.approvedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(assessment.acknowledgedByStatus)">
+                  <mat-icon [class]="getByStatusColor(assessment.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(assessment.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-base">
+                    {{ assessment.acknowledgedByStatus === 'approve' || assessment.acknowledgedByStatus === 'approved' ? 'check' : assessment.acknowledgedByStatus === 'reject' || assessment.acknowledgedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(assessment.acknowledgedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(assessment.acknowledgedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(assessment.acknowledgedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(assessment.acknowledgedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(assessment.acknowledgedByStatus)">
+                    {{ getByStatusText(assessment.acknowledgedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

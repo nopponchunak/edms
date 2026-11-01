@@ -1,0 +1,136 @@
+<div class="signature-page h-full bg-gray-50 dark:bg-gray-900">
+    <div class="signature-shell w-full max-w-5xl mx-auto min-h-full p-6">
+        <div class="signature-header mb-6">
+            <div class="min-w-0">
+                <h1 class="signature-title text-gray-900 dark:text-white">
+                    {{ isEditMode ? 'Edit Signature Setting' : 'Create Signature Setting' }}
+                </h1>
+                <p class="signature-subtitle text-gray-600 dark:text-gray-400">
+                    {{ isEditMode ? 'Update signature print status' : 'Select an employee to enable signature printing' }}
+                </p>
+            </div>
+
+            <a
+                mat-stroked-button
+                color="primary"
+                class="signature-back-button"
+                [routerLink]="['/settings/signatures']"
+            >
+                <mat-icon class="mr-2">arrow_back</mat-icon>
+                Back to Signature List
+            </a>
+        </div>
+
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+            <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+        </div>
+
+        <mat-card
+            *ngIf="!isLoading"
+            class="signature-setting-card border border-gray-200 dark:border-gray-700"
+        >
+            <mat-card-content class="signature-card-content">
+                <section class="signature-form-section">
+                    <div class="signature-section-header">
+                        <div>
+                            <h2 class="signature-section-title text-gray-900 dark:text-white">
+                                Signature Information
+                            </h2>
+                            <p class="signature-section-meta text-gray-500 dark:text-gray-400">
+                                {{ form.get('employee_code')?.value || 'No employee selected' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <form [formGroup]="form" (ngSubmit)="submit()" class="signature-form">
+                        <div class="signature-form-stack">
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Employee</mat-label>
+                                <mat-select formControlName="employee_code" placeholder="Select employee">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="employeeSearchCtrl"
+                                            placeholderLabel="Search employee"
+                                            noEntriesFoundLabel="No employees found"
+                                        ></ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let employee of employeeOptions" [value]="employee.code">
+                                        {{ employee.displayLabel || employee.name || employee.code }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="form.get('employee_code')?.hasError('required') && form.get('employee_code')?.touched">
+                                    Employee is required
+                                </mat-error>
+                            </mat-form-field>
+
+                            <div class="signature-status-panel">
+                                <div class="signature-status-copy">
+                                    <span class="signature-switch-title text-gray-700 dark:text-gray-300">
+                                        Print Status
+                                    </span>
+                                    <span
+                                        class="signature-status-text"
+                                        [class.signature-status-text-active]="form.get('is_active')?.value"
+                                    >
+                                        {{ form.get('is_active')?.value ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="signature-switch"
+                                    [class.signature-switch-active]="form.get('is_active')?.value"
+                                    [attr.aria-pressed]="form.get('is_active')?.value"
+                                    (click)="toggleActive()"
+                                >
+                                    <span class="signature-switch-track">
+                                        <span class="signature-switch-thumb"></span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="signature-actions">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                color="primary"
+                                [routerLink]="['/settings/signatures']"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="submit"
+                                [disabled]="isSubmitting"
+                                class="px-6"
+                            >
+                                <mat-icon *ngIf="!isSubmitting" class="mr-2">save</mat-icon>
+                                <mat-progress-spinner
+                                    *ngIf="isSubmitting"
+                                    [diameter]="18"
+                                    mode="indeterminate"
+                                    class="mr-2"
+                                ></mat-progress-spinner>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

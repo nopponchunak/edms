@@ -1,0 +1,654 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="mx-auto max-w-7xl bg-white p-4 sm:p-5 dark:bg-gray-900">
+        <div
+            class="mb-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+        >
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    Manual Management
+                </h1>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    Upload manuals and map them to menu pages or URL paths.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="manual-button manual-button--secondary"
+                (click)="resetForm()"
+            >
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                New Manual
+            </button>
+        </div>
+
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-3 mt-3"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <form
+            [formGroup]="form"
+            class="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            (ngSubmit)="save()"
+        >
+            <div class="mb-3 flex items-start justify-between gap-3">
+                <div>
+                    <h2
+                        class="text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        {{ editingManual ? 'Edit Manual' : 'Upload Manual' }}
+                    </h2>
+                    <p class="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+                        Supported files: {{ supportedFileTypesLabel }}.
+                    </p>
+                </div>
+
+                <span
+                    *ngIf="editingManual"
+                    class="rounded bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700"
+                >
+                    Editing #{{ editingManual.id }}
+                </span>
+            </div>
+
+            <div
+                class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_12rem]"
+            >
+                <div class="compact-field">
+                    <label class="compact-label" for="manual-title">
+                        Manual title
+                    </label>
+                    <input
+                        id="manual-title"
+                        class="compact-input"
+                        type="text"
+                        formControlName="title"
+                        placeholder="Purchase Requisition User Guide"
+                        [attr.aria-invalid]="
+                            form.get('title')?.invalid &&
+                            form.get('title')?.touched
+                        "
+                    />
+                    <div
+                        *ngIf="
+                            form.get('title')?.touched &&
+                            form.get('title')?.hasError('required')
+                        "
+                        class="compact-error"
+                    >
+                        Title is required
+                    </div>
+                </div>
+
+                <div class="compact-field">
+                    <label class="compact-label" for="manual-status">
+                        Status
+                    </label>
+                    <select
+                        id="manual-status"
+                        class="compact-select"
+                        formControlName="status"
+                    >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="compact-field mt-3">
+                <label class="compact-label" for="manual-description">
+                    Description
+                </label>
+                <textarea
+                    id="manual-description"
+                    class="compact-textarea"
+                    rows="2"
+                    formControlName="description"
+                    placeholder="Short note for administrators"
+                ></textarea>
+            </div>
+
+            <div
+                class="my-4 rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900"
+            >
+                <div
+                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <div class="min-w-0">
+                        <div
+                            class="truncate text-sm font-semibold text-gray-900 dark:text-white"
+                        >
+                            {{
+                                selectedFile?.name ||
+                                    editingManual?.original_file_name ||
+                                    'No file selected'
+                            }}
+                        </div>
+                        <div class="mt-0.5 text-xs text-gray-500">
+                            <span *ngIf="selectedFile">
+                                {{
+                                    selectedFile.size / 1024 / 1024
+                                        | number: '1.2-2'
+                                }}
+                                MB selected
+                            </span>
+                            <span *ngIf="!selectedFile && editingManual">
+                                Existing file will be kept unless a new file is
+                                selected.
+                            </span>
+                            <span *ngIf="!selectedFile && !editingManual">
+                                Choose a manual file to upload.
+                            </span>
+                        </div>
+                    </div>
+
+                    <label
+                        class="manual-button manual-button--primary cursor-pointer"
+                    >
+                        <mat-icon
+                            class="text-white"
+                            [svgIcon]="'heroicons_outline:cloud-arrow-up'"
+                        ></mat-icon>
+                        Select File
+                        <input
+                            type="file"
+                            class="hidden"
+                            accept=".pdf,.jpg,.jpeg,.png,.mp4,.webm,.mov,application/pdf,image/jpeg,image/png,video/mp4,video/webm,video/quicktime"
+                            (change)="onFileSelected($event)"
+                        />
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-2 flex items-center justify-between gap-3">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                    Page mappings
+                </h3>
+                <button
+                    type="button"
+                    class="manual-button manual-button--secondary manual-button--sm"
+                    (click)="addMapping()"
+                >
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    Add Path
+                </button>
+            </div>
+
+            <div formArrayName="mappings" class="space-y-2">
+                <div
+                    *ngFor="let mapping of mappings.controls; let i = index"
+                    [formGroupName]="i"
+                    class="manual-mapping-row grid grid-cols-1 gap-2 rounded-md border border-gray-200 bg-gray-50 p-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_10rem_2.5rem] dark:border-gray-700 dark:bg-gray-900"
+                >
+                    <div class="compact-field">
+                        <label class="compact-label" for="manual-menu-{{ i }}">
+                            Menu
+                        </label>
+                        <select
+                            id="manual-menu-{{ i }}"
+                            class="compact-select"
+                            formControlName="menu_id"
+                            (change)="onMenuSelected(i)"
+                        >
+                            <option [ngValue]="null">Manual URL only</option>
+                            <option
+                                *ngFor="let option of menuOptions"
+                                [ngValue]="option.id"
+                            >
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="compact-field">
+                        <label
+                            class="compact-label"
+                            for="manual-url-path-{{ i }}"
+                        >
+                            URL Path
+                        </label>
+                        <input
+                            id="manual-url-path-{{ i }}"
+                            class="compact-input"
+                            type="text"
+                            formControlName="url_path"
+                            placeholder="/purchase-requisition"
+                            [attr.aria-invalid]="
+                                mapping.get('url_path')?.invalid &&
+                                mapping.get('url_path')?.touched
+                            "
+                        />
+                        <div
+                            *ngIf="
+                                mapping.get('url_path')?.touched &&
+                                mapping.get('url_path')?.hasError('required')
+                            "
+                            class="compact-error"
+                        >
+                            URL path is required
+                        </div>
+                    </div>
+
+                    <div class="compact-field">
+                        <label
+                            class="compact-label"
+                            for="manual-match-type-{{ i }}"
+                        >
+                            Match
+                        </label>
+                        <select
+                            id="manual-match-type-{{ i }}"
+                            class="compact-select"
+                            formControlName="match_type"
+                        >
+                            <option
+                                *ngFor="let type of matchTypes"
+                                [value]="type.value"
+                            >
+                                {{ type.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end justify-end">
+                        <button
+                            type="button"
+                            class="manual-icon-button manual-icon-button--danger"
+                            matTooltip="Remove path"
+                            (click)="removeMapping(i)"
+                            aria-label="Remove path"
+                        >
+                            <mat-icon
+                                [svgIcon]="'heroicons_outline:trash'"
+                            ></mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex justify-end gap-2">
+                <button
+                    type="button"
+                    class="manual-button manual-button--ghost"
+                    [disabled]="isSaving"
+                    (click)="resetForm()"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    class="manual-button manual-button--primary"
+                    [disabled]="isSaving"
+                >
+                    <mat-progress-spinner
+                        *ngIf="isSaving"
+                        class="inline-block"
+                        mode="indeterminate"
+                        diameter="16"
+                    ></mat-progress-spinner>
+                    {{ editingManual ? 'Save Changes' : 'Upload Manual' }}
+                </button>
+            </div>
+        </form>
+
+        <div
+            class="mb-3 grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_11rem_auto]"
+        >
+            <div class="compact-field">
+                <label class="compact-label" for="manual-search">
+                    Search
+                </label>
+                <div class="compact-input-shell">
+                    <input
+                        id="manual-search"
+                        class="compact-input compact-input--with-action"
+                        type="text"
+                        [(ngModel)]="searchTerm"
+                        (keyup.enter)="onSearch()"
+                        placeholder="Title, file name, or path"
+                    />
+                    <button
+                        *ngIf="searchTerm"
+                        type="button"
+                        class="compact-clear-button"
+                        aria-label="Clear search"
+                        (click)="searchTerm = ''; onSearch()"
+                    >
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="compact-field">
+                <label class="compact-label" for="manual-status-filter">
+                    Status
+                </label>
+                <select
+                    id="manual-status-filter"
+                    class="compact-select"
+                    [(ngModel)]="statusFilter"
+                    (change)="onStatusFilterChange()"
+                >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="all">All</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button
+                    type="button"
+                    class="manual-button manual-button--secondary w-full md:w-auto"
+                    (click)="onSearch()"
+                >
+                    <mat-icon>search</mat-icon>
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <div
+            class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        >
+            <div
+                class="flex flex-col gap-1 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700"
+            >
+                <h2
+                    class="text-base font-semibold text-gray-900 dark:text-white"
+                >
+                    Manual List
+                </h2>
+                <span class="text-xs font-medium text-gray-500 sm:text-sm">
+                    {{ totalRecords | number }} manuals
+                </span>
+            </div>
+
+            <div class="p-0">
+                <div
+                    class="flex items-center justify-center py-8"
+                    *ngIf="isLoading"
+                >
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="32"
+                    ></mat-progress-spinner>
+                </div>
+
+                <div
+                    *ngIf="!isLoading && items.length === 0"
+                    class="flex flex-col items-center justify-center py-10 text-center text-gray-500"
+                >
+                    <mat-icon
+                        class="mb-2 text-gray-400 icon-size-10"
+                        [svgIcon]="'heroicons_outline:book-open'"
+                    ></mat-icon>
+                    <div class="font-medium">No manuals available</div>
+                    <div class="text-sm">
+                        Upload a manual and map it to the page where users need
+                        help.
+                    </div>
+                </div>
+
+                <div
+                    *ngIf="!isLoading && items.length > 0"
+                    class="overflow-x-auto"
+                >
+                    <table
+                        mat-table
+                        matSort
+                        [matSortActive]="sortActive"
+                        [matSortDirection]="sortDirection"
+                        [matSortDisableClear]="true"
+                        [dataSource]="items"
+                        (matSortChange)="onSortChange($event)"
+                        class="manual-management-table proposal-review-table proposal-data-table w-full min-w-[1040px] text-left"
+                    >
+                        <ng-container matColumnDef="no">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header
+                                class="w-14 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                #
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item; let i = index"
+                                class="whitespace-nowrap px-3 py-1.5 text-sm text-gray-600"
+                            >
+                                {{ item.No ?? getRowNo(i) }}
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="title">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header
+                                class="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Title
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item"
+                                class="px-3 py-1.5 text-sm text-gray-700"
+                            >
+                                <div
+                                    class="max-w-[280px] truncate font-semibold text-gray-900 dark:text-white"
+                                    [title]="item.title"
+                                >
+                                    {{ item.title }}
+                                </div>
+                                <div
+                                    class="mt-0.5 max-w-[280px] truncate text-xs text-gray-500"
+                                    [title]="item.description || '-'"
+                                >
+                                    {{ item.description || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="file">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header
+                                class="w-64 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                File
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item"
+                                class="px-3 py-1.5 text-sm text-gray-700"
+                            >
+                                <div
+                                    class="max-w-[240px] truncate"
+                                    [title]="getFileSummary(item)"
+                                >
+                                    {{ getFileSummary(item) }}
+                                </div>
+                                <div class="mt-0.5 text-xs text-gray-500">
+                                    {{ item.mime_type || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="mappings">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                class="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Mappings
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item"
+                                class="px-3 py-1.5 text-sm text-gray-700"
+                            >
+                                <div
+                                    class="max-w-[280px] truncate"
+                                    [title]="getMappingSummary(item)"
+                                >
+                                    {{ getMappingSummary(item) }}
+                                </div>
+                                <div
+                                    *ngIf="getExtraMappingCount(item) > 0"
+                                    class="mt-0.5 text-xs text-gray-500"
+                                >
+                                    +{{ getExtraMappingCount(item) }} more
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header
+                                class="w-32 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Status
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item"
+                                class="px-3 py-1.5 text-sm"
+                            >
+                                <span
+                                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                                    [class.bg-green-100]="
+                                        item.status !== 'inactive'
+                                    "
+                                    [class.text-green-800]="
+                                        item.status !== 'inactive'
+                                    "
+                                    [class.bg-gray-100]="
+                                        item.status === 'inactive'
+                                    "
+                                    [class.text-gray-600]="
+                                        item.status === 'inactive'
+                                    "
+                                >
+                                    {{
+                                        item.status === 'inactive'
+                                            ? 'Inactive'
+                                            : 'Active'
+                                    }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="updated_at">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header
+                                class="w-36 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Updated At
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item"
+                                class="whitespace-nowrap px-3 py-1.5 text-sm text-gray-600"
+                            >
+                                {{ item.updated_at | date: 'dd-MMM-yyyy' }}
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="action">
+                            <th
+                                mat-header-cell
+                                *matHeaderCellDef
+                                class="w-24 px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-500"
+                            >
+                                Actions
+                            </th>
+                            <td
+                                mat-cell
+                                *matCellDef="let item"
+                                class="px-3 py-1.5 text-right"
+                            >
+                                <div class="flex items-center justify-end">
+                                    <button
+                                        type="button"
+                                        [matMenuTriggerFor]="manualActionsMenu"
+                                        class="manual-menu-trigger"
+                                        matTooltip="Actions"
+                                        aria-label="Manual actions"
+                                    >
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+
+                                    <mat-menu #manualActionsMenu="matMenu">
+                                        <button
+                                            mat-menu-item
+                                            type="button"
+                                            (click)="preview(item)"
+                                        >
+                                            <mat-icon
+                                                [svgIcon]="
+                                                    'heroicons_outline:eye'
+                                                "
+                                            ></mat-icon>
+                                            <span>Preview</span>
+                                        </button>
+                                        <button
+                                            mat-menu-item
+                                            type="button"
+                                            (click)="edit(item)"
+                                        >
+                                            <mat-icon>edit</mat-icon>
+                                            <span>Edit</span>
+                                        </button>
+                                        <button
+                                            mat-menu-item
+                                            type="button"
+                                            class="text-red-600"
+                                            (click)="delete(item)"
+                                        >
+                                            <mat-icon>delete</mat-icon>
+                                            <span>Delete</span>
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <tr
+                            mat-header-row
+                            *matHeaderRowDef="displayedColumns"
+                        ></tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let row; columns: displayedColumns"
+                        ></tr>
+                    </table>
+                </div>
+
+                <div class="px-4 py-3" *ngIf="!isLoading && items.length > 0">
+                    <mat-paginator
+                        class="manual-management-paginator"
+                        [length]="totalRecords"
+                        [pageIndex]="pageIndex"
+                        [pageSize]="pageSize"
+                        [pageSizeOptions]="[25, 50, 100]"
+                        (page)="onPageChange($event)"
+                    ></mat-paginator>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

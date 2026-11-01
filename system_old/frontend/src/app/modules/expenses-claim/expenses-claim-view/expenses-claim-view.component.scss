@@ -1,0 +1,926 @@
+.document-card {
+  .section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: rgb(17 24 39);
+  }
+}
+
+.document-field {
+  label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+  }
+}
+
+.document-value {
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(229 231 235);
+  border-radius: 0.5rem;
+  background: rgb(249 250 251);
+  color: rgb(17 24 39);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.workflow-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgb(243 244 246);
+  border-radius: 0.5rem;
+  background: rgb(249 250 251);
+}
+
+.workflow-icon {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.print-only,
+.print-attachments {
+  display: none !important;
+}
+
+@font-face {
+  font-family: 'General Form 105 Gisha';
+  src: url('/fonts/general-form-105/gisha-regular-reference-subset.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'General Form 105 Gisha';
+  src: url('/fonts/general-form-105/gisha-bold-reference-subset.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+}
+
+.print-document-render {
+  display: block !important;
+  width: 210mm;
+  margin: 0 auto;
+  background: #fff;
+  color: #000;
+  font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+}
+
+.expenses-claim-row-measurement {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 181.27mm;
+  visibility: hidden;
+  pointer-events: none;
+
+  table {
+    width: 181.27mm;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 7.5pt;
+  }
+
+  col.date-col {
+    width: 27.52mm;
+  }
+
+  col.project-col {
+    width: 26.52mm;
+  }
+
+  col.baht-col {
+    width: 36.84mm;
+  }
+
+  td {
+    height: 7.11mm;
+    padding: 0 2mm;
+    border: 0.5pt solid transparent;
+    box-sizing: border-box;
+    line-height: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .right {
+    text-align: right;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  .screen-view {
+    display: none !important;
+  }
+
+  .expenses-claim-row-measurement {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+    width: 210mm;
+    margin: 0;
+    background: #fff;
+    color: #000;
+    font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+  }
+
+  .print-document {
+    position: relative;
+    display: block;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    margin: 0;
+    overflow: hidden;
+    background: #fff;
+    color: #000;
+    font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-document--continuation {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-circ-header {
+    position: absolute;
+    top: 10.33mm;
+    left: 17.78mm;
+    margin: 0;
+    font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+    font-size: 9.96pt;
+    line-height: 1;
+    white-space: nowrap;
+
+    .circ-dots {
+      display: inline-block;
+      text-align: center;
+      border-bottom: 0.5pt dotted #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      vertical-align: bottom;
+      min-height: 3.7mm;
+    }
+
+    .circ-tl {
+      width: 40mm;
+    }
+
+    .circ-di {
+      width: 15mm;
+    }
+
+    .circ-labels {
+      position: relative;
+      height: 4.1mm;
+      margin-top: 1.1mm;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 9.96pt;
+      font-weight: 700;
+      line-height: 1;
+
+      .lbl-tl {
+        position: absolute;
+        left: 26.86mm;
+        transform: translateX(-50%);
+      }
+
+      .lbl-di {
+        position: absolute;
+        left: 48.20mm;
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  .print-form-border {
+    position: absolute;
+    top: 21.48mm;
+    left: 16.42mm;
+    width: 182.83mm;
+    height: 255.27mm;
+    min-height: 0;
+    padding: 0;
+    border: 0.5pt solid #000;
+    box-sizing: border-box;
+  }
+
+  .print-form-header {
+    position: static;
+    margin: 0;
+
+    .print-company-name {
+      position: absolute;
+      top: 1.42mm;
+      left: 1.10mm;
+      margin: 0;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 21.96pt;
+      font-weight: bold;
+      line-height: 1;
+      color: #000;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .print-logo-section {
+      position: absolute;
+      top: 1.28mm;
+      right: 0.98mm;
+      width: 35.56mm;
+      text-align: right;
+
+      img {
+        display: block;
+        width: 35.56mm;
+        height: 7.34mm;
+        margin: 0;
+      }
+
+      .print-form-number {
+        margin-top: 1.47mm;
+        font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+        font-size: 8.04pt;
+        font-weight: bold;
+        line-height: 1;
+        color: #000;
+        letter-spacing: 0;
+        text-align: center;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .print-title-row {
+    position: static;
+    margin: 0;
+
+    .print-form-title {
+      position: absolute;
+      top: 17.80mm;
+      left: 1.10mm;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 15.96pt;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .print-voucher-field {
+      position: absolute;
+      top: 28.98mm;
+      right: 4.96mm;
+      display: flex;
+      align-items: flex-end;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 12pt;
+      font-weight: bold;
+      line-height: 1;
+      gap: 1.3mm;
+
+      .solid-line {
+        display: inline-block;
+        width: 23.84mm;
+        min-width: 23.84mm;
+        min-height: 4.8mm;
+        padding: 0 0 0.8mm;
+        border-bottom: 0.5pt solid #000;
+        box-sizing: border-box;
+        overflow: visible;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 8.5pt;
+        text-align: center;
+        font-weight: normal;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .print-meta-row {
+    position: static;
+    margin: 0;
+
+    .print-name-field {
+      position: absolute;
+      top: 39.91mm;
+      left: 1.10mm;
+      display: flex;
+      align-items: flex-end;
+      width: 101.62mm;
+      margin: 0;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 11.04pt;
+      font-weight: bold;
+      line-height: 1;
+
+      .field-label {
+        flex-shrink: 0;
+      }
+
+      .field-value-line {
+        display: inline-block;
+        flex: 1;
+        min-height: 4.8mm;
+        margin-left: 3.65mm;
+        padding: 0 1mm 0.8mm;
+        border-bottom: 0.5pt solid #000;
+        box-sizing: border-box;
+        overflow: visible;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: normal;
+        font-size: 8.5pt;
+        white-space: nowrap;
+      }
+    }
+
+    .print-date-field {
+      position: absolute;
+      top: 39.91mm;
+      right: 4.96mm;
+      display: flex;
+      align-items: flex-end;
+      width: 49.23mm;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 11.04pt;
+      font-weight: bold;
+      line-height: 1;
+
+      .field-label {
+        flex-shrink: 0;
+      }
+
+      .field-value-line {
+        display: inline-block;
+        flex: 1;
+        min-height: 4.8mm;
+        margin-left: 3.70mm;
+        padding: 0 1mm 0.8mm;
+        border-bottom: 0.5pt solid #000;
+        box-sizing: border-box;
+        overflow: visible;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: normal;
+        font-size: 8.5pt;
+        text-align: center;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .print-table {
+    position: absolute;
+    top: 50.40mm;
+    left: 0.76mm;
+    width: 181.27mm;
+    border-collapse: collapse;
+    margin: 0;
+    table-layout: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 7.5pt;
+
+    th,
+    td {
+      border: 0.5pt solid #000;
+      padding: 0 2mm;
+      box-sizing: border-box;
+    }
+
+    tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    th {
+      height: 7.28mm;
+      padding: 0;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-weight: bold;
+      text-align: center;
+      font-size: 9.96pt;
+      line-height: 1;
+    }
+
+    td {
+      height: 7.11mm;
+      vertical-align: middle;
+      word-wrap: break-word;
+    }
+
+    .date-col {
+      width: 27.52mm;
+    }
+
+    .project-col {
+      width: 26.52mm;
+    }
+
+    .baht-col {
+      width: 36.84mm;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .font-semibold {
+      font-weight: bold;
+    }
+
+    .total-row {
+      .total-label {
+        height: 7.11mm;
+        padding: 0 6.7mm 0 0;
+        border: 0;
+        font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        text-align: right;
+        font-size: 9.96pt;
+        line-height: 1;
+      }
+
+      .total-value {
+        height: 7.11mm;
+        padding: 0 2mm;
+        border: 0.5pt solid #000;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        text-align: right;
+        font-size: 8.25pt;
+      }
+    }
+
+    .grand-total-row {
+      .total-label,
+      .total-value {
+        font-size: 11.5px;
+      }
+    }
+  }
+
+  .print-signatures-section {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+
+    .sig-row-top {
+      position: absolute;
+      top: 221.75mm;
+      left: 0;
+      width: 100%;
+      height: 12mm;
+      margin: 0;
+    }
+
+    .sig-block {
+      position: relative;
+      display: block;
+      width: auto;
+      height: 12mm;
+      margin: 0;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 11.04pt;
+      font-weight: bold;
+      line-height: 1;
+
+      &:first-child {
+        position: absolute;
+        left: 1.10mm;
+        width: 92mm;
+
+        .sig-line,
+        .sig-sub-label {
+          left: 21.34mm;
+          width: 60mm;
+        }
+      }
+
+      &:last-child {
+        position: absolute;
+        left: 105mm;
+        width: 76.27mm;
+
+        .sig-line,
+        .sig-sub-label {
+          left: 24.70mm;
+          width: 51.57mm;
+        }
+      }
+
+      .sig-line {
+        position: absolute;
+        top: 3.49mm;
+        display: block;
+        height: 0;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        border-bottom: 0.5pt solid #000;
+        text-align: center;
+        font-weight: normal;
+        overflow: visible;
+      }
+
+      .sig-sub-label {
+        position: absolute;
+        top: 7.03mm;
+        font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+        font-size: 11.04pt;
+        font-weight: bold;
+        line-height: 1;
+        text-align: center;
+      }
+    }
+
+    .sig-row-bottom {
+      position: absolute;
+      top: 244.49mm;
+      left: 0;
+      width: 100%;
+      height: 8mm;
+      margin: 0;
+    }
+
+    .sig-block-bottom {
+      position: absolute;
+      display: block;
+      height: 8mm;
+      font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+      font-size: 11.04pt;
+      font-weight: bold;
+      line-height: 1;
+
+      &:first-child {
+        left: 64.62mm;
+        width: 76.75mm;
+
+        .sig-line-short {
+          left: 23.08mm;
+          width: 37.25mm;
+        }
+      }
+
+      &:last-child {
+        left: 124.95mm;
+        width: 69mm;
+
+        .sig-line-short {
+          left: 12.79mm;
+          width: 41.20mm;
+        }
+      }
+
+      .sig-line-short {
+        position: absolute;
+        top: 3.49mm;
+        display: block;
+        height: 0;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        border-bottom: 0.5pt solid #000;
+        text-align: center;
+        font-weight: normal;
+        overflow: visible;
+      }
+    }
+
+    ::ng-deep .signature-print-block {
+      position: absolute;
+      left: 50%;
+      bottom: 2px;
+      display: flex;
+      width: max-content;
+      min-width: 0;
+      max-width: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      isolation: isolate;
+      line-height: 1;
+      transform: translateX(-50%) scale(var(--signature-print-scale, 1));
+      transform-origin: center bottom;
+      pointer-events: none;
+    }
+
+    ::ng-deep .signature-watermark {
+      position: absolute;
+      left: 52%;
+      right: auto;
+      bottom: 1.1mm;
+      z-index: 0;
+      width: 4.5mm;
+      height: 4.5mm;
+      display: block;
+      object-fit: contain;
+      opacity: 0.09;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    ::ng-deep .signature-name {
+      position: relative;
+      z-index: 1;
+      font-family: 'testimonia-font', cursive;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 0.78;
+      color: #174ea6;
+      white-space: nowrap;
+    }
+
+    ::ng-deep .signature-id {
+      position: relative;
+      z-index: 1;
+      margin-top: -1px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+      color: #174ea6;
+      white-space: nowrap;
+    }
+  }
+
+  .print-footer-footnote {
+    position: absolute;
+    top: 282.24mm;
+    left: 17.78mm;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-family: 'General Form 105 Gisha', Arial, Helvetica, sans-serif;
+    font-size: 5.04pt;
+    line-height: 1.4;
+    color: #000;
+  }
+
+  .print-approval-workflow-page {
+    width: 190mm;
+    min-height: 277mm;
+    margin: 0 auto;
+    padding: 10mm 5mm;
+    break-before: page;
+    page-break-before: always;
+    background: #ffffff;
+    color: #111827;
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+  }
+
+  .print-approval-card {
+    width: 100%;
+    min-height: 86mm;
+    padding: 9mm 10mm 10mm;
+    border: 1px solid #dbe3ef;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    box-sizing: border-box;
+  }
+
+  .print-approval-card-title {
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+    margin-bottom: 8mm;
+    color: #111827;
+    font-size: 20px;
+    font-weight: bold;
+
+    mat-icon {
+      width: 21px;
+      height: 21px;
+      color: #059669;
+    }
+  }
+
+  .print-approval-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5mm;
+  }
+
+  .print-approval-card-row {
+    display: flex;
+    align-items: center;
+    gap: 5mm;
+    min-height: 28mm;
+    padding: 5mm 6mm;
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    background: #f8fafc;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-workflow-step-icon {
+    display: flex;
+    width: 12mm;
+    height: 12mm;
+    flex: 0 0 12mm;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #d9fbe8;
+    color: #64748b;
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+      line-height: 16px;
+    }
+  }
+
+  .print-workflow-step-content {
+    min-width: 0;
+    color: #111827;
+    font-size: 12px;
+
+    p {
+      margin: 0 0 1mm;
+      line-height: 1.28;
+    }
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  .print-workflow-date {
+    color: #64748b;
+  }
+
+  .print-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 6mm;
+    margin-left: 1.5mm;
+    padding: 0 3mm;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .print-attachments {
+    display: block !important;
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-attachment-page {
+    width: 190mm;
+    min-height: 277mm;
+    margin: 0 auto;
+    padding: 8mm 6mm;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+
+    & + .print-attachment-page {
+      break-before: page;
+      page-break-before: always;
+    }
+  }
+
+  .print-attachment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 3mm;
+    margin-bottom: 5mm;
+
+    h2 {
+      margin: 0 0 1mm 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    div {
+      font-size: 11px;
+      color: #555;
+    }
+  }
+
+  .print-attachment-meta {
+    text-align: right;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  .print-attachment-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 230mm;
+  }
+
+  .print-attachment-image {
+    display: block;
+    max-width: 100%;
+    max-height: 230mm;
+    object-fit: contain;
+  }
+
+  .print-attachment-frame {
+    width: 100%;
+    height: 230mm;
+    border: none;
+  }
+
+  .print-attachment-fallback {
+    max-width: 150mm;
+    text-align: center;
+    font-size: 12px;
+
+    h3 {
+      margin: 4mm 0 2mm;
+      font-size: 16px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    p {
+      margin: 0 0 2mm;
+    }
+
+    .fallback-file-icon {
+      display: inline-flex;
+      width: 28mm;
+      height: 28mm;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #000;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 4mm;
+    }
+
+    .fallback-path {
+      word-break: break-all;
+      font-family: monospace;
+      color: #555;
+    }
+  }
+}
+
+:host-context(.dark) {
+  .document-card .section-title,
+  .document-value {
+    color: rgb(243 244 246);
+  }
+
+  .document-field label {
+    color: rgb(156 163 175);
+  }
+
+  .document-value {
+    border-color: rgb(75 85 99);
+    background: rgb(31 41 55);
+  }
+
+  .workflow-row {
+    border-color: rgb(55 65 81);
+    background: rgb(31 41 55 / 0.5);
+  }
+}

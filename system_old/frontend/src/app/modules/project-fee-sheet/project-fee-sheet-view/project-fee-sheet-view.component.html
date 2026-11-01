@@ -1,0 +1,337 @@
+<div class="ims-view-page">
+    <div class="ims-view-shell">
+        <!-- Header -->
+        <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">
+                    Project Fee Sheet
+                </h1>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    View project fee sheet details and revisions
+                </p>
+            </div>
+            <app-view-actions
+                [backPath]="'/project-fee-sheet'"
+                [navId]="'project-fee-sheet'"
+                [showEdit]="canEditCurrent()"
+                (edit)="onEdit()"
+            ></app-view-actions>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+            [dismissible]="'true'" (dismissed)="alert = null">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-24">
+            <mat-spinner [diameter]="48"></mat-spinner>
+        </div>
+
+        <!-- Fee Sheet Content -->
+        <div *ngIf="!isLoading && feeSheet" class="space-y-6">
+            
+            <div class="ims-card">
+                <div class="ims-card-header bg-gray-50/50 dark:bg-gray-800/50">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase mb-1">
+                                Meinhardt (Thailand) Ltd.
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white uppercase">
+                                Project Fee Sheet
+                            </h2>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button *ngIf="canCreateRevision()" mat-stroked-button color="primary" class="rounded-full px-4" (click)="onAddRevision()">
+                                <mat-icon class="mr-1" [svgIcon]="'heroicons_outline:plus-circle'"></mat-icon>
+                                Add Revision
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-tab-group
+                    *ngIf="feeSheetRevisions.length > 1"
+                    class="revision-tabs"
+                    [selectedIndex]="selectedRevisionIndex"
+                    (selectedIndexChange)="onRevisionTabChange($event)">
+                    <mat-tab *ngFor="let revision of feeSheetRevisions" [label]="revision.revisionLabel"></mat-tab>
+                </mat-tab-group>
+
+                <div class="ims-card-body space-y-8">
+                    <!-- Project Info -->
+                    <section>
+                        <h3 class="document-section-title">
+                            Project Information
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="document-field">
+                                <label>Project "P No."</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('projectPNo')">{{ feeSheet.projectPNo }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Project No.</label>
+                                <div class="ims-field-box font-mono font-bold text-gray-900 dark:text-gray-100" [ngClass]="getFieldClass('projectNo')">{{ feeSheet.projectNo }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Date</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('date')">{{ formatDate(feeSheet.date) }}</div>
+                            </div>
+                            <div class="document-field lg:col-span-2">
+                                <label>Project Name</label>
+                                <div class="ims-field-box font-semibold text-gray-900 dark:text-white" [ngClass]="getFieldClass('projectName')">{{ feeSheet.projectName }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Discipline</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('discipline')">{{ feeSheet.discipline }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Team (TL)</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('team')">{{ feeSheet.team }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Director In Charge (DI)</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('directorInCharge')">{{ feeSheet.directorInCharge }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Location</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('location')">{{ feeSheet.location }}</div>
+                            </div>
+                            <div class="document-field lg:col-span-2">
+                                <label>Client</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('client')">{{ feeSheet.client }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Contact Name</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('contactName')">{{ feeSheet.contactName }}</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 mt-6">
+                            <div class="document-field">
+                                <label>MTL Scope detail(s) and phase(s)</label>
+                                <div class="ims-field-box min-h-[5rem] items-start py-2 whitespace-pre-wrap" [ngClass]="getFieldClass('mtlScope')">{{ feeSheet.mtlScope }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Comments / Remark</label>
+                                <div class="ims-field-box min-h-[4rem] items-start py-2 whitespace-pre-wrap" [ngClass]="getFieldClass('comments')">{{ feeSheet.comments }}</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <mat-divider></mat-divider>
+
+                    <!-- Fee Info & Revisions -->
+                    <section>
+                        <div class="flex items-center justify-between gap-4 mb-4">
+                            <h3 class="document-section-title mb-0">
+                                Fee Agreement & Revisions
+                            </h3>
+                        </div>
+                        
+                        <div class="ims-table-container">
+                            <table class="ims-table fee-agreement-chain-table">
+                                <thead>
+                                    <tr>
+                                        <th class="fee-agreement-description-col">Description</th>
+                                        <th
+                                            *ngFor="let revision of feeAgreementRevisionColumns"
+                                            class="align-center fee-agreement-revision-col">
+                                            {{ revision.pageRevisionLabel }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-medium">Fee Agreement Received?</td>
+                                        <td
+                                            *ngFor="let revision of feeAgreementRevisionColumns; let i = index"
+                                            class="align-center whitespace-pre-wrap"
+                                            [ngClass]="getFeeAgreementChainClass(i, 'agreementReceived')">
+                                            {{ revision.agreementReceived || '-' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">Gross Fee (excl VAT)</td>
+                                        <td
+                                            *ngFor="let revision of feeAgreementRevisionColumns; let i = index"
+                                            class="align-center"
+                                            [ngClass]="getFeeAgreementChainClass(i, 'grossFee')">
+                                            {{ formatCurrency(revision.grossFee) }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">Less Subconsultants</td>
+                                        <td
+                                            *ngFor="let revision of feeAgreementRevisionColumns; let i = index"
+                                            class="align-center"
+                                            [ngClass]="getFeeAgreementChainClass(i, 'subconsultantsItems')">
+                                            <div class="fee-item-list" *ngIf="revision.subconsultantsItems.length; else noSubconsultants">
+                                                <div class="fee-item-row" *ngFor="let item of revision.subconsultantsItems">
+                                                    <span>{{ item.name || '-' }}</span>
+                                                    <strong>{{ formatCurrency(item.amount) }}</strong>
+                                                </div>
+                                                <div class="fee-item-total">
+                                                    <span>Total</span>
+                                                    <strong>{{ formatCurrency(revision.subconsultantsAmount) }}</strong>
+                                                </div>
+                                            </div>
+                                            <ng-template #noSubconsultants>
+                                                <span class="text-gray-400">-</span>
+                                            </ng-template>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">Less Other Expenses</td>
+                                        <td
+                                            *ngFor="let revision of feeAgreementRevisionColumns; let i = index"
+                                            class="align-center"
+                                            [ngClass]="getFeeAgreementChainClass(i, 'otherExpensesItems')">
+                                            <div class="fee-item-list" *ngIf="revision.otherExpensesItems.length; else noOtherExpenses">
+                                                <div class="fee-item-row" *ngFor="let item of revision.otherExpensesItems">
+                                                    <span>{{ item.name || '-' }}</span>
+                                                    <strong>{{ formatCurrency(item.amount) }}</strong>
+                                                </div>
+                                                <div class="fee-item-total">
+                                                    <span>Total</span>
+                                                    <strong>{{ formatCurrency(revision.otherExpenses) }}</strong>
+                                                </div>
+                                            </div>
+                                            <ng-template #noOtherExpenses>
+                                                <span class="text-gray-400">-</span>
+                                            </ng-template>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-100/50 dark:bg-gray-800/50">
+                                        <td class="font-bold text-gray-900 dark:text-white">Nett Fee (excl VAT)</td>
+                                        <td
+                                            *ngFor="let revision of feeAgreementRevisionColumns; let i = index"
+                                            class="align-center font-bold text-gray-900 dark:text-white"
+                                            [ngClass]="getFeeAgreementChainClass(i, 'nettFee')">
+                                            {{ formatCurrency(revision.nettFee) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <mat-divider></mat-divider>
+
+                    <!-- Allocations & Forecast -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Job Costing -->
+                        <section>
+                            <h3 class="document-section-title">
+                                Job Costing Allocation
+                            </h3>
+                            <div class="ims-table-container">
+                                <table class="ims-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Phase</th>
+                                            <th class="align-center">% of Fee</th>
+                                            <th class="align-center">Period</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of getJobCostingRowsForView()" [ngClass]="getRowStateClass(item._changeState)">
+                                            <td class="font-medium">{{ item.phase }}</td>
+                                            <td class="align-center">{{ item.percentage }}%</td>
+                                            <td class="align-center text-xs">
+                                                {{ formatDate(item.startDate) }} - {{ formatDate(item.endDate) }}
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="!getJobCostingRowsForView().length">
+                                            <td colspan="3" class="text-center text-gray-500 py-4 italic">No job costing data</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <!-- Billing Forecast -->
+                        <section>
+                            <h3 class="document-section-title">
+                                Billing Forecast
+                            </h3>
+                            <div class="ims-table-container">
+                                <table class="ims-table">
+                                    <thead>
+                                        <tr>
+                                            <th>1st of Month</th>
+                                            <th class="align-right">Amount (approx)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of getBillingForecastRowsForView()" [ngClass]="getRowStateClass(item._changeState)">
+                                            <td class="font-medium">{{ formatDate(item.month) }}</td>
+                                            <td class="align-right font-mono">{{ formatCurrency(item.amount) }}</td>
+                                        </tr>
+                                        <tr *ngIf="!getBillingForecastRowsForView().length">
+                                            <td colspan="2" class="text-center text-gray-500 py-4 italic">No forecast data</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <!-- Project Type & Signatures -->
+                    <section>
+                        <h3 class="document-section-title">
+                            Type & Signatures
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="document-field">
+                                <label>Project Type</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('projectType')">{{ feeSheet.projectType }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Form filled in by</label>
+                                <div class="ims-field-box font-medium" [ngClass]="getFieldClass('filledInBy')">{{ feeSheet.filledInBy }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Date</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('filledInDate')">{{ formatDate(feeSheet.filledInDate) }}</div>
+                            </div>
+                            <div class="lg:col-span-1 hidden lg:block"></div>
+                            <div class="document-field">
+                                <label>Approved by CH (MD)</label>
+                                <div class="ims-field-box font-medium" [ngClass]="getFieldClass('approvedBy')">{{ feeSheet.approvedBy }}</div>
+                            </div>
+                            <div class="document-field">
+                                <label>Date</label>
+                                <div class="ims-field-box" [ngClass]="getFieldClass('approvedDate')">{{ formatDate(feeSheet.approvedDate) }}</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg flex flex-wrap gap-x-8 gap-y-2 mt-8">
+                        <div class="text-xs text-gray-500">
+                            <span class="font-semibold uppercase mr-1">Created At:</span> {{ formatDate(feeSheet.createdAt) }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            <span class="font-semibold uppercase mr-1">Last Updated:</span> {{ formatDate(feeSheet.updatedAt) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not Found State -->
+        <div *ngIf="!isLoading && !feeSheet" class="text-center py-24 bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
+            <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Fee sheet not found</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">The fee sheet you're looking for doesn't exist or has been deleted.</p>
+            <button mat-flat-button color="primary" class="rounded-full px-8" (click)="onBack()">
+                <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                Return to List
+            </button>
+        </div>
+    </div>
+</div>

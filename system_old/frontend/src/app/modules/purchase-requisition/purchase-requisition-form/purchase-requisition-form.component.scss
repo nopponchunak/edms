@@ -1,0 +1,1207 @@
+// Purchase Requisition Form Component Styles
+
+.purchase-requisition-form-page {
+  min-height: 100vh;
+  padding-bottom: 0;
+}
+
+.purchase-requisition-form-container {
+  width: 100%;
+  max-width: 1080px;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+.purchase-requisition-form-topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 16px;
+  width: calc(100% + 172px);
+  max-width: calc(100vw - 40px);
+}
+
+.purchase-requisition-form-header {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 16px 20px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+  .dark & {
+    border-color: #374151;
+    background: #111827;
+  }
+}
+
+.purchase-requisition-form-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.purchase-requisition-form-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 260px;
+}
+
+.pr-version-switch-row {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 156px;
+  padding-top: 2px;
+}
+
+.pr-version-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fafc;
+
+  .dark & {
+    border-color: rgba(59, 130, 246, 0.35);
+    background: rgba(15, 23, 42, 0.72);
+  }
+}
+
+.pr-version-switch__option {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  padding: 0 12px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .dark & {
+    color: #cbd5e1;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.18);
+      color: #bfdbfe;
+    }
+  }
+}
+
+.pr-version-switch__option--active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+  pointer-events: none;
+
+  .dark & {
+    background: #60a5fa;
+    color: #0f172a;
+  }
+}
+
+.pr-required-summary {
+  width: 260px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 10px 12px;
+
+  .dark & {
+    border-color: #1d4ed8;
+    background: rgba(30, 41, 59, 0.75);
+  }
+}
+
+.pr-required-summary__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+
+  .dark & {
+    color: #cbd5e1;
+  }
+
+  strong {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 22px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+
+    .dark & {
+      background: rgba(59, 130, 246, 0.24);
+      color: #bfdbfe;
+    }
+  }
+}
+
+.pr-required-summary__track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+
+  .dark & {
+    background: #334155;
+  }
+}
+
+.pr-required-summary__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: #2563eb;
+  transition: width 0.2s ease;
+}
+
+.purchase-requisition-form-card {
+  overflow: visible;
+  border: 1px solid #e5e7eb;
+
+  .dark & {
+    border-color: #374151;
+  }
+}
+
+.purchase-requisition-form-card-content {
+  overflow: visible;
+  padding: 20px !important;
+}
+
+.purchase-requisition-form-card-content form > .mb-8 {
+  margin-bottom: 20px !important;
+}
+
+.purchase-requisition-form-card-content mat-divider.my-8 {
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.purchase-requisition-form-card-content h3.mb-4,
+.approval-workflow-section__title {
+  margin-bottom: 12px !important;
+}
+
+.purchase-requisition-form-card-content .grid.gap-6 {
+  gap: 16px !important;
+}
+
+.purchase-requisition-form-card-content .mb-6 {
+  margin-bottom: 16px !important;
+}
+
+.purchase-requisition-form-card-content .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 12px !important;
+}
+
+.pr-form-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.pr-form-section--general {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.pr-form-section--items {
+  border-color: #e5e7eb;
+  background: #ffffff;
+}
+
+.pr-form-section--notes {
+  border-color: #fdecc8;
+  background: #fffdf4;
+}
+
+.pr-form-section--approval {
+  border-color: #d1fae5;
+  background: #f7fefb;
+}
+
+.pr-form-section--documents {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+.dark {
+  .pr-form-section--general {
+    border-color: rgba(59, 130, 246, 0.35);
+    background: rgba(30, 58, 138, 0.2);
+  }
+
+  .pr-form-section--items {
+    border-color: #334155;
+    background: #111827;
+  }
+
+  .pr-form-section--notes {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(120, 53, 15, 0.12);
+  }
+
+  .pr-form-section--approval {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(6, 78, 59, 0.12);
+  }
+
+  .pr-form-section--documents {
+    border-color: #334155;
+    background: rgba(15, 23, 42, 0.32);
+  }
+}
+
+.general-info-card .mat-mdc-card-content,
+.purchase-requisition-form-card-content .bg-yellow-50,
+.purchase-requisition-form-card-content .bg-blue-50 {
+  padding: 12px !important;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field {
+  --mat-form-field-container-height: 44px;
+  --mat-form-field-container-vertical-padding: 10px;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  min-height: 46px;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field .mat-mdc-form-field-flex {
+  min-height: 46px;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field .mat-mdc-form-field-infix {
+  min-height: 44px;
+  padding-top: 10px !important;
+  padding-bottom: 8px !important;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field .mat-mdc-form-field-error-wrapper,
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field .mat-mdc-form-field-hint-wrapper {
+  display: none !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field textarea.mat-mdc-input-element {
+  min-height: 72px;
+  padding-top: 2px;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-mdc-form-field textarea.item-description-input {
+  min-height: 0;
+  padding-top: 0;
+  resize: none;
+}
+
+:host ::ng-deep .purchase-requisition-form-card .mat-datepicker-toggle .mat-mdc-icon-button {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+}
+
+.purchase-requisition-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.08);
+
+  .dark & {
+    border-top-color: #374151;
+    background: #111827;
+    box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.28);
+  }
+}
+
+.purchase-requisition-form-actions__inner {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.purchase-requisition-form-actions__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 112px;
+  min-height: 42px;
+  padding: 0 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.purchase-requisition-form-actions__cancel {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+
+  &:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    color: #1f2937;
+  }
+
+  .dark & {
+    border-color: #475569;
+    background: #111827;
+    color: #cbd5e1;
+  }
+}
+
+.purchase-requisition-form-actions__submit {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+  }
+
+  &:disabled {
+    border-color: #93c5fd;
+    background: #93c5fd;
+    color: rgba(255, 255, 255, 0.86);
+  }
+}
+
+// ซ่อน subscript / bottom-align เฉพาะในตาราง Itemized Purchase List
+:host ::ng-deep .itemized-purchase-list .item-list-table .mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.mat-mdc-card-header {
+  border-radius: 12px 12px 0 0;
+}
+
+// Table styles
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th, td {
+    border: 1px solid #e5e7eb;
+
+    &:first-child {
+      border-left: 1px solid #e5e7eb;
+    }
+
+    &:last-child {
+      border-right: 1px solid #e5e7eb;
+    }
+  }
+
+  thead th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  tbody tr {
+    &:hover {
+      background-color: #f9fafb;
+    }
+
+    &:last-child td {
+      border-bottom: 1px solid #e5e7eb;
+    }
+  }
+}
+
+// Dark mode table styles
+.dark {
+  table {
+    th, td {
+      border-color: #374151;
+    }
+
+    thead th {
+      background-color: #1f2937;
+      color: #d1d5db;
+    }
+
+    tbody tr:hover {
+      background-color: #1f2937;
+    }
+  }
+}
+
+// Form field enhancements
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: white;
+
+    .dark & {
+      background-color: #374151;
+    }
+  }
+}
+
+// To field: read-only, gray appearance (filled from Verify by)
+.mat-mdc-form-field.to-field-readonly {
+  .mat-mdc-text-field-wrapper {
+    background-color: #f3f4f6;
+    .dark & {
+      background-color: #1f2937;
+    }
+  }
+  input {
+    color: #6b7280;
+    cursor: not-allowed;
+    .dark & {
+      color: #9ca3af;
+    }
+  }
+}
+
+// General Request Information: compact date fields (Date, Deadline)
+.mat-mdc-form-field.general-info-date {
+  max-width: 100%;
+}
+
+// General Request Information
+.general-info-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+}
+
+.general-info-field {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.general-info-field--full {
+  grid-column: 1 / -1;
+  grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.general-info-field__label {
+  padding-top: 12px;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+
+  .dark & {
+    color: #e5e7eb;
+  }
+
+  span {
+    color: #6b7280;
+    font-weight: 500;
+    white-space: nowrap;
+
+    .dark & {
+      color: #9ca3af;
+    }
+  }
+}
+
+.general-info-field__label--required::after {
+  content: '*';
+  margin-left: 2px;
+  color: #ef4444;
+}
+
+.general-info-field__control {
+  min-width: 0;
+}
+
+:host ::ng-deep .general-info-layout .mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+  min-height: 0;
+  margin-top: 1px;
+}
+
+:host ::ng-deep .purchase-requisition-form-card #control-subject .mat-mdc-form-field-subscript-wrapper {
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+:host ::ng-deep .purchase-requisition-form-card #control-subject .mat-mdc-form-field-error-wrapper {
+  display: block !important;
+}
+
+:host ::ng-deep .general-info-layout .mat-mdc-form-field textarea.mat-mdc-input-element {
+  min-height: 62px;
+}
+
+// ========== Itemized Purchase List ==========
+.itemized-purchase-list {
+  .item-list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .item-list-toolbar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .item-list-currency-field {
+    display: grid;
+    grid-template-columns: max-content minmax(160px, 200px);
+    align-items: center;
+    gap: 8px;
+  }
+  .item-list-currency-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+    line-height: 1.25;
+    white-space: nowrap;
+    .dark & {
+      color: #e5e7eb;
+    }
+  }
+  .item-list-currency-select {
+    width: 100%;
+    min-width: 0;
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+    .mat-mdc-text-field-wrapper {
+      padding: 0 12px;
+    }
+    .mat-mdc-form-field-flex {
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+  .item-list-currency-radios {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .item-list-add-btn .mat-icon {
+    margin-right: 4px;
+  }
+  .item-list-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    .dark & {
+      border-color: #374151;
+    }
+  }
+  .item-list-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    thead tr {
+      background: #eaf2ff;
+      .dark & {
+        background: #1e3a5f;
+      }
+    }
+    th {
+      background: #eaf2ff;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #1e3a8a;
+      text-align: left;
+      border-bottom: 1px solid #bfdbfe;
+      white-space: nowrap;
+      .dark & {
+        background: #1e3a5f;
+        color: #bfdbfe;
+        border-bottom-color: #2563eb;
+      }
+    }
+    .col-qty, .col-price, .col-amount {
+      text-align: right;
+    }
+    .col-action {
+      width: 56px;
+      text-align: center;
+    }
+    tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background-color 0.15s ease;
+      .dark & {
+        border-bottom-color: #334155;
+      }
+      &:hover {
+        background: #f8fafc;
+        .dark & {
+          background: #1e293b;
+        }
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    td {
+      padding: 6px 10px;
+      vertical-align: top;
+    }
+    .col-item {
+      min-width: 140px;
+      width: 140px;
+      text-align: left;
+    }
+    .col-desc {
+      min-width: 180px;
+    }
+    .col-qty {
+      min-width: 80px;
+      width: 80px;
+    }
+    .col-price {
+      min-width: 120px;
+      width: 120px;
+    }
+    .col-amount {
+      min-width: 100px;
+      width: 100px;
+      padding-top: 13px;
+      font-weight: 500;
+    }
+    .col-no {
+      width: 48px;
+      min-width: 48px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .item-list-field {
+      width: 100%;
+    }
+    .item-list-field-numeric input {
+      text-align: right;
+    }
+    .item-list-amount {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+  .item-list-totals {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .item-list-totals-inner {
+    width: 100%;
+    max-width: 320px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    .dark & {
+      background: #1e293b;
+      border-color: #334155;
+    }
+  }
+  .item-list-totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .item-list-totals-row + .item-list-totals-row {
+    border-top: 1px solid #e2e8f0;
+    .dark & {
+      border-top-color: #334155;
+    }
+  }
+  .item-list-totals-row-vat .item-list-vat-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+  }
+  .item-list-totals-row-vat .item-list-vat-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #7c3aed;
+  }
+  .item-list-totals-value {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .item-list-totals-grand {
+    padding-top: 12px;
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    border-top: 2px solid #e2e8f0;
+    .dark & {
+      border-top-color: #334155;
+    }
+  }
+  .item-list-totals-grand-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2563eb;
+    font-variant-numeric: tabular-nums;
+    .dark & {
+      color: #60a5fa;
+    }
+  }
+}
+
+// Button styles
+.mat-mdc-raised-button {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.mat-mdc-button {
+  border-radius: 8px;
+}
+
+// Alert styles
+fuse-alert {
+  margin-bottom: 1.5rem;
+}
+
+// Loading spinner
+.mat-mdc-progress-spinner {
+  margin: auto;
+}
+
+// Icon colors
+.mat-icon {
+  &.text-green-600 {
+    color: #059669;
+  }
+
+  &.text-blue-600 {
+    color: #2563eb;
+  }
+
+  &.text-purple-600 {
+    color: #7c3aed;
+  }
+
+  &.text-orange-600 {
+    color: #ea580c;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .purchase-requisition-form-container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .purchase-requisition-form-header {
+    padding: 16px;
+  }
+
+  .purchase-requisition-form-topbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: none;
+  }
+
+  .purchase-requisition-form-title-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .purchase-requisition-form-meta {
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .pr-version-switch-row {
+    justify-content: stretch;
+  }
+
+  .pr-version-switch {
+    width: 100%;
+  }
+
+  .pr-version-switch__option {
+    flex: 1 1 0;
+  }
+
+  .pr-required-summary {
+    width: 100%;
+  }
+
+  .general-info-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .general-info-field,
+  .general-info-field--full {
+    grid-column: auto;
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .purchase-requisition-form-actions {
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .purchase-requisition-form-actions__inner {
+    padding: 0 10px;
+  }
+
+  .purchase-requisition-form-actions__button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .itemized-purchase-list {
+    .item-list-toolbar {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item-list-toolbar__actions {
+      justify-content: flex-start;
+    }
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .general-info-field,
+  .general-info-field--full {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .general-info-field__label {
+    padding-top: 0;
+  }
+
+  .itemized-purchase-list {
+    .item-list-currency-field {
+      grid-template-columns: 1fr;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .item-list-currency-select,
+    .item-list-add-btn {
+      width: 100%;
+    }
+  }
+}
+
+// Totals section styling
+.bg-gray-50 {
+  .dark & {
+    background-color: #1f2937;
+  }
+}
+
+// Form validation styles
+.mat-mdc-form-field.mat-form-field-invalid {
+  .mat-mdc-text-field-wrapper {
+    border-color: #ef4444;
+  }
+}
+
+// Custom scrollbar for table
+.overflow-x-auto {
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.dark .overflow-x-auto {
+  &::-webkit-scrollbar-track {
+    background: #374151;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #6b7280;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+// Note and terms styling
+.bg-yellow-50 {
+  .dark & {
+    background-color: rgba(234, 179, 8, 0.1);
+  }
+}
+
+.bg-blue-50 {
+  .dark & {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+}
+
+// ========== Approval and Action Workflow ==========
+.approval-workflow-section {
+  .approval-workflow-section__title {
+    display: flex;
+    align-items: center;
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #111827;
+    .dark & {
+      color: #f9fafb;
+    }
+  }
+  .approval-workflow-section__icon {
+    margin-right: 0.5rem;
+    color: #059669;
+  }
+}
+
+.approval-workflow {
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  .dark & {
+    background: transparent;
+  }
+}
+
+.approval-workflow__row {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.15s ease;
+  .dark & {
+    border-bottom-color: #374151;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: rgba(255, 255, 255, 0.6);
+    .dark & {
+      background: rgba(55, 65, 81, 0.3);
+    }
+  }
+}
+
+.approval-workflow__row--checkbox {
+  display: block;
+  padding: 0.625rem 1rem;
+  background-color: transparent;
+  border-bottom: 1px solid #e5e7eb;
+  .dark & {
+    background-color: transparent;
+    border-bottom-color: #374151;
+  }
+}
+
+.approval-workflow__header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0;
+}
+
+.approval-workflow__step {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+  background: #d1fae5;
+  .dark & {
+    color: #a7f3d0;
+    background: rgba(6, 95, 70, 0.4);
+  }
+}
+
+.approval-workflow__label-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.approval-workflow__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+  .dark & {
+    color: #e5e7eb;
+  }
+}
+
+.approval-workflow__label--required::after {
+  content: '*';
+  margin-left: 2px;
+  color: #ef4444;
+}
+
+.approval-workflow__hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  .dark & {
+    color: #9ca3af;
+  }
+}
+
+.approval-workflow__fields {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.approval-workflow__field {
+  width: 100%;
+
+  &--person {
+    flex: 1 1 100%;
+  }
+}
+
+// Compact form fields in workflow (hide subscript to keep rows tidy)
+:host ::ng-deep .approval-workflow .mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .approval-workflow .mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    padding: 0 12px;
+  }
+  .mat-mdc-form-field-infix {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 768px) {
+  .approval-workflow__row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .approval-workflow__fields {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .approval-workflow__field {
+    &--person,
+    &--date {
+      flex: 1 1 100%;
+    }
+  }
+}

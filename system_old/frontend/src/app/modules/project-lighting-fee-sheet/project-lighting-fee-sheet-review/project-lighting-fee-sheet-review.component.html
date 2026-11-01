@@ -1,0 +1,447 @@
+<div class="w-full min-h-screen bg-gray-50 py-6">
+    <div class="max-w-6xl mx-auto">
+
+        <!-- Page Title -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Lighting Project Fee Sheet Details</h1>
+            <p class="text-gray-500">View lighting fee sheet information and details</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+
+            <!-- Status + Buttons -->
+            <div class="flex justify-between items-center mb-8">
+                <span class="px-4 py-1 rounded-full text-sm font-semibold"
+                    [ngClass]="getStatusBadgeClass(feeSheet.status)">
+                    {{ getStatusLabel(feeSheet.status) }}
+                </span>
+
+                <div class="flex gap-3">
+                    <button class="text-gray-600 hover:text-gray-800" (click)="onBack()">
+                        ← Back to List
+                    </button>
+
+                    <!-- <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            (click)="onEdit()">
+                        ✏️ Edit
+                    </button> -->
+                </div>
+            </div>
+
+            <!-- Header Information -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-green-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Header Information</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
+                    <div>
+                        <p class="text-gray-500">Copies to</p>
+                        <p class="font-medium">{{ feeSheet.copiesTo }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Circ</p>
+                        <p class="font-medium">{{ feeSheet.circ }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">CH / File</p>
+                        <p class="font-medium">{{ feeSheet.chFile }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Fee</p>
+                        <p class="font-medium">{{ feeSheet.fee }}</p>
+                    </div>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Project Information -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-blue-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Project Information</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+
+                    <div>
+                        <p class="text-gray-500">Project “P No.”</p>
+                        <p class="font-medium">{{ feeSheet.projectPNo }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Project No.</p>
+                        <p class="font-medium">{{ feeSheet.projectNo }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Team</p>
+                        <p class="font-medium">{{ feeSheet.team }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Date</p>
+                        <p class="font-medium">{{ formatDate(feeSheet.date) }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Director in Charge</p>
+                        <p class="font-medium">{{ feeSheet.directorInCharge }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Discipline</p>
+                        <p class="font-medium">{{ feeSheet.discipline }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Project Name</p>
+                        <p class="font-medium">{{ feeSheet.projectName }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Location</p>
+                        <p class="font-medium">{{ feeSheet.location }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Client</p>
+                        <p class="font-medium">{{ feeSheet.client }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Contact Name</p>
+                        <p class="font-medium">{{ feeSheet.contactName }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <p class="text-gray-500">MTL Scope</p>
+                    <p class="font-medium">{{ feeSheet.mtlScope }}</p>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-gray-500">Comments</p>
+                    <p class="font-medium">{{ feeSheet.comments }}</p>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Fee Agreement -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-green-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Fee Agreement Received</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Description</th>
+                                <th class="px-4 py-2 text-center">Original</th>
+                                <th class="px-4 py-2 text-center">Rev. 1</th>
+                                <th class="px-4 py-2 text-center">Rev. 2</th>
+                                <th class="px-4 py-2 text-center">Rev. 3</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td class="border px-4 py-2">Fee Agreement Received?</td>
+                                <td class="border text-center">{{ feeSheet.feeAgreementOriginal ? '✓' : '✗' }}</td>
+                                <td class="border text-center">{{ feeSheet.feeAgreementRev1 ? '✓' : '✗' }}</td>
+                                <td class="border text-center">{{ feeSheet.feeAgreementRev2 ? '✓' : '✗' }}</td>
+                                <td class="border text-center">{{ feeSheet.feeAgreementRev3 ? '✓' : '✗' }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="border px-4 py-2">Gross Fee (excl VAT)</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.grossFeeOriginal) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.grossFeeRev1) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.grossFeeRev2) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.grossFeeRev3) }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="border px-4 py-2">Less Subconsultants</td>
+                                <td class="border text-center">
+                                    {{ formatCurrency(feeSheet.subconsultantsAmountOriginal) }}
+                                    <div class="text-xs text-gray-500">{{ feeSheet.subconsultantsNameOriginal }}</div>
+                                </td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.subconsultantsAmountRev1) }}
+                                </td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.subconsultantsAmountRev2) }}
+                                </td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.subconsultantsAmountRev3) }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="border px-4 py-2">Less Other Expenses</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.otherExpensesOriginal) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.otherExpensesRev1) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.otherExpensesRev2) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.otherExpensesRev3) }}</td>
+                            </tr>
+
+                            <tr class="bg-gray-100 text-blue-600 font-semibold">
+                                <td class="border px-4 py-2">Nett Fee (excl VAT)</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.nettFeeOriginal) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.nettFeeRev1) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.nettFeeRev2) }}</td>
+                                <td class="border text-center">{{ formatCurrency(feeSheet.nettFeeRev3) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Job Costing -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-purple-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Job Costing Allocation</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Phase</th>
+                                <th class="px-4 py-2 text-center">% of Fee</th>
+                                <th class="px-4 py-2 text-center">Start</th>
+                                <th class="px-4 py-2 text-center">End</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td class="border px-4 py-2">(P)reliminary</td>
+                                <td class="border text-center">{{ feeSheet.preliminaryPercentage }}%</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.preliminaryStartDate) }}</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.preliminaryEndDate) }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="border px-4 py-2">(D)etailed Design</td>
+                                <td class="border text-center">{{ feeSheet.detailedDesignPercentage }}%</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.detailedDesignStartDate) }}</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.detailedDesignEndDate) }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="border px-4 py-2">(T)ender</td>
+                                <td class="border text-center">{{ feeSheet.tenderPercentage }}%</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.tenderStartDate) }}</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.tenderEndDate) }}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="border px-4 py-2">(C)onstruction</td>
+                                <td class="border text-center">{{ feeSheet.constructionPercentage }}%</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.constructionStartDate) }}</td>
+                                <td class="border text-center">{{ formatDate(feeSheet.constructionEndDate) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex gap-8 text-sm mt-4">
+                    <p>P: 40%</p>
+                    <p>D: 15%</p>
+                    <p>T: 30%</p>
+                    <p>C: 15%</p>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Billing Forecast -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-blue-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Billing Forecast (based on the Agreement)</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">1st of Month</th>
+                                <th class="px-4 py-2 text-center">Amount (approx)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let forecast of feeSheet.billingForecast">
+                                <td class="border px-4 py-2">{{ forecast.month }}</td>
+                                <td class="border px-4 py-2 text-center">{{ formatCurrency(forecast.amount) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Report and Project Type -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-green-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Report and Project Type</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <p class="text-gray-500">Report</p>
+                        <div class="bg-gray-100 p-3 rounded-lg">
+                            <p class="font-medium">Report: 100% 0 0 0</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Project Type</p>
+                        <p class="font-medium">{{ feeSheet.projectType }}</p>
+                    </div>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Signatures -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-green-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Signatures</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <p class="text-gray-500">Form filled in by</p>
+                        <p class="font-medium">{{ feeSheet.filledInBy }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Date</p>
+                        <p class="font-medium">{{ formatDate(feeSheet.filledInDate) }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Approved by CH</p>
+                        <p class="font-medium">{{ feeSheet.approvedBy }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Date</p>
+                        <p class="font-medium">{{ formatDate(feeSheet.approvedDate) }}</p>
+                    </div>
+                </div>
+
+                <hr class="my-6">
+            </div>
+
+            <!-- Timestamps -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-purple-600 text-xl"></span>
+                    <h2 class="text-lg font-semibold">Timestamps</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <p class="text-gray-500">Created At</p>
+                        <p class="font-medium">{{ formatDate(feeSheet.createdAt) }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500">Last Updated</p>
+                        <p class="font-medium">{{ formatDate(feeSheet.updatedAt) }}</p>
+                    </div>
+                </div>
+
+                <hr class="my-8">
+            </div>
+
+
+            <!-- Approval Form -->
+            <mat-card class="mb-6">
+                <mat-card-header>
+                    <mat-card-title class="text-lg font-semibold flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                        Approval Decision
+                    </mat-card-title>
+                </mat-card-header>
+
+                <mat-card-content class="pt-4">
+                    <div class="space-y-4">
+
+                        <!-- Decision -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                Decision
+                            </label>
+
+                            <mat-radio-group [(ngModel)]="approvalDecision" class="flex space-x-6">
+                                <mat-radio-button value="approve" class="text-green-700 dark:text-green-400">
+                                    <span class="ml-2">Approve</span>
+                                </mat-radio-button>
+
+                                <mat-radio-button value="decline" class="text-red-700 dark:text-red-400">
+                                    <span class="ml-2">Decline</span>
+                                </mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+
+                        <!-- Comments -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Comments (Optional)</mat-label>
+                            <textarea matInput [(ngModel)]="approvalComments" rows="4"
+                                placeholder="Enter your approval comments..."
+                                class="bg-white dark:bg-gray-700"></textarea>
+                        </mat-form-field>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end space-x-3 pt-4">
+
+                            <!-- Cancel -->
+                            <button mat-stroked-button (click)="onCancelDecision()"
+                                class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 border-gray-300 dark:border-gray-600">
+                                Cancel
+                            </button>
+
+                            <!-- Approve / Decline -->
+                            <button mat-flat-button (click)="onSubmitApproval()" [ngClass]="{
+        'bg-red-600 hover:bg-red-700': !approvalDecision || approvalDecision === 'decline',
+        'bg-green-600 hover:bg-green-700': approvalDecision === 'approve'
+    }" class="px-6 py-2 text-white rounded-lg transition-colors">
+
+                                <mat-icon class="mr-2" [svgIcon]="
+            (!approvalDecision || approvalDecision === 'decline')
+                ? 'heroicons_outline:x-circle'
+                : 'heroicons_outline:check-circle'
+        ">
+                                </mat-icon>
+
+                                {{
+                                (!approvalDecision || approvalDecision === 'decline')
+                                ? 'Decline Review'
+                                : 'Approve Review'
+                                }}
+                            </button>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

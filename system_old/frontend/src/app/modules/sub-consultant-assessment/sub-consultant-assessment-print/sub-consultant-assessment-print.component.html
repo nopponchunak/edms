@@ -1,0 +1,242 @@
+<div class="print-container">
+  <div class="print-content">
+    <!-- Header Section -->
+    <div class="print-header">
+      <div class="header-top">
+        <div class="header-left">
+          <div class="header-label">To :</div>
+          <div class="header-value">{{ assessment?.to || '' }}</div>
+        </div>
+        <div class="header-center">
+          <div class="header-label">Circ:</div>
+          <div class="header-value">{{ assessment?.circ || '' }}</div>
+        </div>
+        <div class="header-right">
+          <div class="form-code">{{ assessment?.form_code || '/AM/T6SC' }}</div>
+          <div class="logo-section">
+            <div class="meinhardt-logo"><img src="/erpAsset 2alogo.png" alt="MEINHARDT" /></div>
+            <div class="form-number">10 - FORM MTSC-01</div>
+          </div>
+        </div>
+      </div>
+      <div class="title-section">
+        <h1 class="main-title">SUB-CONSULTANT ASSESSMENT FORM</h1>
+      </div>
+    </div>
+
+    <!-- Assessment Details Section -->
+    <div class="assessment-details">
+      <div class="field-row">
+        <span class="field-label">Scope of service required:</span>
+        <span class="field-value">{{ assessment?.scope_of_service || '' }}</span>
+      </div>
+
+      <div class="field-row">
+        <span class="field-label">Information used for Assessment:</span>
+        <div class="checkbox-group">
+          <div class="checkbox-column">
+            <div class="checkbox-item">
+              <span class="checkbox">☐</span>
+              <span>Company Profile / Biodata</span>
+            </div>
+            <div class="checkbox-item">
+              <span class="checkbox">☐</span>
+              <span>Project Reference / Certificates</span>
+            </div>
+            <div class="checkbox-item">
+              <span class="checkbox">☐</span>
+              <span>Site Visit</span>
+            </div>
+          </div>
+          <div class="checkbox-column">
+            <div class="checkbox-item">
+              <span class="checkbox">☐</span>
+              <span>Previous Assessment Record</span>
+            </div>
+            <div class="checkbox-item">
+              <span class="checkbox">☐</span>
+              <span>Previous Evaluation Record</span>
+            </div>
+            <div class="checkbox-item">
+              <span class="checkbox">☐</span>
+              <span>ISO Certificates</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="assessment-section">
+        <div class="section-title">Assessment:</div>
+        <div class="field-row">
+          <span class="field-label">1. Company:</span>
+          <span class="field-value">{{ assessment?.company || '' }}</span>
+        </div>
+
+        <!-- Assessment Table -->
+        <table class="assessment-table">
+          <thead>
+            <tr>
+              <th class="col-area">Assessment Areas</th>
+              <th class="col-score">Score (1 to 10)</th>
+              <th colspan="4" class="col-criteria">Criteria of Scores</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              <th class="criteria-header">1-2</th>
+              <th class="criteria-header">3-5</th>
+              <th class="criteria-header">6-8</th>
+              <th class="criteria-header">9-10</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="area-cell">• Experience since establishment</td>
+              <td class="score-cell">{{ assessment?.score_experience_since_establishment || '' }}</td>
+              <td class="criteria-cell">1-2 years</td>
+              <td class="criteria-cell">3-5 years</td>
+              <td class="criteria-cell">6-10 years</td>
+              <td class="criteria-cell">10+ years</td>
+            </tr>
+            <tr>
+              <td class="area-cell">• Fully qualified staff</td>
+              <td class="score-cell">{{ assessment?.score_fully_qualified_staff || '' }}</td>
+              <td class="criteria-cell">1-4 persons</td>
+              <td class="criteria-cell">5-10 persons</td>
+              <td class="criteria-cell">11-50 persons</td>
+              <td class="criteria-cell">50+ persons</td>
+            </tr>
+            <tr>
+              <td class="area-cell">• Satisfactorily completed projects similar to that MTL would use them for</td>
+              <td class="score-cell">{{ assessment?.score_completed_similar_projects || '' }}</td>
+              <td class="criteria-cell">0-1 projects</td>
+              <td class="criteria-cell">2-4 projects</td>
+              <td class="criteria-cell">5-10 projects</td>
+              <td class="criteria-cell">10+ projects</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="total-score">
+          <span>Total Score =</span>
+          <span class="score-value">{{ assessment?.item1_total_score || 0 }}</span>
+          <span class="score-note">(must exceed 15)</span>
+        </div>
+      </div>
+
+      <!-- Compliance Section -->
+      <div class="compliance-section">
+        <div class="field-row">
+          <span class="field-label">2. Compliance to EMS and OHSMS:</span>
+        </div>
+        <div class="compliance-item">
+          <span>Obtained certificates of ISO 14001 and/or OHSAS 18001/ISO 45001</span>
+          <div class="checkbox-group-inline">
+            <span class="checkbox">{{ hasCompliance() ? '☑' : '☐' }}</span>
+            <span>Yes</span>
+            <span class="checkbox">{{ !hasCompliance() ? '☑' : '☐' }}</span>
+            <span>No</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- References Section -->
+      <div class="references-section">
+        <div class="field-row">
+          <span class="field-label">3. References</span>
+        </div>
+        <div class="reference-note">Contact at least one external reference and record name and opinion</div>
+        <div class="reference-items">
+          <div *ngFor="let reference of assessment?.references; let i = index" class="reference-item">
+            <div class="reference-label">{{ getReferenceLabel(i) }}) Name:</div>
+            <div class="reference-value">{{ reference.reference_name || '' }}</div>
+            <div class="reference-opinion">
+              Opinion: {{ getOpinionText(reference.opinion) }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation Section -->
+      <div class="recommendation-section">
+        <div class="section-title">Recommendation:</div>
+        <div class="checkbox-group-inline">
+          <span class="checkbox">{{ assessment?.recommendation === 'accept' ? '☑' : '☐' }}</span>
+          <span>Accept (Score in item 1 must be 15 or better and must have at least one good positive reference.)</span>
+        </div>
+        <div class="checkbox-group-inline">
+          <span class="checkbox">{{ assessment?.recommendation === 'not_accept' ? '☑' : '☐' }}</span>
+          <span>Not accept</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Reason:</span>
+          <span class="field-value">{{ assessment?.recommendation_reason || '' }}</span>
+        </div>
+      </div>
+
+      <!-- Approval Section -->
+      <div class="approval-section">
+        <div class="approval-row">
+          <div class="approval-item">
+            <div class="approval-label">Assessed By:</div>
+            <div class="approval-value">{{ assessment?.assessed_by || '' }}</div>
+            <div class="approval-role">(DI/ TL)</div>
+          </div>
+          <div class="approval-item">
+            <div class="approval-label">Date:</div>
+            <div class="approval-value">{{ formatDate(assessment?.assessed_by_date) }}</div>
+          </div>
+        </div>
+
+        <div class="approval-question">
+          <span>Is the above Sub-Consultant approved to go on the Sub-Consultant List?</span>
+          <div class="checkbox-group-inline">
+            <span class="checkbox">{{ isApprovedToSubConsultantList() ? '☑' : '☐' }}</span>
+            <span>Yes</span>
+            <span class="checkbox">{{ isNotApprovedToSubConsultantList() ? '☑' : '☐' }}</span>
+            <span>No</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <span class="field-label">Remark:</span>
+          <span class="field-value">{{ assessment?.remark || '' }}</span>
+        </div>
+
+        <div class="approval-row">
+          <div class="approval-item">
+            <div class="approval-label">Approved By:</div>
+            <div class="approval-value">{{ assessment?.approved_by || '' }}</div>
+            <div class="approval-role">(MD/DI)</div>
+          </div>
+          <div class="approval-item">
+            <div class="approval-label">Date:</div>
+            <div class="approval-value">{{ formatDate(assessment?.approved_by_date) }}</div>
+          </div>
+        </div>
+
+        <div class="approval-row">
+          <div class="approval-item">
+            <div class="approval-label">Acknowledged By:</div>
+            <div class="approval-value">{{ assessment?.acknowledged_by || '' }}</div>
+            <div class="approval-role">(IMR)</div>
+          </div>
+          <div class="approval-item">
+            <div class="approval-label">Date:</div>
+            <div class="approval-value">{{ formatDate(assessment?.acknowledged_by_date) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="print-footer">
+      <div class="footer-left">
+        Z:/MR/MYDOCUMENTS/IMS DOCUMENT/IMS DOCUMENTATION/FORMS/378ED149E70FBF78D47A09A570CF48F2E365C4C58A321C787CDCE5D4D4CAF1EA.DOC/REV.D (03/12/2020)/CC/MR
+      </div>
+      <div class="footer-right">
+        Page 1 of 1
+      </div>
+    </div>
+  </div>
+</div>

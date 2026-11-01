@@ -1,0 +1,387 @@
+// Project Fee Sheet View Component Styles
+// IMS Document Theme
+
+:host {
+    display: block;
+}
+
+.ims-view-page {
+    min-height: 100%;
+    background: #f8fafc;
+}
+
+.ims-view-shell {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background: #fff;
+}
+
+.ims-view-header {
+    margin-bottom: 2rem;
+}
+
+.ims-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.ims-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ims-card-body {
+    padding: 1.5rem;
+}
+
+.fee-sheet-action-card {
+    background: #fff;
+    border-color: #dbe4f0;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.fee-sheet-decision-field {
+    position: relative;
+    width: 100%;
+}
+
+.fee-sheet-decision-label {
+    position: absolute;
+    top: -0.45rem;
+    left: 0.75rem;
+    z-index: 2;
+    padding: 0 0.25rem;
+    background: #fff;
+    color: #0f172a;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.fee-sheet-decision-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 3.5rem;
+    padding: 0 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.25rem;
+    background: #fff;
+    color: #111827;
+    text-align: left;
+    font-size: 0.95rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.fee-sheet-decision-trigger:hover:not(:disabled) {
+    border-color: #64748b;
+}
+
+.fee-sheet-decision-trigger:disabled {
+    cursor: not-allowed;
+    background: #f8fafc;
+    color: #94a3b8;
+}
+
+.fee-sheet-decision-field.is-open .fee-sheet-decision-trigger {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 1px #1a73e8;
+}
+
+.fee-sheet-decision-arrow {
+    width: 0;
+    height: 0;
+    border-left: 0.3rem solid transparent;
+    border-right: 0.3rem solid transparent;
+    border-top: 0.35rem solid #64748b;
+    transition: transform 160ms ease;
+}
+
+.fee-sheet-decision-field.is-open .fee-sheet-decision-arrow {
+    transform: rotate(180deg);
+}
+
+.fee-sheet-decision-panel {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.375rem;
+    background: #fff;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
+}
+
+.fee-sheet-decision-option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0 1rem;
+    border: 0;
+    background: #fff;
+    color: #111827;
+    text-align: left;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.fee-sheet-decision-option:hover,
+.fee-sheet-decision-option:focus {
+    background: #f1f5f9;
+    outline: none;
+}
+
+.fee-sheet-decision-option.is-selected {
+    color: #1d4ed8;
+    background: #eff6ff;
+}
+
+.fee-sheet-decision-check {
+    width: 1.4rem;
+    flex: 0 0 1.4rem;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.revision-tabs {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0 1.5rem;
+}
+
+.ims-field-box {
+    border: 1px solid #dbe4f0;
+    border-radius: 0.5rem;
+    background: #f8fafc;
+    padding: 0.6rem 0.75rem;
+    color: #111827;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.document-field label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.document-section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #000;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.section-icon {
+    color: #2563eb;
+    margin-right: 0.5rem;
+}
+
+// Table Styles
+.ims-table-container {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    margin-top: 0.5rem;
+}
+
+.ims-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+        background: #f1f5f9;
+        padding: 0.75rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+
+    td {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        color: #1e293b;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    .align-right { text-align: right; }
+    .align-center { text-align: center; }
+}
+
+.fee-agreement-chain-table {
+    min-width: 760px;
+
+    .fee-agreement-description-col {
+        width: 32%;
+        min-width: 260px;
+    }
+
+    .fee-agreement-revision-col {
+        min-width: 220px;
+    }
+}
+
+.fee-item-list {
+    display: grid;
+    gap: 0.375rem;
+    text-align: left;
+}
+
+.fee-item-row,
+.fee-item-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    line-height: 1.35;
+
+    span {
+        min-width: 0;
+        word-break: break-word;
+    }
+
+    strong {
+        flex: 0 0 auto;
+        font-weight: 600;
+    }
+}
+
+.fee-item-total {
+    margin-top: 0.25rem;
+    padding-top: 0.375rem;
+    border-top: 1px solid #e2e8f0;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.changed-field {
+    border-color: #f59e0b !important;
+    background: #fffbeb !important;
+    box-shadow: inset 3px 0 0 #f59e0b;
+}
+
+.changed-row td {
+    background: #fffbeb;
+}
+
+.changed-row--added td {
+    background: #ecfdf5;
+}
+
+.changed-row--removed td {
+    background: #fef2f2;
+    color: #991b1b;
+    text-decoration: line-through;
+}
+
+.document-check-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #111827;
+}
+
+.document-check-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #9ca3af;
+    border-radius: 0.25rem;
+    background: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #2563eb;
+    flex-shrink: 0;
+}
+
+// Dark mode overrides
+:host-context(.dark) {
+    .ims-view-page { background: #0f172a; }
+    .ims-view-shell { background: #1e293b; }
+    .ims-card {
+        border-color: #334155;
+        background: #1e293b;
+    }
+    .ims-card-header { border-bottom-color: #334155; }
+    .ims-field-box {
+        border-color: #4b5563;
+        background: #1f2937;
+        color: #f3f4f6;
+    }
+    .document-section-title {
+        color: #93c5fd;
+        border-bottom-color: #1e3a8a;
+    }
+    .ims-table-container { border-color: #334155; }
+    .ims-table {
+        th {
+            background: #1e293b;
+            color: #94a3b8;
+            border-color: #334155;
+        }
+        td {
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+    }
+    .fee-item-total {
+        border-top-color: #334155;
+        color: #f8fafc;
+    }
+    .document-check-box {
+        border-color: #6b7280;
+        background: #1f2937;
+        color: #60a5fa;
+    }
+    .document-check-row { color: #f3f4f6; }
+    .changed-field {
+        border-color: #fbbf24 !important;
+        background: rgba(120, 53, 15, 0.35) !important;
+        box-shadow: inset 3px 0 0 #fbbf24;
+    }
+    .changed-row td {
+        background: rgba(120, 53, 15, 0.35);
+    }
+    .changed-row--added td {
+        background: rgba(6, 95, 70, 0.35);
+    }
+    .changed-row--removed td {
+        background: rgba(127, 29, 29, 0.35);
+        color: #fecaca;
+    }
+}

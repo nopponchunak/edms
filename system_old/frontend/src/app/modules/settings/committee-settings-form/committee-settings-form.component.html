@@ -1,0 +1,167 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="w-full h-full p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ isEditMode ? 'Edit Committee' : 'Create Committee' }}
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    Create a Committee group and define members within the group
+                </p>
+            </div>
+
+            <a
+                mat-stroked-button
+                color="primary"
+                [routerLink]="['/settings/committees']"
+            >
+                <mat-icon class="mr-2">arrow_back</mat-icon>
+                Back to Committee List
+            </a>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading indicator -->
+        <div
+            *ngIf="isLoading"
+            class="flex items-center justify-center py-12"
+        >
+            <mat-progress-spinner
+                mode="indeterminate"
+                diameter="48"
+            ></mat-progress-spinner>
+        </div>
+
+        <mat-card
+            *ngIf="!isLoading"
+            class="committee-card shadow-lg border border-gray-200 dark:border-gray-700 w-full"
+        >
+            <mat-card-content class="p-6 lg:p-8 space-y-8">
+                <!-- Committee info -->
+                <section>
+                    <h2 class="section-title text-base font-semibold text-gray-900 dark:text-white mb-3">
+                        Committee Information
+                    </h2>
+                    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-8 committee-settings-form">
+                        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)] gap-4">
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Committee Name</mat-label>
+                                <input matInput formControlName="name" />
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Members section -->
+                        <section class="space-y-4">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                <div>
+                                    <h2 class="section-title text-base font-semibold text-gray-900 dark:text-white">
+                                        Committee Members
+                                    </h2>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Select members from employee list. You can add or remove members as needed
+                                    </p>
+                                </div>
+                                <button
+                                    mat-stroked-button
+                                    color="primary"
+                                    type="button"
+                                    (click)="addMember()"
+                                >
+                                    <mat-icon class="mr-1">add</mat-icon>
+                                    Add Member
+                                </button>
+                            </div>
+
+                            <div formArrayName="members" class="space-y-3">
+                                <div
+                                    *ngFor="let member of membersArray.controls; let i = index"
+                                    [formGroupName]="i"
+                                    class="member-row bg-gray-50/60 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 flex flex-col md:flex-row md:items-center gap-3"
+                                >
+                                    <div class="flex-1 w-full">
+                                        <mat-form-field appearance="outline" class="w-full">
+                                            <mat-label>Member Name</mat-label>
+                                            <input
+                                                matInput
+                                                formControlName="employeeCode"
+                                                [matAutocomplete]="memberAuto"
+                                                placeholder="Search by code or name..."
+                                            />
+                                            <mat-autocomplete
+                                                #memberAuto="matAutocomplete"
+                                                [displayWith]="displayEmployeeFn.bind(this)"
+                                            >
+                                                <mat-option
+                                                    *ngFor="let emp of (filteredOptions$[i] | async) ?? []"
+                                                    [value]="emp.code"
+                                                >
+                                                    {{ emp.displayLabel }}
+                                                </mat-option>
+                                            </mat-autocomplete>
+                                            <mat-error *ngIf="membersArray.at(i)?.get('employeeCode')?.hasError('required') && membersArray.at(i)?.get('employeeCode')?.touched">
+                                                Member is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <button
+                                        mat-icon-button
+                                        color="warn"
+                                        type="button"
+                                        class="self-start md:self-center"
+                                        (click)="removeMember(i)"
+                                        [disabled]="membersArray.length === 1"
+                                    >
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                color="primary"
+                                [routerLink]="['/settings/committees']"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="submit"
+                                [disabled]="isSubmitting"
+                                class="px-6"
+                            >
+                                <mat-progress-spinner
+                                    *ngIf="isSubmitting"
+                                    [diameter]="18"
+                                    mode="indeterminate"
+                                    class="mr-2"
+                                ></mat-progress-spinner>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+
+

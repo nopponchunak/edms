@@ -1,0 +1,80 @@
+// Profile view specific styles
+.mat-mdc-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+}
+
+// Custom chip styles
+.mat-mdc-chip {
+  font-size: 0.875rem;
+  font-weight: 500;
+  
+  &.bg-blue-100 {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  &.bg-green-100 {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+}
+
+// Icon colors
+.mat-icon {
+  &.text-blue-600 {
+    color: #2563eb;
+  }
+  
+  &.text-green-600 {
+    color: #059669;
+  }
+  
+  &.text-red-600 {
+    color: #dc2626;
+  }
+  
+  &.text-purple-600 {
+    color: #7c3aed;
+  }
+  
+  &.text-indigo-600 {
+    color: #4f46e5;
+  }
+  
+  &.text-gray-600 {
+    color: #6b7280;
+  }
+}
+
+// Loading animation
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+// Avatar styles
+.avatar {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2563eb;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}

@@ -1,0 +1,602 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Lighting Project Fee Sheet Details
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400">
+                View lighting fee sheet information and details
+            </p>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+            [dismissible]="'true'" (dismissed)="alert = null">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+            <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <!-- Fee Sheet Details -->
+        <div *ngIf="!isLoading && feeSheet">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                        <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:light-bulb'"></mat-icon>
+                        Lighting Fee Sheet Details
+                    </h2>
+                </div>
+
+                <div class="p-6">
+
+                    <!-- Status and Basic Info -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                                    [class]="getStatusBadgeClass(feeSheet.status)">
+                                    {{ getStatusLabel(feeSheet.status) }}
+                                </span>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button mat-button (click)="onBack()"
+                                    class="flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                                    Back to List
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Header Information -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600"
+                                [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                            Header Information
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Copies
+                                    to</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.copiesTo }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Circ</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.circ }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CH/
+                                    File</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.chFile }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fee</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.fee }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Project Information -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-blue-600"
+                                [svgIcon]="'heroicons_solid:building-office'"></mat-icon>
+                            Project Information
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project
+                                    "P No."</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.projectPNo }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project
+                                    No.</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.projectNo }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.team }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                                <p class="text-gray-900 dark:text-white">{{ formatDate(feeSheet.date) }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Director
+                                    In Charge</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.directorInCharge }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Discipline</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.discipline }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project
+                                    Name</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.projectName }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.location }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.client }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact
+                                    Name</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.contactName }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">MTL
+                                    Scope</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.mtlScope }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comments</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.comments }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Fee Information -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600"
+                                [svgIcon]="'heroicons_solid:currency-dollar'"></mat-icon>
+                            Fee Agreement Received
+                        </h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                                <thead>
+                                    <tr class="bg-gray-50 dark:bg-gray-700">
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                                            Description
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            Original
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            Rev. 1
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            Rev. 2
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            Rev. 3
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            Fee Agreement Received?
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.feeAgreementOriginal ? '✓' : '✗' }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.feeAgreementRev1 ? '✓' : '✗' }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.feeAgreementRev2 ? '✓' : '✗' }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.feeAgreementRev3 ? '✓' : '✗' }}
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            Gross Fee (excl VAT)
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.grossFeeOriginal) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.grossFeeRev1) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.grossFeeRev2) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.grossFeeRev3) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            Less Subconsultants
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.subconsultantsAmountOriginal) }}<br>
+                                            <span class="text-xs text-gray-500">{{ feeSheet.subconsultantsNameOriginal
+                                                }}</span>
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.subconsultantsAmountRev1) }}<br>
+                                            <span class="text-xs text-gray-500">{{ feeSheet.subconsultantsNameRev1
+                                                }}</span>
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.subconsultantsAmountRev2) }}<br>
+                                            <span class="text-xs text-gray-500">{{ feeSheet.subconsultantsNameRev2
+                                                }}</span>
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.subconsultantsAmountRev3) }}<br>
+                                            <span class="text-xs text-gray-500">{{ feeSheet.subconsultantsNameRev3
+                                                }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            Less Other Expenses
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.otherExpensesOriginal) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.otherExpensesRev1) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.otherExpensesRev2) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(feeSheet.otherExpensesRev3) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                            Nett Fee (excl VAT)
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(feeSheet.nettFeeOriginal) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(feeSheet.nettFeeRev1) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(feeSheet.nettFeeRev2) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(feeSheet.nettFeeRev3) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Job Costing Allocation -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:chart-pie'"></mat-icon>
+                            Job Costing Allocation
+                        </h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                                <thead>
+                                    <tr class="bg-gray-50 dark:bg-gray-700">
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                                            Phase
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            % of Fee
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            Start
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            End
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            (P)reliminary
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.preliminaryPercentage }}%
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.preliminaryStartDate) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.preliminaryEndDate) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            (D)etailed Design
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.detailedDesignPercentage }}%
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.detailedDesignStartDate) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.detailedDesignEndDate) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            (T)ender
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.tenderPercentage }}%
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.tenderStartDate) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.tenderEndDate) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            (C)onstruction
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ feeSheet.constructionPercentage }}%
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.constructionStartDate) }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatDate(feeSheet.constructionEndDate) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Standard Projects for Lighting -->
+                        <div class="mt-4">
+                            <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">Standard Projects for
+                                Lighting:</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-sm">
+                                    <span class="font-medium">P:</span>
+                                    <span class="ml-2">40%</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="font-medium">D:</span>
+                                    <span class="ml-2">15%</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="font-medium">T:</span>
+                                    <span class="ml-2">30%</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="font-medium">C:</span>
+                                    <span class="ml-2">15%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Billing Forecast -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                            Billing Forecast (based on the Agreement)
+                        </h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                                <thead>
+                                    <tr class="bg-gray-50 dark:bg-gray-700">
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                                            1st of Month
+                                        </th>
+                                        <th
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                            Amount (approx)
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let forecast of feeSheet.billingForecast"
+                                        class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                            {{ forecast.month }}
+                                        </td>
+                                        <td
+                                            class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm text-gray-900 dark:text-white">
+                                            {{ formatCurrency(forecast.amount) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Report and Project Type -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                            Report and Project Type
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report</label>
+                                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                                        <div class="flex items-center space-x-4">
+                                            <span class="font-medium">Report:</span>
+                                            <span>100%</span>
+                                            <span>0</span>
+                                            <span>0</span>
+                                            <span>0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project
+                                    Type</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.projectType }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Signatures -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                            Signatures
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Form
+                                    filled in by</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.filledInBy }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                                <p class="text-gray-900 dark:text-white">{{ formatDate(feeSheet.filledInDate) }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approved
+                                    by CH</label>
+                                <p class="text-gray-900 dark:text-white">{{ feeSheet.approvedBy }}</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                                <p class="text-gray-900 dark:text-white">{{ formatDate(feeSheet.approvedDate) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Timestamps -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+                            Timestamps
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Created
+                                    At</label>
+                                <p class="text-gray-900 dark:text-white">{{ formatDate(feeSheet.createdAt) }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last
+                                    Updated</label>
+                                <p class="text-gray-900 dark:text-white">{{ formatDate(feeSheet.updatedAt) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not Found -->
+        <div *ngIf="!isLoading && !feeSheet" class="text-center py-12">
+            <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:light-bulb'"></mat-icon>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Lighting fee sheet not found</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">The lighting fee sheet you're looking for doesn't exist or
+                has been deleted.</p>
+            <button mat-flat-button color="primary" (click)="onBack()"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                Back to List
+            </button>
+        </div>
+    </div>

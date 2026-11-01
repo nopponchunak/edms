@@ -1,0 +1,577 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-7xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    Purchase Requisition Review
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Review purchase requisition details and submit your decision
+                </p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button mat-button (click)="onBack()
+          " class="flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                    <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                    Back to List
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+            [dismissible]="'true'" (dismissed)="alert = null">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+            <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <!-- Content -->
+        <div *ngIf="!isLoading && requisition" class="space-y-8">
+            <!-- Top card: Basic info + status -->
+            <mat-card class="shadow-sm border border-gray-200 dark:border-gray-700">
+                <mat-card-content class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                                <mat-icon class="mr-2 text-blue-600"
+                                    [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                                PURCHASE REQUISITION FORM
+                            </h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Meinhardt (Thailand) Ltd.
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                Requisition No:
+                                <span class="font-medium">{{ requisition.requisitionNo }}</span>
+                            </p>
+                        </div>
+
+                        <div class="text-right space-y-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                                [class]="getStatusBadgeClass(requisition.status)">
+                                {{ getStatusLabel(requisition.status) }}
+                            </span>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                Created: {{ formatDate(requisition.createdAt) }}<br />
+                                Last Updated: {{ formatDate(requisition.updatedAt) }}<br />
+                                By: {{ requisition.createdBy }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-4"></mat-divider>
+
+                    <!-- General Request Information -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600"
+                                [svgIcon]="'heroicons_solid:building-office'"></mat-icon>
+                            General Request Information
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">To:</div>
+                                    <div class="text-gray-900 dark:text-white">
+                                        {{ requisition.to }}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Requested By:
+                                    </div>
+                                    <div class="text-gray-900 dark:text-white">
+                                        {{ requisition.requestedBy }}
+                                    </div>
+                                </div>
+
+                                <div *ngIf="requisition.deadline">
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Deadline (if any):
+                                    </div>
+                                    <div class="text-gray-900 dark:text-white">
+                                        {{ formatDate(requisition.deadline) }}
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Reasons for Purchase:
+                                    </div>
+                                    <div class="text-gray-900 dark:text-white whitespace-pre-wrap">
+                                        {{ requisition.reasonsForPurchase }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Date:</div>
+                                    <div class="text-gray-900 dark:text-white">
+                                        {{ formatDate(requisition.date) }}
+                                    </div>
+                                </div>
+
+                                <div *ngIf="requisition.recommendedBy">
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Recommended By (if any):
+                                    </div>
+                                    <div class="text-gray-900 dark:text-white">
+                                        {{ requisition.recommendedBy }}
+                                    </div>
+                                </div>
+
+                                <div *ngIf="requisition.receivedFrom">
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Received From (if any):
+                                    </div>
+                                    <div class="text-gray-900 dark:text-white">
+                                        {{ requisition.receivedFrom }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Items & totals -->
+            <mat-card class="shadow-sm border border-gray-200 dark:border-gray-700">
+                <mat-card-content class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:list-bullet'"></mat-icon>
+                            Itemized Purchase List
+                        </h3>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Item(s)
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Description
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Asset Code?
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Qty
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Unit Price (Baht)
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Amount (Baht)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of requisition.items"
+                                    class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                        {{ item.item }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                        {{ item.description }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-center text-gray-900 dark:text-white">
+                                        {{ item.needAssetCodeRegistration ? 'Yes' : '-' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
+                                        {{ item.quantity }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
+                                        {{ formatCurrency(item.unitPrice) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
+                                        {{ formatCurrency(item.amount) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="mt-6 flex justify-end">
+                        <div class="w-full max-w-md">
+                            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                                <div
+                                    class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                                    <span class="text-gray-700 dark:text-gray-300">Discount</span>
+                                    <span class="font-medium text-red-600 dark:text-red-300">
+                                        {{ formatCurrency(requisition.discount) }}
+                                    </span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                                    <span class="text-gray-700 dark:text-gray-300">Sub Total</span>
+                                    <span class="font-medium text-gray-900 dark:text-white">
+                                        {{ formatCurrency(requisition.subTotal) }}
+                                    </span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                                    <span class="text-gray-700 dark:text-gray-300">VAT 7%</span>
+                                    <span class="font-medium text-gray-900 dark:text-white">
+                                        {{ formatCurrency(requisition.vat7Percent) }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        Grand Total
+                                    </span>
+                                    <span class="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                        {{ formatCurrency(requisition.grandTotal) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Notes and Terms -->
+            <mat-card class="shadow-sm border border-gray-200 dark:border-gray-700">
+                <mat-card-content class="p-6 space-y-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2 flex items-center">
+                        <mat-icon class="mr-2 text-orange-600"
+                            [svgIcon]="'heroicons_solid:exclamation-circle'"></mat-icon>
+                        Notes and Terms
+                    </h3>
+
+                    <div
+                        class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
+                        <strong>Note:</strong> In case of purchasing software and/or IT
+                        equipment, this request must be verified by IT department to confirm
+                        our existing hardware is adequate and doesn't need any further upgrading.
+                    </div>
+
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Payment Term:</strong> {{ requisition.paymentTerm || defaultPaymentTerm }}
+                    </div>
+
+                    <div *ngIf="requisition.otherConditions">
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Other conditions (if any)
+                        </div>
+                        <div class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                            {{ requisition.otherConditions }}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center text-sm text-gray-800 dark:text-gray-200">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                        *Please fill in the price and attach quotation (if any):
+                        <span class="ml-1 font-medium">
+                            {{
+                            requisition.quotationAttached
+                            ? 'Quotation attached'
+                            : 'No quotation attached'
+                            }}
+                        </span>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Approval and Action Workflow -->
+            <mat-card class="shadow-sm border border-gray-200 dark:border-gray-700">
+                <mat-card-content class="p-6 space-y-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2 flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+                        Approval and Action Workflow
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Requested By:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.requestedBy }}
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.requestedDate) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Verified By:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.verifiedByIS || '-' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    (IS for all IT equipment only)
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.verifiedISDate) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Verified By:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.verifiedBy || '-' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    (MD/DI/AD/TL)
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.verifiedDate) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Approved By:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.approvedBy || '-' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    (MD/DI)
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.approvedDate) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div *ngIf="requisition.approvedBy2" class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Approved By 2:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.approvedBy2 || '-' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    (Grand total over 50,000)
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.approvedBy2Date) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Acknowledged:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.acknowledgedBy || '-' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    (CA)
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.acknowledgedDate) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Need asset code registration?
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{
+                                    requisition.needAssetCodeRegistration === 'yes'
+                                    ? 'Yes'
+                                    : requisition.needAssetCodeRegistration === 'no'
+                                    ? 'No'
+                                    : '-'
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Action by:
+                                </div>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ requisition.actionByAdmin || '-' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    (ADM)
+                                </div>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mr-1">Date:</span>
+                                <span class="text-sm text-gray-900 dark:text-white">
+                                    {{ formatDate(requisition.actionByAdminDate) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Attached documents -->
+            <mat-card class="shadow-sm border border-gray-200 dark:border-gray-700">
+                <mat-card-content class="p-6 space-y-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2 flex items-center">
+                        <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        Attached Documents
+                    </h3>
+
+                    <div *ngIf="requisition.attachments?.length; else noDocs">
+                        <div *ngFor="let doc of requisition.attachments"
+                            class="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 mb-2">
+                            <div class="flex items-center space-x-3">
+                                <mat-icon class="text-gray-400 dark:text-gray-500"
+                                    [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                <div>
+                                    <a *ngIf="doc.url" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                                        class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                        {{ doc.name }}
+                                    </a>
+                                    <div *ngIf="!doc.url" class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                        {{ doc.name }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ doc.type || 'File' }}
+                                        <span *ngIf="doc.sizeKB">&nbsp;· {{ doc.sizeKB | number: '1.0-1' }} KB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template #noDocs>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            No documents attached.
+                        </div>
+                    </ng-template>
+                </mat-card-content>
+            </mat-card>
+
+
+            <!-- ===== Approval Decision ===== -->
+            <mat-card class="mb-2 mt-8">
+                <mat-card-header>
+                    <mat-card-title class="text-lg font-semibold flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                        Approval Decision
+                    </mat-card-title>
+                </mat-card-header>
+
+                <mat-card-content class="pt-4">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                Decision
+                            </label>
+                            <mat-radio-group [(ngModel)]="approvalDecision" class="flex space-x-6">
+                                <mat-radio-button value="approve" class="text-green-700 dark:text-green-400">
+                                    <span class="ml-2">Approve</span>
+                                </mat-radio-button>
+                                <mat-radio-button value="decline" class="text-red-700 dark:text-red-400">
+                                    <span class="ml-2">Decline</span>
+                                </mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Comments (Optional)</mat-label>
+                            <textarea matInput [(ngModel)]="approvalComments" rows="4"
+                                placeholder="Enter your approval comments or remarks..."
+                                class="bg-white dark:bg-gray-700"></textarea>
+                        </mat-form-field>
+
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button mat-stroked-button (click)="onBack()"
+                                class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+                                Cancel
+                            </button>
+                            <button mat-flat-button color="primary" (click)="onApprove()" [disabled]="!approvalDecision"
+                                [class]="
+                      approvalDecision === 'approve'
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : 'bg-red-600 hover:bg-red-700'
+                    " class="px-6 py-2 text-white rounded-lg transition-colors">
+                                <mat-icon class="mr-2" [svgIcon]="
+                        approvalDecision === 'approve'
+                          ? 'heroicons_outline:check-circle'
+                          : 'heroicons_outline:x-circle'
+                      "></mat-icon>
+                                {{ approvalDecision === 'approve' ? 'Approve' : 'Decline'
+                                }}
+                                Review
+                            </button>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+            <!-- =====
+    Approval Decision ===== -->
+        </div>
+
+        <!-- Not found -->
+        <div *ngIf="!isLoading && !requisition" class="text-center py-12">
+            <mat-icon class="text-6xl text-gray-400 mb-4"
+                [svgIcon]="'heroicons_outline:document-magnifying-glass'"></mat-icon>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Purchase requisition not found
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                The purchase requisition you are looking for doesn't exist or has been deleted.
+            </p>
+            <button mat-flat-button color="primary" (click)="onBack()"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                Back to List
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+@use 'sass:color';
+
+.committee-card {
+    border-radius: 1.25rem;
+}
+
+.committee-settings-form {
+    mat-form-field {
+        width: 100%;
+    }
+}
+
+.member-row {
+    transition: background-color 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+
+    &:hover {
+        border-color: color.scale(#3b82f6, $lightness: -10%);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+}
+
+.section-title {
+    letter-spacing: 0.01em;
+}
+
+
+

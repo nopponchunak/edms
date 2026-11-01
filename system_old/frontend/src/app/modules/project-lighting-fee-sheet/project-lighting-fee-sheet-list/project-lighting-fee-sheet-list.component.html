@@ -1,0 +1,261 @@
+<div class="h-full bg-gray-50">
+
+  <div class="max-w-7xl mx-auto p-6 bg-white dark:bg-gray-900">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Lighting Project Fee Sheet
+        </h1>
+
+        <p class="text-gray-600 dark:text-gray-400">
+          Manage your lighting project fee sheets
+        </p>
+      </div>
+
+      <button mat-flat-button color="primary" (click)="onCreateNew()"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2">
+
+        <mat-icon class="text-white" svgIcon="heroicons_solid:plus"></mat-icon>
+        New Request</button>
+
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group [(selectedIndex)]="selectedIndex" (selectedIndexChange)="onTabChange($event)" class="mb-6">
+
+      <mat-tab label="Forms"></mat-tab>
+      <mat-tab [label]="'Action Request (' + actionRequestCount + ')'"></mat-tab>
+
+    </mat-tab-group>
+
+    <!-- Alert -->
+    <fuse-alert class="mb-6" *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+      [dismissible]="'true'" (dismissed)="alert = null">
+
+      {{ alert.message }}
+
+    </fuse-alert>
+
+    <!-- Filters -->
+    <mat-card class="mb-6 shadow-sm rounded-xl border border-gray-200">
+
+      <mat-card-content class="p-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Search -->
+          <mat-form-field appearance="outline" class="w-full">
+
+            <mat-label>Search Reviews</mat-label>
+
+            <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+
+            <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onFilterChange()" placeholder="Search..." />
+          </mat-form-field>
+
+          <!-- Status Filter -->
+          <mat-form-field appearance="outline" class="w-full">
+
+            <mat-label>Filter by Status</mat-label>
+            <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+
+              <mat-option value="">All Statuses</mat-option>
+              <mat-option *ngFor="let status of getStatusOptions()" [value]="status">
+                {{ getStatusLabel(status) }}
+
+              </mat-option>
+
+            </mat-select>
+
+          </mat-form-field>
+
+          <!-- Project Type -->
+          <mat-form-field appearance="outline" class="w-full">
+
+            <mat-label>Filter by Project Type</mat-label>
+            <mat-select [(ngModel)]="projectTypeFilter" (ngModelChange)="onFilterChange()">
+
+              <mat-option value="">All Project Types</mat-option>
+              <mat-option *ngFor="let type of getProjectTypeOptions()" [value]="type">
+                {{ type }}
+
+              </mat-option>
+
+            </mat-select>
+
+          </mat-form-field>
+
+        </div>
+
+        <!-- Count -->
+        <div class="flex justify-end text-sm text-gray-500 mt-4">
+          {{ filteredData.length }} of {{ dataSource.length }} reviews
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+    <!-- Content Container -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+
+      <!-- Table Title -->
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+          My Lighting Fee Sheets
+        </h2>
+
+      </div>
+
+      <div class="p-0">
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+          <mat-spinner [diameter]="40"></mat-spinner>
+        </div>
+
+        <!-- No Data -->
+        <div *ngIf="!isLoading && filteredData.length === 0" class="text-center py-12">
+          <mat-icon class="text-6xl text-gray-400 mb-4" svgIcon="heroicons_outline:light-bulb"></mat-icon>
+          <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
+            No matching fee sheets
+          </h3>
+
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
+            Try adjusting your filters.
+          </p>
+
+        </div>
+
+        <!-- Table -->
+        <div *ngIf="!isLoading && filteredData.length > 0" class="overflow-x-auto">
+          <table appListTableSort appListTableServerSort [appListTableSortState]="listSort" (listSortChange)="onListSortChange($event)" class="min-w-full border-collapse">
+            <!-- HEADER -->
+            <thead>
+              <tr class="bg-gray-50 border-b">
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Project Name
+                </th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Project No.
+                </th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Project Type
+                </th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Client Name
+                </th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Nett Fee</th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Status</th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Filled In By
+                </th>
+                <th appListSortHeader class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Created At
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Actions
+                </th>
+              </tr>
+            </thead>
+
+            <!-- BODY -->
+            <tbody>
+              <!-- ใช้ข้อมูลที่แบ่งตามหน้าแล้ว -->
+              <tr *ngFor="let e of displayedFilteredDataSource" class="border-b hover:bg-gray-50">
+                <!-- Project Name -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ e.projectName }}
+                </td>
+
+                <!-- Project No -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ e.projectNo }}
+                </td>
+
+                <!-- Project Type -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ e.projectType }}
+                </td>
+
+                <!-- Client -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ e.client }}
+                </td>
+
+                <!-- Nett Fee -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ formatCurrency(e.nettFee) }}
+                </td>
+
+                <!-- STATUS -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                      'bg-green-100 text-green-700': e.status === 'approved',
+                      'bg-blue-100 text-blue-700': e.status === 'submitted',
+                      'bg-red-100 text-red-700': e.status === 'rejected',
+                      'bg-gray-100 text-gray-700': e.status === 'draft'
+                    }">
+                    {{ getStatusLabel(e.status) }}
+                  </span>
+                </td>
+
+                <!-- Filled In By -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ getEmployeeLabel(e.filledInBy) }}
+                </td>
+
+                <!-- Created At -->
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {{ formatDate(e.createdAt) }}
+                </td>
+
+                <!-- ACTIONS -->
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <!-- Forms tab -->
+                  <div *ngIf="selectedIndex === 0" class="flex justify-end gap-2">
+
+                    <button mat-flat-button (click)="onView(e.id)"
+                      class="px-4 py-1 text-xs rounded flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white">
+                      <mat-icon svgIcon="heroicons_outline:eye" class="text-white text-sm"></mat-icon>
+                      <span>View</span>
+                    </button>
+
+                    <button mat-flat-button (click)="onEdit(e.id)"
+                      class="px-4 py-1 text-xs rounded flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white">
+                      <mat-icon svgIcon="heroicons_outline:pencil" class="text-white text-sm"></mat-icon>
+                      <span>Edit</span>
+                    </button>
+
+                    <button mat-flat-button (click)="onDelete(e.id)"
+                      class="px-4 py-1 text-xs rounded flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white">
+                      <mat-icon svgIcon="heroicons_outline:trash" class="text-white text-sm"></mat-icon>
+                      <span>Delete</span>
+                    </button>
+                  </div>
+
+                  <!-- Action Request tab -->
+                  <div *ngIf="selectedIndex === 1" class="flex justify-end">
+                    <button mat-flat-button
+                      class="px-4 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center gap-1"
+                      (click)="onReview(e.id)">
+                      <mat-icon svgIcon="heroicons_outline:document-magnifying-glass"
+                        class="text-white text-sm"></mat-icon>
+                      <span>Review</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination – แถวล่างให้เหมือนรูป -->
+          <mat-paginator *ngIf="filteredData.length > 0" [length]="totalRecords" [pageSize]="pageSize"
+            [pageIndex]="pageIndex" [pageSizeOptions]="[10, 25, 50, 100]" (page)="onPageChange($event)"
+            showFirstLastButtons class="mt-4">
+          </mat-paginator>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

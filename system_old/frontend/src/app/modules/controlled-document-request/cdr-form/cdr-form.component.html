@@ -1,0 +1,791 @@
+<div class="h-full bg-gray-50">
+    <div class="mx-auto max-w-6xl bg-white p-6 dark:bg-gray-900">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <h1
+                    class="mb-2 text-2xl font-bold text-blue-600 dark:text-blue-400"
+                >
+                    CONTROLLED DOCUMENT REQUEST / CHANGE
+                </h1>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    FORM MTCD-01
+                </span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Meinhardt (Thailand) Ltd.
+            </p>
+        </div>
+
+        <!-- Card -->
+        <div
+            class="mb-6 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+        >
+            <div class="border-b border-gray-200 p-6 dark:border-gray-700">
+                <h2
+                    class="flex items-center text-xl font-semibold text-gray-900 dark:text-white"
+                >
+                    <mat-icon
+                        class="mr-2 text-blue-600"
+                        [svgIcon]="'heroicons_solid:document-text'"
+                    ></mat-icon>
+                    CDR Details
+                </h2>
+            </div>
+
+            <div class="p-6">
+                <!-- Loading Spinner -->
+                <div
+                    *ngIf="isLoading"
+                    class="flex items-center justify-center py-12"
+                >
+                    <mat-spinner [diameter]="40"></mat-spinner>
+                </div>
+
+                <form
+                    [formGroup]="form"
+                    (ngSubmit)="onSubmit()"
+                    *ngIf="!isLoading"
+                >
+                    <!-- Top Fields -->
+                    <div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>To</mat-label>
+                            <input
+                                matInput
+                                formControlName="to"
+                                class="bg-gray-100 dark:bg-gray-800"
+                                readonly
+                            />
+                        </mat-form-field>
+                        <mat-form-field class="w-full">
+                            <mat-label>Date</mat-label>
+                            <input
+                                matInput
+                                [matDatepicker]="datePicker"
+                                formControlName="date"
+                                class="bg-white dark:bg-gray-700"
+                            />
+                            <mat-datepicker-toggle
+                                matSuffix
+                                [for]="datePicker"
+                            ></mat-datepicker-toggle>
+                            <mat-datepicker #datePicker></mat-datepicker>
+                        </mat-form-field>
+                        <!-- From (filled automatically from Requested by, grey and read-only) -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>From</mat-label>
+                            <input
+                                matInput
+                                formControlName="from"
+                                class="bg-gray-100 dark:bg-gray-800"
+                                readonly
+                            />
+                        </mat-form-field>
+                        <mat-form-field class="w-full">
+                            <mat-label>CDR No. (by IMS/ADM)</mat-label>
+                            <input
+                                matInput
+                                formControlName="cdrNo"
+                                class="bg-gray-100 dark:bg-gray-800"
+                                readonly
+                            />
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="mb-6">
+                        <h3
+                            class="mb-3 flex items-center text-lg font-medium text-gray-900 dark:text-white"
+                        >
+                            <mat-icon
+                                class="mr-2 text-purple-600"
+                                [svgIcon]="'heroicons_solid:clipboard-list'"
+                            ></mat-icon>
+                            Categories <span class="ml-1 text-red-500">*</span>
+                        </h3>
+                        <div
+                            formGroupName="categories"
+                            class="grid grid-cols-1 gap-6 md:grid-cols-2"
+                        >
+                            <!-- Left Column -->
+                            <div>
+                                <div class="flex h-10 items-center">
+                                    <mat-checkbox
+                                        formControlName="ims"
+                                        (change)="
+                                            onCategoryChange(
+                                                'ims',
+                                                $event.checked
+                                            )
+                                        "
+                                    ></mat-checkbox>
+                                    <div class="ml-2">IMS Documentation</div>
+                                </div>
+                                <div class="flex h-10 items-center">
+                                    <mat-checkbox
+                                        formControlName="masterTechSpecs"
+                                        (change)="
+                                            onCategoryChange(
+                                                'masterTechSpecs',
+                                                $event.checked
+                                            )
+                                        "
+                                    ></mat-checkbox>
+                                    <div class="ml-2">
+                                        Master Technical Specifications
+                                    </div>
+                                </div>
+                                <div class="flex h-10 items-center">
+                                    <mat-checkbox
+                                        formControlName="other"
+                                        (change)="
+                                            onCategoryChange(
+                                                'other',
+                                                $event.checked
+                                            )
+                                        "
+                                    ></mat-checkbox>
+                                    <div class="ml-2">Other</div>
+                                </div>
+                                <mat-form-field
+                                    class="mt-2 w-full"
+                                    *ngIf="form.get('categories.other')?.value"
+                                >
+                                    <mat-label
+                                        >Other (please specify)</mat-label
+                                    >
+                                    <input
+                                        matInput
+                                        formControlName="otherText"
+                                        class="bg-white dark:bg-gray-700"
+                                    />
+                                    <mat-error
+                                        *ngIf="
+                                            form
+                                                .get('categories.otherText')
+                                                ?.hasError('required')
+                                        "
+                                    >
+                                        Please specify the category
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <!-- Right Column -->
+                            <div>
+                                <div class="flex h-10 items-center">
+                                    <mat-checkbox
+                                        formControlName="acp"
+                                        (change)="
+                                            onCategoryChange(
+                                                'acp',
+                                                $event.checked
+                                            )
+                                        "
+                                    ></mat-checkbox>
+                                    <div class="ml-2">ACP Documentation</div>
+                                </div>
+                                <div class="flex h-10 items-center">
+                                    <mat-checkbox
+                                        formControlName="antiCorruption"
+                                        (change)="
+                                            onCategoryChange(
+                                                'antiCorruption',
+                                                $event.checked
+                                            )
+                                        "
+                                    ></mat-checkbox>
+                                    <div class="ml-2">
+                                        Anti-Corruption Programme Booklet
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p
+                            *ngIf="
+                                form
+                                    .get('categories')
+                                    ?.hasError('exactlyOneCategory') &&
+                                form.get('categories')?.touched
+                            "
+                            class="mt-2 text-sm text-red-600"
+                        >
+                            Please select exactly one category
+                        </p>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- PART 1 -->
+                    <div class="mb-8">
+                        <h3
+                            class="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white"
+                        >
+                            <mat-icon
+                                class="mr-2 text-green-600"
+                                [svgIcon]="'heroicons_solid:information-circle'"
+                            ></mat-icon>
+                            Part 1: Request For
+                            <span class="ml-1 text-red-500">*</span>
+                        </h3>
+
+                        <div
+                            formGroupName="requestFor"
+                            class="mb-6 grid grid-cols-2 gap-6 md:grid-cols-4"
+                        >
+                            <div class="flex h-10 items-center">
+                                <mat-checkbox
+                                    formControlName="addition"
+                                ></mat-checkbox>
+                                <div class="ml-2">Addition</div>
+                            </div>
+                            <div class="flex h-10 items-center">
+                                <mat-checkbox
+                                    formControlName="amendment"
+                                ></mat-checkbox>
+                                <div class="ml-2">Amendment</div>
+                            </div>
+                            <div class="flex h-10 items-center">
+                                <mat-checkbox
+                                    formControlName="deletion"
+                                ></mat-checkbox>
+                                <div class="ml-2">Deletion</div>
+                            </div>
+                            <div class="flex h-10 items-center">
+                                <mat-checkbox
+                                    formControlName="copy"
+                                ></mat-checkbox>
+                                <div class="ml-2">A copy</div>
+                            </div>
+                        </div>
+                        <p
+                            *ngIf="
+                                form
+                                    .get('requestFor')
+                                    ?.hasError('requestForRequired') &&
+                                form.get('requestFor')?.touched
+                            "
+                            class="-mt-4 mb-4 text-sm text-red-600"
+                        >
+                            Please select at least one request type
+                        </p>
+
+                        <div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <mat-form-field class="w-full">
+                                <mat-label>Document Name</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="documentName"
+                                    class="bg-white dark:bg-gray-700"
+                                />
+                            </mat-form-field>
+                            <mat-form-field class="w-full">
+                                <mat-label>Current Revision</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="currentRevision"
+                                    class="bg-white dark:bg-gray-700"
+                                    required
+                                />
+                                <mat-error
+                                    *ngIf="
+                                        form
+                                            .get('currentRevision')
+                                            ?.hasError('required')
+                                    "
+                                >
+                                    Current Revision is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <mat-form-field class="w-full">
+                            <mat-label>Reason and Description</mat-label>
+                            <textarea
+                                matInput
+                                formControlName="reasonDescription"
+                                rows="4"
+                                class="bg-white dark:bg-gray-700"
+                                required
+                            ></textarea>
+                            <mat-error
+                                *ngIf="
+                                    form
+                                        .get('reasonDescription')
+                                        ?.hasError('required')
+                                "
+                            >
+                                Reason and Description is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- <mat-form-field class="w-full">
+                            <mat-label>Purpose of Effective Date</mat-label>
+                            <input matInput formControlName="effectiveDatePurpose" class="bg-white dark:bg-gray-700" />
+                        </mat-form-field> -->
+
+                        <mat-form-field class="w-full">
+                            <mat-label>Purpose of Effective Date</mat-label>
+                            <input
+                                matInput
+                                [matDatepicker]="purposePicker"
+                                formControlName="effectiveDatePurpose"
+                                placeholder="dd/MM/yyyy"
+                                [min]="minimumEffectiveDate"
+                                required
+                            />
+                            <mat-datepicker-toggle
+                                matSuffix
+                                [for]="purposePicker"
+                            ></mat-datepicker-toggle>
+                            <mat-datepicker #purposePicker></mat-datepicker>
+                            <mat-error
+                                *ngIf="
+                                    form
+                                        .get('effectiveDatePurpose')
+                                        ?.hasError('required')
+                                "
+                            >
+                                Purpose of Effective Date is required
+                            </mat-error>
+                            <mat-error
+                                *ngIf="
+                                    form
+                                        .get('effectiveDatePurpose')
+                                        ?.hasError('matDatepickerMin')
+                                "
+                            >
+                                Effective Date must be at least 3 days after the
+                                request date
+                            </mat-error>
+                        </mat-form-field>
+
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <!-- <mat-form-field class="w-full">
+                                <mat-label>Requested by</mat-label>
+                                <mat-select formControlName="requestedBy" class="bg-white dark:bg-gray-700">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="requestedSearchCtrl"
+                                            placeholderLabel="Search person"
+                                            noEntriesFoundLabel="No results">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let user of filteredRequestedUsers" [value]="user.code">
+                                        {{ user.displayLabel }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field> -->
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Requested by</mat-label>
+                                <input
+                                    matInput
+                                    [value]="requestedByDisplayLabel"
+                                    class="bg-gray-100 dark:bg-gray-800"
+                                    readonly
+                                    required
+                                />
+
+                                <mat-error
+                                    *ngIf="
+                                        form
+                                            .get('requestedBy')
+                                            ?.hasError('required') &&
+                                        form.get('requestedBy')?.touched
+                                    "
+                                >
+                                    Please select Requested by
+                                </mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field class="w-full">
+                                <mat-label>Date</mat-label>
+                                <input
+                                    matInput
+                                    [matDatepicker]="reqDatePicker"
+                                    formControlName="requestedDate"
+                                    class="bg-white dark:bg-gray-700"
+                                />
+                                <mat-datepicker-toggle
+                                    matSuffix
+                                    [for]="reqDatePicker"
+                                ></mat-datepicker-toggle>
+                                <mat-datepicker #reqDatePicker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <mat-divider class="my-8"></mat-divider>
+
+                    <!-- Approval and Action Workflow -->
+                    <div class="approval-workflow-section mb-8">
+                        <h3 class="approval-workflow-section__title">
+                            <mat-icon class="approval-workflow-section__icon"
+                                >verified_user</mat-icon
+                            >
+                            Approval and Action Workflow
+                        </h3>
+
+                        <div class="approval-workflow">
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step"
+                                        >2</span
+                                    >
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label"
+                                            >Part 2: Review</span
+                                        >
+                                        <span class="approval-workflow__hint">
+                                            Review Authority for each document
+                                            refer to 6-APPENDIX MTCD-A1: List of
+                                            Controlled Documents - Books
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields">
+                                    <mat-form-field
+                                        class="approval-workflow__field approval-workflow__field--person"
+                                    >
+                                        <mat-label
+                                            >Signed by
+                                            (ISC/HRM/DI/EE/DL)</mat-label
+                                        >
+                                        <mat-select
+                                            formControlName="reviewSignedBy"
+                                            required
+                                        >
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="
+                                                        reviewedSearchCtrl
+                                                    "
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results"
+                                                >
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option
+                                                *ngFor="
+                                                    let user of filteredReviewedUsers
+                                                "
+                                                [value]="user.code"
+                                            >
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error
+                                            *ngIf="
+                                                form
+                                                    .get('reviewSignedBy')
+                                                    ?.hasError('required') &&
+                                                form.get('reviewSignedBy')
+                                                    ?.touched
+                                            "
+                                        >
+                                            Please select Signed by
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step"
+                                        >3</span
+                                    >
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label"
+                                            >Part 3: Ask for Approval</span
+                                        >
+                                        <span class="approval-workflow__hint"
+                                            >(IMR/DI/MD)</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields">
+                                    <mat-form-field
+                                        class="approval-workflow__field approval-workflow__field--person"
+                                    >
+                                        <mat-label
+                                            >Signed by (IMR/DI/MD)</mat-label
+                                        >
+                                        <mat-select
+                                            formControlName="approvalSignedBy"
+                                            required
+                                        >
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="
+                                                        approvedSearchCtrl
+                                                    "
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results"
+                                                >
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option
+                                                *ngFor="
+                                                    let user of filteredApprovedUsers
+                                                "
+                                                [value]="user.code"
+                                            >
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error
+                                            *ngIf="
+                                                form
+                                                    .get('approvalSignedBy')
+                                                    ?.hasError('required') &&
+                                                form.get('approvalSignedBy')
+                                                    ?.touched
+                                            "
+                                        >
+                                            Please select Signed by
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step"
+                                        >4</span
+                                    >
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label"
+                                            >Part 4: Action</span
+                                        >
+                                        <span class="approval-workflow__hint"
+                                            >(IMS/ADM)</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields">
+                                    <mat-form-field
+                                        class="approval-workflow__field approval-workflow__field--person"
+                                    >
+                                        <mat-label
+                                            >Action by (IMS/ADM)</mat-label
+                                        >
+                                        <mat-select
+                                            formControlName="actionBy"
+                                            required
+                                        >
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="
+                                                        actionSearchCtrl
+                                                    "
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results"
+                                                >
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option
+                                                *ngFor="
+                                                    let user of filteredActionUsers
+                                                "
+                                                [value]="user.code"
+                                            >
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error
+                                            *ngIf="
+                                                form
+                                                    .get('actionBy')
+                                                    ?.hasError('required') &&
+                                                form.get('actionBy')?.touched
+                                            "
+                                        >
+                                            Please select Action by
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attached Documents Standard Section -->
+                    <div
+                        class="mb-8 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <div
+                            class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700"
+                        >
+                            <h2
+                                class="flex items-center text-lg font-semibold text-gray-900 dark:text-white"
+                            >
+                                <mat-icon
+                                    class="mr-2 text-blue-600"
+                                    [svgIcon]="'heroicons_solid:document-text'"
+                                ></mat-icon>
+                                Attached Documents
+                                <span class="ml-1 text-red-500">*</span>
+                            </h2>
+                        </div>
+
+                        <div class="p-4">
+                            <h3
+                                class="mb-3 text-base font-medium text-gray-900 dark:text-white"
+                            >
+                                Please attach documents
+                            </h3>
+                            <button
+                                type="button"
+                                mat-stroked-button
+                                (click)="openUploadDialog()"
+                                class="mb-4"
+                            >
+                                <mat-icon
+                                    class="mr-2"
+                                    [svgIcon]="
+                                        'heroicons_outline:cloud-arrow-up'
+                                    "
+                                ></mat-icon>
+                                Upload Document
+                            </button>
+
+                            <div
+                                *ngIf="attachmentsArray?.length"
+                                class="mt-4 space-y-2"
+                            >
+                                <div
+                                    *ngFor="
+                                        let att of attachmentsArray.controls;
+                                        index as i
+                                    "
+                                    class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                                >
+                                    <div
+                                        class="flex min-w-0 flex-1 items-center space-x-3"
+                                    >
+                                        <mat-icon
+                                            class="flex-shrink-0 self-center text-gray-400 dark:text-gray-500"
+                                            [svgIcon]="
+                                                att.value.type === 'file'
+                                                    ? 'heroicons_outline:document-text'
+                                                    : 'heroicons_outline:link'
+                                            "
+                                        >
+                                        </mat-icon>
+
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="truncate text-sm font-medium text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{
+                                                    att.value.file_name ||
+                                                        att.value.file_url ||
+                                                        att.value.name ||
+                                                        att.value.url ||
+                                                        'No file name'
+                                                }}
+                                            </div>
+                                            <div
+                                                *ngIf="
+                                                    attachmentsArray.controls[i]
+                                                        .value.file_size
+                                                "
+                                                class="text-xs text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{
+                                                    (
+                                                        attachmentsArray
+                                                            .controls[i].value
+                                                            .file_size / 1024
+                                                    ).toFixed(2)
+                                                }}
+                                                KB
+                                            </div>
+                                            <div
+                                                *ngIf="
+                                                    attachmentsArray.controls[i]
+                                                        .value.mime_type
+                                                "
+                                                class="text-xs text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{
+                                                    attachmentsArray.controls[i]
+                                                        .value.mime_type
+                                                }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        mat-icon-button
+                                        color="warn"
+                                        (click)="removeAttachment(i)"
+                                        aria-label="Remove document"
+                                    >
+                                        <mat-icon
+                                            [svgIcon]="
+                                                'heroicons_outline:trash'
+                                            "
+                                        ></mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div
+                                *ngIf="!attachmentsArray?.length"
+                                class="mt-2 text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                No documents attached yet
+                            </div>
+                            <div
+                                *ngIf="
+                                    attachmentsArray.hasError('required') &&
+                                    attachmentsArray.touched
+                                "
+                                class="mt-2 text-sm text-red-600"
+                            >
+                                Please attach at least one document
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div
+                        class="flex justify-end space-x-4 border-t border-gray-200 pt-6 dark:border-gray-600"
+                    >
+                        <button
+                            type="button"
+                            mat-stroked-button
+                            (click)="
+                                router.navigate([
+                                    '/controlled-document-request',
+                                ])
+                            "
+                            [disabled]="loading"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            mat-flat-button
+                            color="primary"
+                            class="rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+                            [disabled]="isSubmitting"
+                        >
+                            <span *ngIf="!isSubmitting">Send Request</span>
+                            <span
+                                *ngIf="isSubmitting"
+                                class="flex items-center"
+                            >
+                                <mat-spinner
+                                    diameter="20"
+                                    class="mr-2"
+                                ></mat-spinner>
+                                Sending...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

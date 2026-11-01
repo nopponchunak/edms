@@ -1,0 +1,56 @@
+/* Minimal SCSS - using Tailwind CSS for styling */
+
+// Override Material Design transparency issues
+.mat-mdc-card {
+    background-color: var(--fuse-bg-card) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-form-field {
+    background-color: var(--fuse-bg-card) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-select-panel {
+    background-color: var(--fuse-bg-card) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-checkbox {
+    background-color: transparent !important;
+}
+
+.mat-mdc-radio-button {
+    background-color: transparent !important;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: flex-start;
+    min-height: 2.5rem;
+}
+
+.checkbox-option__control {
+    display: block;
+    width: 100%;
+}
+
+// Fix button transparency
+.mat-mdc-button {
+    background-color: var(--fuse-bg-card) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-flat-button {
+    background-color: var(--fuse-bg-primary) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+
+
+

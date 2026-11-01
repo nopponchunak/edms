@@ -1,0 +1,227 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    Supplier List
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    Manage Supplier master data for use in various forms
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <input #supplierImportInput type="file" class="hidden" accept=".xlsx,.xls"
+                    (change)="onImportFileSelected($event)" />
+
+                <button mat-stroked-button type="button"
+                    class="px-5 py-2 border-emerald-200 text-emerald-700 rounded-lg flex items-center gap-2"
+                    [disabled]="isImporting || isExporting" (click)="onExportExcel()">
+                    <mat-icon [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                    {{ isExporting ? 'Exporting...' : 'Export Excel' }}
+                </button>
+
+                <button mat-stroked-button type="button"
+                    class="px-5 py-2 border-blue-200 text-blue-700 rounded-lg flex items-center gap-2"
+                    [disabled]="isImporting || isExporting" (click)="supplierImportInput.click()">
+                    <mat-icon [svgIcon]="'heroicons_outline:arrow-up-tray'"></mat-icon>
+                    {{ isImporting ? 'Importing...' : 'Import Excel' }}
+                </button>
+
+                <button mat-flat-button color="primary"
+                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm flex items-center gap-2"
+                    [disabled]="isImporting || isExporting" (click)="onCreate()">
+                    <mat-icon class="text-white" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                    Add Supplier
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+            [dismissible]="'true'" (dismissed)="alert = null" class="mt-4 mb-4">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Filter / Search card -->
+        <mat-card class="mb-6">
+            <mat-card-content class="p-4">
+                <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <mat-form-field appearance="outline" class="w-full sm:max-w-xs">
+                        <mat-label>Search Suppliers</mat-label>
+                        <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onSearch()"
+                            placeholder="Search by name, type, email, or phone" />
+                        <button *ngIf="searchTerm" matSuffix mat-icon-button type="button" (click)="clearSearch()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                        <button matSuffix mat-icon-button type="button" (click)="onSearch()">
+                            <mat-icon>search</mat-icon>
+                        </button>
+                    </mat-form-field>
+
+                    <div *ngIf="isImporting" class="flex items-center gap-3 text-sm text-blue-700">
+                        <mat-progress-spinner mode="determinate" [value]="importProgressPercent" diameter="24">
+                        </mat-progress-spinner>
+                        <span>Importing {{ importProgress }} / {{ importTotal }} suppliers</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- CONTENT CARD + TABLE -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border
+                   border-gray-200 dark:border-gray-700">
+            <!-- Title -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    Supplier List
+                </h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Data from Supplier API. Use Import Excel for approved supplier lists.
+                </p>
+            </div>
+
+            <div class="p-0">
+                <!-- Loading -->
+                <div class="flex items-center justify-center py-8" *ngIf="isLoading">
+                    <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+                </div>
+
+                <!-- Empty state -->
+                <div *ngIf="!isLoading && items.length === 0"
+                    class="flex flex-col items-center justify-center py-10 text-center text-gray-500">
+                    <mat-icon class="mb-2 text-4xl text-gray-400"
+                        [svgIcon]="'heroicons_outline:building-office-2'"></mat-icon>
+                    <div class="font-medium">No Supplier data available</div>
+                    <div class="text-sm">
+                        Click "Add Supplier" button to create a new entry
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div *ngIf="!isLoading && items.length > 0" class="overflow-x-auto">
+                    <table appListTableSort appListTableServerSort [appListTableSortState]="listSort" (listSortChange)="onListSortChange($event)" mat-table [dataSource]="items" class="mat-elevation-z0 min-w-full">
+                        <!-- No -->
+                        <ng-container matColumnDef="No">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                #
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.No }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Supplier Type -->
+                        <ng-container matColumnDef="supplier_type">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Supplier Type
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.supplier_type || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Supplier Name -->
+                        <ng-container matColumnDef="supplier_name">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Supplier Name
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                <span class="font-medium">{{ item.supplier_name }}</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Status -->
+                        <ng-container matColumnDef="status">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Status
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                    [ngClass]="getStatusBadgeClass(item.status)">
+                                    {{ item.status || '-' }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Address -->
+                        <ng-container matColumnDef="address">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Address
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.address || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Phone -->
+                        <ng-container matColumnDef="phone">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Phone
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.phone || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Email -->
+                        <ng-container matColumnDef="email">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Email
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.email || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Contact Person -->
+                        <ng-container matColumnDef="contact_person">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Contact Person
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.contact_person || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Created at -->
+                        <ng-container matColumnDef="created_at">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Created At
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.created_at || '-' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Action -->
+                        <ng-container matColumnDef="action">
+                            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-right">
+                                Actions
+                            </th>
+                            <td mat-cell *matCellDef="let item" class="text-right">
+                                <button mat-icon-button (click)="onEdit(item)" class="mr-2" matTooltip="Edit">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="onDelete(item)" matTooltip="Delete">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    </table>
+                </div>
+
+                <!-- Paginator -->
+                <div class="px-4 pb-4" *ngIf="!isLoading && items.length > 0">
+                    <mat-paginator [length]="totalRecords" [pageIndex]="pageIndex" [pageSize]="pageSize"
+                        [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)">
+                    </mat-paginator>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

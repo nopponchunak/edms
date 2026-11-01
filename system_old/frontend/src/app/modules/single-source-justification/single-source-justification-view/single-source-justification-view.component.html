@@ -1,0 +1,392 @@
+<div class="h-full bg-gray-50 dark:bg-gray-950">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+
+    <div class="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 uppercase">
+          SINGLE SOURCE / PRICE JUSTIFICATION
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          View justification and approval workflow
+        </p>
+      </div>
+      <div class="flex flex-col items-end gap-3">
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+          Form Single Source
+        </span>
+        <app-view-actions
+          [backPath]="'/single-source-justification'"
+          [navId]="'single-source-justification'"
+          (print)="onPrint()"
+          (edit)="onEdit()"
+        ></app-view-actions>
+      </div>
+    </div>
+
+    <fuse-alert
+      class="mb-6"
+      *ngIf="alert"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null"
+    >
+      {{ alert.message }}
+    </fuse-alert>
+
+    <div *ngIf="isLoading" class="flex justify-center items-center py-16">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading && justification" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Left Column: Details -->
+        <div class="lg:col-span-2 space-y-6">
+      <!-- Card: Basic info -->
+      <!-- Unified Justification Form Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <mat-icon class="text-blue-600 dark:text-blue-400" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Justification Form</h2>
+          </div>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            Created {{ formatDate(justification.createdAt) }} · {{ getEmployeeLabel(justification.createBy) }}
+          </span>
+        </div>
+        
+        <div class="p-6 space-y-6">
+          <!-- 1. Sub-Consultant / Supplier Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sub-Consultant / Supplier Name (ADM / Purchase)</label>
+            <p class="text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ justification.subConsultantSupplierName || '-' }}</p>
+          </div>
+
+          <!-- 2. Item(s) Supplied -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item(s) Supplied (ADM / Purchase)</label>
+            <p class="text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ getItemSuppliedLabel(justification.itemsSupplied) || '-' }}</p>
+          </div>
+
+          <mat-divider class="opacity-50"></mat-divider>
+
+          <!-- 3. Justification Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Justification Type (ADM / Purchase)</label>
+            <div class="flex flex-wrap gap-x-8 gap-y-2 mt-1">
+              <div class="document-check-row">
+                <span class="document-check-box">
+                  {{ (justification.justificationType === 'single_source' || justification.justificationType === 'single-source') ? '✓' : '' }}
+                </span>
+                <span class="text-sm text-gray-900 dark:text-white">Single Source Justification</span>
+              </div>
+              <div class="document-check-row">
+                <span class="document-check-box">
+                  {{ (justification.justificationType === 'price_justification' || justification.justificationType === 'price-justification') ? '✓' : '' }}
+                </span>
+                <span class="text-sm text-gray-900 dark:text-white">Price Justification</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Circumstances -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Circumstances leading to the selection ... (ADM / Purchase):</label>
+            <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ justification.circumstances || '-' }}</p>
+          </div>
+
+          <!-- 5. Any alternatives considered? -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Any alternatives considered? (ADM / Purchase)</label>
+            <div class="flex items-center gap-6 mt-1">
+              <div class="document-check-row">
+                <span class="document-check-box">
+                  {{ justification.alternativesConsidered > 0 ? '✓' : '' }}
+                </span>
+                <span class="text-sm text-gray-900 dark:text-white">Yes</span>
+              </div>
+              <div class="document-check-row">
+                <span class="document-check-box">
+                  {{ justification.alternativesConsidered === 0 ? '✓' : '' }}
+                </span>
+                <span class="text-sm text-gray-900 dark:text-white">No</span>
+              </div>
+            </div>
+            <!-- 6. Reason for no alternatives -->
+            <div *ngIf="justification.alternativesConsidered === 0" class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for no alternatives (ADM / Purchase)</label>
+              <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ justification.alternativesReason || '-' }}</p>
+            </div>
+          </div>
+
+          <mat-divider class="opacity-50"></mat-divider>
+
+          <!-- 7. Comments -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comments (ADM / Purchase)</label>
+            <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ justification.comments || '-' }}</p>
+          </div>
+
+          <!-- 8. Rationale -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rationale for selecting the Sub-Consultant / Supplier (ADM / Purchase)</label>
+            <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ justification.rationale || '-' }}</p>
+          </div>
+
+          <mat-divider class="opacity-50"></mat-divider>
+
+          <!-- 10. Corresponding PO# if approved -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Corresponding PO# if approved (ADM / Purchase)</label>
+            <p class="text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">{{ justification.correspondingPO || '-' }}</p>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <div class="space-y-6">
+            <section class="workflow-part">
+              <div class="space-y-2">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-tight">Verification</h3>
+                </div>
+
+                <div>
+                  <label class="block text-[12px] font-medium text-slate-500 dark:text-slate-300 mb-2">Verification Comments</label>
+                  <div class="action-comment-box text-[13px] whitespace-pre-wrap min-h-[2.5rem] leading-6">
+                    {{ justification.verifyByComment || '-' }}
+                  </div>
+                </div>
+
+                <div class="signed-by-block">
+                  <span class="signed-by-label">Comments By</span>
+                  <span class="signed-by-value">{{ getEmployeeLabel(justification.verifyBy) }}</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="workflow-part border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div class="space-y-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-tight">Approval</h3>
+                </div>
+
+                <div>
+                  <label class="block text-[12px] font-medium text-slate-500 dark:text-slate-300 mb-2">Approval Comments</label>
+                  <div class="action-comment-box text-[13px] whitespace-pre-wrap min-h-[2.5rem] leading-6">
+                    {{ justification.approvedByComments || '-' }}
+                  </div>
+                </div>
+
+                <div class="signed-by-block">
+                  <span class="signed-by-label">Comments By</span>
+                  <span class="signed-by-value">{{ getEmployeeLabel(justification.approvedBy) }}</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="workflow-part border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div class="space-y-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-tight">Acknowledgement</h3>
+                </div>
+
+                <div>
+                  <label class="block text-[12px] font-medium text-slate-500 dark:text-slate-300 mb-2">Acknowledgement Comments</label>
+                  <div class="action-comment-box text-[13px] whitespace-pre-wrap min-h-[2.5rem] leading-6">
+                    {{ justification.acknowledgedByComments || '-' }}
+                  </div>
+                </div>
+
+                <div class="signed-by-block">
+                  <span class="signed-by-label">Comments By</span>
+                  <span class="signed-by-value">{{ getEmployeeLabel(justification.acknowledgedBy) }}</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div *ngIf="justification.updateBy" class="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+            <span class="text-xs text-gray-400">
+              Last updated by {{ getEmployeeLabel(justification.updateBy) }} on {{ formatDate(justification.updatedAt) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+        </div> <!-- Left Column -->
+
+        <!-- Right Column: Status -->
+        <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+            <!-- Card: Approval Workflow -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+            Approval Workflow
+        </h2>
+
+        <div class="space-y-4">
+            <!-- Assessed By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                        <mat-icon class="text-sm">person</mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Assessed by (ADM / Purchase): <strong>{{ getEmployeeLabel(justification.assessedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(justification.assessedByDate) }}
+                    </p>
+                    <div class="mt-2">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                            [class]="getByStatusColor(justification.assessedByStatus)">
+                        {{ getByStatusText(justification.assessedByStatus) }}
+                      </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verified By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(justification.verifyByStatus)">
+                        <mat-icon class="text-sm">fact_check</mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Verified by: <strong>{{ getEmployeeLabel(justification.verifyBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(justification.verifyByDate) }}
+                    </p>
+                    <div class="mt-2">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                            [class]="getByStatusColor(justification.verifyByStatus)">
+                        {{ getByStatusText(justification.verifyByStatus) }}
+                      </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(justification.approvedByStatus)">
+                        <mat-icon [class]="getByStatusColor(justification.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(justification.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-sm">
+                            {{ (justification.approvedByStatus || '').toLowerCase() === 'approve' || (justification.approvedByStatus || '').toLowerCase() === 'approved' ? 'check' : (justification.approvedByStatus || '').toLowerCase() === 'reject' || (justification.approvedByStatus || '').toLowerCase() === 'rejected' ? 'close' : 'schedule' }}
+                        </mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Approved by (DI / MD): <strong>{{ getEmployeeLabel(justification.approvedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(justification.approvedByDate) }}
+                    </p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Status:
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                              [class]="getByStatusColor(justification.approvedByStatus)">
+                            {{ getByStatusText(justification.approvedByStatus) }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(justification.acknowledgedByStatus)">
+                        <mat-icon [class]="getByStatusColor(justification.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(justification.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-sm">
+                            {{ (justification.acknowledgedByStatus || '').toLowerCase() === 'approve' || (justification.acknowledgedByStatus || '').toLowerCase() === 'approved' ? 'check' : (justification.acknowledgedByStatus || '').toLowerCase() === 'reject' || (justification.acknowledgedByStatus || '').toLowerCase() === 'rejected' ? 'close' : 'schedule' }}
+                        </mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Acknowledged by (IMR): <strong>{{ getEmployeeLabel(justification.acknowledgedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(justification.acknowledgedByDate) }}
+                    </p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Status:
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                              [class]="getByStatusColor(justification.acknowledgedByStatus)">
+                            {{ getByStatusText(justification.acknowledgedByStatus) }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Attached Documents Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+            Attached Documents
+        </h2>
+
+        <div *ngIf="justification.attachments?.length; else noAttachments" class="space-y-4">
+          <div
+            *ngFor="let path of justification.attachments"
+            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700"
+          >
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                  <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-gray-900 dark:text-white block truncate">{{ path.split('/').pop() || path }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">File</span>
+              </div>
+            </div>
+            <a
+              mat-stroked-button
+              color="primary"
+              [href]="getAttachmentUrl(path)"
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              class="shrink-0 text-xs"
+            >
+              <mat-icon class="mr-1" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+              Download
+            </a>
+          </div>
+        </div>
+
+        <ng-template #noAttachments>
+          <p class="text-sm text-gray-500 dark:text-gray-400">No documents attached.</p>
+        </ng-template>
+      </div>
+      </div> <!-- Right Column -->
+    </div>
+
+    <!-- Not found -->
+    <div *ngIf="!isLoading && !justification" class="text-center py-16">
+      <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Justification not found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">The requested justification could not be found.</p>
+      <button mat-flat-button color="primary" (click)="onBack()" class="flex items-center mx-auto">
+        <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        Back to list
+      </button>
+    </div>
+  </div>
+</div>

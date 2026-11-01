@@ -1,0 +1,229 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <button 
+            (click)="onBack()" 
+            class="mr-4 p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h1 class="text-xl font-semibold text-gray-900">
+            {{ isEditMode ? 'Edit Profile' : 'Create Profile' }}
+          </h1>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button 
+            (click)="onCancel()" 
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Cancel
+          </button>
+          <button 
+            (click)="onSubmit()" 
+            [disabled]="form.invalid"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ isEditMode ? 'Update Profile' : 'Create Profile' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <form [formGroup]="form" class="space-y-8">
+      
+      <!-- Personal Information -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-blue-600">person</mat-icon>
+          <h2 class="text-lg font-semibold text-gray-900">Personal Information</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>First Name *</mat-label>
+            <input matInput formControlName="firstName" placeholder="Enter first name">
+            <mat-error *ngIf="form.get('firstName')?.hasError('required')">
+              First name is required
+            </mat-error>
+            <mat-error *ngIf="form.get('firstName')?.hasError('minlength')">
+              First name must be at least 2 characters
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Last Name *</mat-label>
+            <input matInput formControlName="lastName" placeholder="Enter last name">
+            <mat-error *ngIf="form.get('lastName')?.hasError('required')">
+              Last name is required
+            </mat-error>
+            <mat-error *ngIf="form.get('lastName')?.hasError('minlength')">
+              Last name must be at least 2 characters
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Email *</mat-label>
+            <input matInput formControlName="email" type="email" placeholder="Enter email address">
+            <mat-error *ngIf="form.get('email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">
+              Please enter a valid email address
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Phone *</mat-label>
+            <input matInput formControlName="phone" placeholder="Enter phone number">
+            <mat-error *ngIf="form.get('phone')?.hasError('required')">
+              Phone number is required
+            </mat-error>
+            <mat-error *ngIf="form.get('phone')?.hasError('pattern')">
+              Please enter a valid phone number
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date of Birth</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="dateOfBirth">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Address</mat-label>
+            <textarea matInput formControlName="address" rows="3" placeholder="Enter address"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card>
+
+      <!-- Professional Information -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-green-600">work</mat-icon>
+          <h2 class="text-lg font-semibold text-gray-900">Professional Information</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Employee ID *</mat-label>
+            <input matInput formControlName="employeeId" placeholder="Enter employee ID">
+            <mat-error *ngIf="form.get('employeeId')?.hasError('required')">
+              Employee ID is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Department *</mat-label>
+            <mat-select formControlName="department">
+              <mat-option *ngFor="let dept of departments" [value]="dept">
+                {{ dept }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('department')?.hasError('required')">
+              Department is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Position *</mat-label>
+            <mat-select formControlName="position">
+              <mat-option *ngFor="let pos of positions" [value]="pos">
+                {{ pos }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('position')?.hasError('required')">
+              Position is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Location *</mat-label>
+            <mat-select formControlName="location">
+              <mat-option *ngFor="let loc of locations" [value]="loc">
+                {{ loc }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('location')?.hasError('required')">
+              Location is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Start Date *</mat-label>
+            <input matInput [matDatepicker]="startDatePicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #startDatePicker></mat-datepicker>
+            <mat-error *ngIf="form.get('startDate')?.hasError('required')">
+              Start date is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Manager</mat-label>
+            <input matInput formControlName="manager" placeholder="Enter manager name">
+          </mat-form-field>
+        </div>
+      </mat-card>
+
+      <!-- Emergency Contact -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-red-600">emergency</mat-icon>
+          <h2 class="text-lg font-semibold text-gray-900">Emergency Contact</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Contact Name</mat-label>
+            <input matInput formControlName="emergencyContactName" placeholder="Enter contact name">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Contact Phone</mat-label>
+            <input matInput formControlName="emergencyContactPhone" placeholder="Enter phone number">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Relationship</mat-label>
+            <input matInput formControlName="emergencyContactRelation" placeholder="e.g., Spouse, Parent">
+          </mat-form-field>
+        </div>
+      </mat-card>
+
+      <!-- Additional Information -->
+      <mat-card class="p-6">
+        <div class="flex items-center mb-6">
+          <mat-icon class="mr-3 text-purple-600">info</mat-icon>
+          <h2 class="text-lg font-semibold text-gray-900">Additional Information</h2>
+        </div>
+        
+        <div class="space-y-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Bio</mat-label>
+            <textarea matInput formControlName="bio" rows="4" placeholder="Tell us about yourself"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Skills</mat-label>
+            <textarea matInput formControlName="skills" rows="3" placeholder="List your skills (comma separated)"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Certifications</mat-label>
+            <textarea matInput formControlName="certifications" rows="3" placeholder="List your certifications"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="3" placeholder="Additional notes"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card>
+
+    </form>
+  </div>
+</div>

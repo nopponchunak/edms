@@ -1,0 +1,16 @@
+// Styles for purchase forms filter component
+// Additional custom styles can be added here if needed
+
+:host {
+  display: block;
+}
+
+.filter-panel-card {
+  border-radius: 0;
+  box-shadow: none !important;
+  margin: 0;
+
+  .mat-mdc-card-content {
+    padding: 0 !important;
+  }
+}

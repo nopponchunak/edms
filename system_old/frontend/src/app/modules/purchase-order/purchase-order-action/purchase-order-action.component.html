@@ -1,0 +1,697 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ getActionTitle() }}
+          </h1>
+          <p class="text-base text-gray-600 mt-1">
+            {{ getActionDescription() }}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="onPreview()"
+            [disabled]="loading || !purchaseOrderId"
+            class="!h-10 !rounded-full !border-slate-200 !px-4 !text-slate-700 hover:!bg-slate-50 disabled:!opacity-60"
+          >
+            <mat-icon
+              class="icon-size-5 mr-2"
+              [svgIcon]="'heroicons_outline:printer'"
+            ></mat-icon>
+            <span class="font-medium">Preview</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="router.navigate(['/purchase-order'])"
+            class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          >
+            <mat-icon class="mr-2">arrow_back</mat-icon>
+            Back to List
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !purchaseOrder" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- DOCUMENT VIEW -->
+    <div *ngIf="purchaseOrder && poDocument" class="max-w-7xl mx-auto grid grid-cols-1 gap-6 items-start lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <!-- Left Column: Details (2/3) -->
+      <div class="space-y-4 lg:min-w-0">
+        <!-- PURCHASE ORDER DOCUMENT -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <!-- Header bar -->
+          <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+              Purchase Order Details
+            </h2>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+              PO No: {{ poDocument.poInfo.poNo || 'Pending' }}
+            </span>
+          </div>
+
+          <div class="p-4">
+            <div class="space-y-3">
+              <!-- Purchase Order Details / Header Information -->
+              <section class="rounded-xl border border-blue-200 bg-blue-50/80 p-3 dark:border-blue-900/40 dark:bg-blue-950/20">
+                <div class="flex items-center gap-2 mb-2.5">
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white text-blue-600 shadow-sm dark:bg-gray-900/70">
+                    <mat-icon svgIcon="heroicons_outline:document-text" class="text-base"></mat-icon>
+                  </span>
+                  <div>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                      Purchase Order Details
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      Header Information
+                    </p>
+                  </div>
+                </div>
+
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-0 rounded-lg border border-blue-100 bg-white/55 px-3 py-1 dark:border-blue-900/40 dark:bg-gray-900/35">
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">To</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.header.to || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">PO. No.</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.poInfo.poNo || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Company</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.header.company || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">PO. Date</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.poInfo.poDate || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Tel, Fax No & Email</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.header.fax || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Requisition Date</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.poInfo.requisitionDate || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">From</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.header.from || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Circ</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ getEmployeeLabel(poDocument.poInfo.circ) }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 border-b border-blue-100/80 py-1.5 dark:border-blue-900/40">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">CC</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.header.cc || '-' }}
+                    </dd>
+                  </div>
+
+                  <div class="grid grid-cols-[8.75rem_minmax(0,1fr)] gap-3 py-1.5">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Tax ID. No.</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.taxId || '-' }}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <!-- Items -->
+              <section class="rounded-xl border border-yellow-200 bg-yellow-50/70 p-4 dark:border-yellow-900/40 dark:bg-yellow-950/10">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white text-amber-600 shadow-sm dark:bg-gray-900/70 dark:text-amber-300">
+                      <mat-icon svgIcon="heroicons_outline:list-bullet" class="text-base"></mat-icon>
+                    </span>
+                    <div>
+                      <h3 class="text-base font-semibold text-gray-900 dark:text-white">Items</h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ poDocument.items?.length || 0 }} item(s)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <ng-container *ngIf="poDocument.items?.length; else emptyItems">
+                  <div class="overflow-x-auto border border-gray-200 rounded-lg bg-white dark:border-gray-700 dark:bg-gray-900">
+                    <table class="min-w-full table-fixed text-sm">
+                      <thead class="bg-slate-50 dark:bg-gray-800">
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 w-14">No.</th>
+                          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 md:w-16 md:min-w-[4rem] md:max-w-[4rem] dark:text-gray-300">Item</th>
+                          <th class="hidden md:table-cell px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Description</th>
+                          <th *ngIf="hasAssetCodeItems(poDocument.items)" class="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 w-36">Asset Code</th>
+                          <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-20">Qty</th>
+                          <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-32">Unit Price</th>
+                          <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-32">Amount</th>
+                        </tr>
+                      </thead>
+
+                      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr
+                          *ngFor="let item of poDocument.items; let i = index"
+                          class="odd:bg-white even:bg-slate-50/60 hover:bg-blue-50/40 transition-colors dark:odd:bg-gray-900 dark:even:bg-gray-800/60 dark:hover:bg-blue-950/20"
+                        >
+                          <td class="px-3 py-2">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold tabular-nums dark:bg-gray-800 dark:text-gray-300">
+                              {{ i + 1 }}
+                            </span>
+                          </td>
+                          <td class="px-3 py-2 text-gray-900 md:w-16 md:min-w-[4rem] md:max-w-[4rem] dark:text-gray-100">
+                            <div class="font-medium leading-5">
+                              {{ item.name }}
+                            </div>
+                            <div class="mt-0.5 text-xs text-gray-500 md:hidden leading-4">
+                              {{ item.description || '-' }}
+                            </div>
+                            <div *ngIf="hasAssetCodeItems(poDocument.items)" class="mt-0.5 text-xs text-gray-500 md:hidden leading-4">
+                              Asset Code: {{ item.needAssetCodeRegistration ? (item.assetCode || '-') : '-' }}
+                            </div>
+                          </td>
+
+                          <td class="hidden md:table-cell px-3 py-2 text-gray-900 dark:text-gray-100">
+                            <div class="max-w-[560px] whitespace-pre-line">
+                              {{ item.description || '-' }}
+                            </div>
+                          </td>
+
+                          <td *ngIf="hasAssetCodeItems(poDocument.items)" class="px-3 py-2 text-gray-900 dark:text-gray-100">
+                            {{ item.needAssetCodeRegistration ? (item.assetCode || '-') : '-' }}
+                          </td>
+
+                          <td class="px-3 py-2 text-right text-gray-700 tabular-nums dark:text-gray-300">
+                            {{ item.qty }}
+                          </td>
+
+                          <td class="px-3 py-2 text-right text-gray-700 tabular-nums whitespace-nowrap dark:text-gray-300">
+                            {{ formatCurrency(item.unitPrice) }}
+                          </td>
+
+                          <td class="px-3 py-2 text-right font-semibold text-gray-900 tabular-nums whitespace-nowrap dark:text-gray-100">
+                            {{ formatCurrency(item.amount) }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="mt-3 grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                    <div class="lg:col-span-7 text-xs text-gray-500 dark:text-gray-400">
+                      Prices are shown in the document currency. VAT is calculated at 7%.
+                    </div>
+
+                    <div class="lg:col-span-5">
+                      <div class="border border-gray-200 rounded-lg bg-slate-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-300">
+                          <span>Summary</span>
+                          <span class="tabular-nums">{{ poDocument.items?.length || 0 }} item(s)</span>
+                        </div>
+
+                        <div class="mt-2 space-y-1.5 text-sm">
+                          <div class="flex items-center justify-between">
+                            <span class="text-gray-600 dark:text-gray-300">Discount</span>
+                            <span class="text-red-600 tabular-nums dark:text-red-300">{{ formatCurrency(poDocument.totals.discount) }}</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-gray-600 dark:text-gray-300">Sub-total</span>
+                            <span class="text-gray-900 tabular-nums dark:text-gray-100">{{ formatCurrency(poDocument.totals.subTotal) }}</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                            <span class="text-gray-600 dark:text-gray-300">VAT (7%)</span>
+                            <span class="text-gray-900 tabular-nums dark:text-gray-100">{{ formatCurrency(poDocument.totals.vat) }}</span>
+                          </div>
+
+                          <div class="pt-2 mt-2 border-t border-gray-200 flex items-center justify-between dark:border-gray-700">
+                            <span class="text-gray-900 font-semibold dark:text-white">Grand total</span>
+                            <span class="text-gray-900 font-semibold tabular-nums dark:text-white">{{ formatCurrency(poDocument.totals.grandTotal) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #emptyItems>
+                  <div class="border border-dashed border-gray-300 rounded-lg bg-white px-4 py-6 text-center dark:border-gray-700 dark:bg-gray-900">
+                    <mat-icon svgIcon="heroicons_outline:inbox" class="text-gray-400 text-3xl"></mat-icon>
+                    <p class="mt-2 text-sm text-gray-500">No items in this purchase order</p>
+                  </div>
+                </ng-template>
+              </section>
+
+              <app-purchase-order-pr-pdf-card
+                [pdfItems]="purchaseRequisitionPdfLinks"
+                [selectedPdf]="selectedPurchaseRequisitionPdf"
+                [selectedPdfResourceUrl]="selectedPurchaseRequisitionPdfResourceUrl"
+                (viewPdf)="selectPurchaseRequisitionPdf($event)"
+                (closePdf)="clearSelectedPurchaseRequisitionPdf()"
+              ></app-purchase-order-pr-pdf-card>
+
+              <!-- Attached Documents -->
+              <section class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-300">
+                      <mat-icon svgIcon="heroicons_outline:paper-clip" class="text-base"></mat-icon>
+                    </span>
+                    <div>
+                      <h3 class="text-base font-semibold text-gray-900 dark:text-white">Attached Documents</h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ attachmentLinks.length || 0 }} file(s)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-slate-50 dark:bg-gray-800">
+                      <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">File</th>
+                        <th class="hidden sm:table-cell px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 w-24">Type</th>
+                        <th class="hidden sm:table-cell px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-28">Size</th>
+                        <th class="px-3 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 w-28">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                      <tr
+                        *ngFor="let doc of attachmentLinks"
+                        class="odd:bg-white even:bg-slate-50/60 dark:odd:bg-gray-900 dark:even:bg-gray-800/60"
+                        [ngClass]="isAttachmentSelected(doc) ? 'ring-1 ring-inset ring-blue-200 dark:ring-blue-800' : ''"
+                      >
+                        <td class="px-3 py-2">
+                          <div class="flex min-w-0 items-center gap-2">
+                            <mat-icon class="flex-shrink-0 text-base text-teal-500" [svgIcon]="getAttachmentIcon(doc)"></mat-icon>
+                            <div class="min-w-0">
+                              <button
+                                type="button"
+                                (click)="selectAttachment(doc)"
+                                class="block max-w-full truncate text-left text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+                              >
+                                {{ doc.fileName }}
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-xs text-gray-600 dark:text-gray-300">
+                          {{ getAttachmentTypeLabel(doc) }}
+                        </td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-right text-xs text-gray-600 tabular-nums dark:text-gray-300">
+                          {{ doc.fileSize || '-' }}
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                          <button
+                            type="button"
+                            (click)="selectAttachment(doc)"
+                            mat-stroked-button
+                            color="primary"
+                            class="text-xs"
+                          >
+                            {{ isAttachmentSelected(doc) ? 'Viewing' : 'View' }}
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="!attachmentLinks.length">
+                        <td colspan="4" class="px-3 py-5 text-center text-sm text-gray-500 dark:text-gray-400">
+                          No documents attached.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div
+                  *ngIf="selectedAttachment as attachment"
+                  class="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-slate-50 dark:border-gray-700 dark:bg-gray-900"
+                >
+                  <div class="flex flex-col gap-3 border-b border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-300">
+                        <mat-icon class="text-base" [svgIcon]="getAttachmentIcon(attachment)"></mat-icon>
+                      </span>
+                      <div class="min-w-0">
+                        <h4 class="truncate text-sm font-semibold text-gray-900 dark:text-white">
+                          {{ attachment.fileName }}
+                        </h4>
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                          {{ getAttachmentTypeLabel(attachment) }}<span *ngIf="attachment.fileSize"> · {{ attachment.fileSize }}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="clearSelectedAttachment()"
+                      aria-label="Close document preview"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+
+                  <ng-container [ngSwitch]="getAttachmentPreviewType(attachment)">
+                    <div *ngSwitchCase="'pdf'" class="h-[640px] min-h-[420px] bg-gray-100 dark:bg-gray-950">
+                      <iframe
+                        *ngIf="selectedAttachmentResourceUrl"
+                        class="h-full w-full"
+                        [src]="selectedAttachmentResourceUrl"
+                        [attr.title]="attachment.fileName"
+                      ></iframe>
+                    </div>
+
+                    <div *ngSwitchCase="'image'" class="flex justify-center bg-gray-100 p-4 dark:bg-gray-950">
+                      <img
+                        class="max-h-[640px] w-full object-contain"
+                        [src]="attachment.href"
+                        [alt]="attachment.fileName"
+                      />
+                    </div>
+
+                    <div *ngSwitchDefault class="flex flex-col items-center justify-center gap-3 px-4 py-10 text-center">
+                      <mat-icon class="text-4xl text-gray-400" [svgIcon]="getAttachmentIcon(attachment)"></mat-icon>
+                      <div>
+                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+                          Preview not available
+                        </h4>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                          Inline preview supports PDF and image files.
+                        </p>
+                      </div>
+                      <a
+                        [href]="attachment.href"
+                        download
+                        mat-stroked-button
+                        color="primary"
+                      >
+                        Download file
+                      </a>
+                    </div>
+                  </ng-container>
+                </div>
+              </section>
+
+              <!-- General Information -->
+              <section class="rounded-xl border border-gray-200 bg-transparent p-4 dark:border-gray-700">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 text-gray-600 shadow-sm dark:bg-gray-900/70 dark:text-gray-300">
+                    <mat-icon svgIcon="heroicons_outline:information-circle" class="text-base"></mat-icon>
+                  </span>
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                    General Information
+                  </h3>
+                </div>
+
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-0 rounded-lg border border-gray-200 bg-white px-3 py-1 shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+                  <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-gray-100 py-1.5 dark:border-gray-700">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Quotation No.</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.general.quotationNo || '-' }}
+                    </dd>
+                  </div>
+                  <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-gray-100 py-1.5 dark:border-gray-700">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Quotation Date</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.general.quotationDate || '-' }}
+                    </dd>
+                  </div>
+                  <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-gray-100 py-1.5 dark:border-gray-700">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Delivery Date</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.general.deliveryDate || '-' }}
+                    </dd>
+                  </div>
+                  <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 border-b border-gray-100 py-1.5 dark:border-gray-700">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Payment Term</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words dark:text-gray-100">
+                      {{ poDocument.general.paymentTerm || defaultPaymentTerm }}
+                    </dd>
+                  </div>
+                  <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] gap-3 py-1.5 md:col-span-2">
+                    <dt class="text-xs font-semibold text-gray-600 dark:text-gray-300">Other conditions</dt>
+                    <dd class="min-w-0 text-sm font-medium text-gray-900 break-words whitespace-pre-line dark:text-gray-100">
+                      {{ poDocument.general.otherConditions || '-' }}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <!-- Display review from Signed phase if we are in Acknowledge phase -->
+              <ng-container *ngIf="actionType === 'acknowledged_by_status'">
+                <section class="rounded-xl border border-gray-200 bg-transparent p-4 dark:border-gray-700">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 text-gray-600 shadow-sm dark:bg-gray-900/70 dark:text-gray-300">
+                      <mat-icon svgIcon="heroicons_outline:check-circle" class="text-base"></mat-icon>
+                    </span>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                      Review Results (from Signee)
+                    </h3>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <div class="rounded-lg border p-3" [class]="getChecklistColor(poDocument.checklist.deliveryOnTime)">
+                      <div class="text-xs font-semibold uppercase text-gray-600 mb-1">Delivery on time?</div>
+                      <div class="text-sm font-semibold">{{ getChecklistText(poDocument.checklist.deliveryOnTime) }}</div>
+                    </div>
+                    <div class="rounded-lg border p-3" [class]="getChecklistColor(poDocument.checklist.meetQualityRequirement)">
+                      <div class="text-xs font-semibold uppercase text-gray-600 mb-1">Quality OK?</div>
+                      <div class="text-sm font-semibold">{{ getChecklistText(poDocument.checklist.meetQualityRequirement) }}</div>
+                    </div>
+                    <div class="rounded-lg border p-3" [class]="getChecklistColor(poDocument.checklist.meetGuidelinesForEquipment)">
+                      <div class="text-xs font-semibold uppercase text-gray-600 mb-1">Guidelines OK?</div>
+                      <div class="text-sm font-semibold">{{ getChecklistText(poDocument.checklist.meetGuidelinesForEquipment) }}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Signee Comments</div>
+                    <div class="border border-gray-200 rounded-lg bg-white px-3 py-2 text-sm text-gray-900 min-h-16 shadow-sm whitespace-pre-line dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                      {{ poDocument.comments.main || 'No comments' }}
+                    </div>
+                  </div>
+                </section>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="po-workflow-sidebar space-y-6 sticky top-6 self-start lg:w-[22rem]">
+        <!-- Action Form -->
+        <mat-card class="action-status-card">
+          <mat-card-header>
+            <div class="action-status-card-header">
+              <mat-card-title class="action-status-title text-lg font-semibold">Action Required</mat-card-title>
+              <span class="action-status-subtitle">{{ getActionTitle() }}</span>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-4">
+              <div class="rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/40 dark:bg-blue-950/20">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold uppercase text-blue-700 dark:text-blue-300">Current status</p>
+                    <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      {{ getActionOwnerLabel() }}
+                    </p>
+                  </div>
+                  <span
+                    class="inline-flex flex-shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                    [class]="getByStatusColor(getCurrentActionStatus())"
+                  >
+                    {{ getByStatusText(getCurrentActionStatus()) }}
+                  </span>
+                </div>
+
+                <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span class="block text-gray-500 dark:text-gray-400">PO No.</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ poDocument.poInfo.poNo || 'Pending' }}</span>
+                  </div>
+                  <div>
+                    <span class="block text-gray-500 dark:text-gray-400">Grand total</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(poDocument.totals.grandTotal) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Checklist & Comments -->
+              <div *ngIf="isSignedAction()" class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-gray-700 dark:bg-gray-900/60">
+                <div>
+                  <h4 class="text-sm font-semibold text-slate-900 dark:text-gray-100">Checklist</h4>
+                  <p class="mt-1 text-xs text-slate-600 dark:text-gray-400">ส่วนนี้ให้ผู้ลงนามเป็นผู้ประเมินในขั้นตอน action</p>
+                </div>
+
+                <div class="space-y-3">
+                  <div class="p-3 bg-white rounded-lg border border-slate-200 dark:border-gray-700 dark:bg-gray-900">
+                    <p class="text-xs font-medium text-slate-800 mb-2 dark:text-gray-200">Delivery on time?</p>
+                    <mat-radio-group formControlName="deliveryOnTime" class="flex gap-4">
+                      <mat-radio-button value="yes" class="text-green-600 text-xs">Yes</mat-radio-button>
+                      <mat-radio-button value="no" class="text-red-600 text-xs">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+
+                  <div class="p-3 bg-white rounded-lg border border-slate-200 dark:border-gray-700 dark:bg-gray-900">
+                    <p class="text-xs font-medium text-slate-800 mb-2 dark:text-gray-200">Meet quality?</p>
+                    <mat-radio-group formControlName="meetQualityRequirement" class="flex gap-4">
+                      <mat-radio-button value="yes" class="text-green-600 text-xs">Yes</mat-radio-button>
+                      <mat-radio-button value="no" class="text-red-600 text-xs">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+
+                  <div class="p-3 bg-white rounded-lg border border-slate-200 dark:border-gray-700 dark:bg-gray-900">
+                    <p class="text-xs font-medium text-slate-800 mb-2 dark:text-gray-200">Meet guidelines?</p>
+                    <mat-radio-group formControlName="meetGuidelines" class="flex gap-4">
+                      <mat-radio-button value="yes" class="text-green-600 text-xs">Yes</mat-radio-button>
+                      <mat-radio-button value="no" class="text-red-600 text-xs">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                </div>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Comments</mat-label>
+                  <textarea matInput formControlName="comments" rows="3" placeholder="Enter comments..."></textarea>
+                </mat-form-field>
+              </div>
+
+              <div>
+                <label class="text-sm font-semibold text-gray-800 dark:text-gray-200">Decision</label>
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    (click)="setDecision('APPROVED')"
+                    class="rounded-lg border px-3 py-2 text-sm font-semibold transition-colors"
+                    [ngClass]="actionForm.get('status')?.value === 'APPROVED'
+                      ? 'border-green-200 bg-green-50 text-green-700 shadow-sm dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-green-200 hover:bg-green-50/70 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-green-900/50 dark:hover:bg-green-950/20'"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    (click)="setDecision('REJECT')"
+                    class="rounded-lg border px-3 py-2 text-sm font-semibold transition-colors"
+                    [ngClass]="actionForm.get('status')?.value === 'REJECT'
+                      ? 'border-rose-200 bg-rose-50 text-rose-700 shadow-sm dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-rose-200 hover:bg-rose-50/70 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-rose-900/50 dark:hover:bg-rose-950/20'"
+                  >
+                    Reject
+                  </button>
+                </div>
+                <div *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched" class="mt-2 text-xs text-red-600">
+                  Please select a decision.
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2 pt-1">
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="inline-flex min-h-9 items-center justify-center rounded-lg border border-transparent bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span *ngIf="!loading">{{ getActionSubmitLabel() }}</span>
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Approval Workflow Timeline -->
+        <div class="po-workflow-card w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h2 class="flex items-center text-base font-semibold text-gray-900 dark:text-white">
+              <mat-icon class="mr-2 text-emerald-400" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+              Approval Workflow
+            </h2>
+            <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+              {{ getWorkflowSteps().length }} steps
+            </span>
+          </div>
+
+          <div class="space-y-0">
+            <div
+              *ngFor="let step of getWorkflowSteps(); let last = last"
+              class="relative flex gap-2.5 pb-2.5 last:pb-0"
+            >
+              <div class="flex w-5 flex-shrink-0 flex-col items-center">
+                <span
+                  class="z-10 flex h-5 w-5 items-center justify-center rounded-full ring-2 ring-white dark:ring-gray-800"
+                  [ngClass]="getWorkflowDotClass(step.status)"
+                >
+                  <mat-icon class="!h-3 !w-3 !text-xs leading-none">
+                    {{ getWorkflowStepIcon(step.status) }}
+                  </mat-icon>
+                </span>
+                <span
+                  *ngIf="!last"
+                  class="mt-1 min-h-5 w-px flex-1"
+                  [ngClass]="getWorkflowLineClass(step.status)"
+                ></span>
+              </div>
+
+              <div class="min-w-0 flex-1 border-b border-gray-100 pb-2.5 last:border-b-0 last:pb-0 dark:border-gray-700">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-xs font-semibold leading-5 text-gray-900 dark:text-white">
+                    {{ step.title }}
+                  </p>
+                  <span
+                    class="inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    [ngClass]="getByStatusColor(step.status)"
+                  >
+                    {{ getWorkflowStatusText(step) }}
+                  </span>
+                </div>
+                <p class="mt-0.5 truncate text-[11px] text-gray-500 dark:text-gray-400">
+                  <span class="font-medium text-gray-700 dark:text-gray-200">{{ getEmployeeLabel(step.actor) }}</span>
+                  <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
+                  <span>{{ formatDateTime(step.date) }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

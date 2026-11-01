@@ -1,0 +1,665 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                    CAR - CORRECTIVE ACTION REQUEST
+                </h1>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    FORM MTNC-01
+                </span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Meinhardt (Thailand) Ltd.
+            </p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                    Form Details
+                </h2>
+            </div>
+
+            <div class="p-6">
+                <!-- Loading State for Edit Mode -->
+                <div *ngIf="loading && isEdit" class="flex flex-col items-center justify-center py-12">
+                    <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
+                    <p class="text-gray-500 text-lg">Loading CAR data...</p>
+                </div>
+
+                <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading || !isEdit">
+                    <!-- Header Information - Hidden -->
+                    <!-- <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                            Header Information
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mx-3">
+                            <div class="flex items-center">
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700">to<span class="text-sm text-gray-500 ml-2">(IMR)</span></mat-label>
+                                    <mat-select formControlName="to_head" class="bg-white dark:bg-gray-700">
+                                        <mat-option [value]="''">-- Select IMR --</mat-option>
+                                        <mat-option *ngFor="let user of filteredImrUsers" [value]="user.code">
+                                            {{ user.displayLabel }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('to_head')" class="text-red-500">
+                                        {{ getErrorMessage('to_head') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <mat-form-field class="flex-1">
+                                    <mat-label class="text-gray-700">Circ</mat-label>
+                                    <input matInput formControlName="circ" placeholder="ADM/" class="bg-white">
+                                    <mat-error *ngIf="isFieldInvalid('circ')" class="text-red-500">
+                                        {{ getErrorMessage('circ') }}
+                                    </mat-error>
+                                </mat-form-field>
+                                <mat-form-field class="w-full mt-6 w-[150px]">
+                                    <mat-select formControlName="circ_position" class="bg-white">
+                                        <mat-option value="AM">AM</mat-option>
+                                        <mat-option value="T6IA">T6IA</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div> -->
+
+                    <!-- Severity & SLA -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-orange-600" [svgIcon]="'heroicons_solid:exclamation-triangle'"></mat-icon>
+                            Severity & SLA
+                        </h3>
+
+                        <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                            <mat-radio-group formControlName="severity" class="flex space-x-[60px]">
+                                <div class="flex" *ngFor="let severity of severityOptions">
+                                    <mat-radio-button [value]="severity.value">
+                                    </mat-radio-button>
+                                    <div class="h-10 flex flex-col justify-center">
+                                        <div class="font-semibold">{{ severity.label }}</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">{{ severity.description }}</div>
+                                    </div>
+                                </div>
+                            </mat-radio-group>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+                    <!-- Basic Information -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                            Basic Information
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 mx-3">
+                            <!-- Department -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Department</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="department"
+                                    placeholder="Enter department"
+                                    class="bg-white dark:bg-gray-700">
+                                <mat-error *ngIf="isFieldInvalid('department')" class="text-red-500">
+                                    {{ getErrorMessage('department') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Ref No. -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Ref No.</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="refNo"
+                                    [placeholder]="isEdit ? 'Enter reference number' : 'Auto generated'"
+                                    [readonly]="!isEdit || refNoAutoLoading"
+                                    [attr.aria-busy]="refNoAutoLoading ? 'true' : null"
+                                    class="bg-white dark:bg-gray-700">
+                                <mat-progress-spinner
+                                    *ngIf="refNoAutoLoading"
+                                    matSuffix
+                                    diameter="18"
+                                    mode="indeterminate">
+                                </mat-progress-spinner>
+                                <mat-error *ngIf="isFieldInvalid('refNo')" class="text-red-500">
+                                    {{ getErrorMessage('refNo') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Project Name (searchable dropdown) -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Project Name</mat-label>
+                                <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="projectSearchCtrl"
+                                            placeholderLabel="Search Project..."
+                                            noEntriesFoundLabel="No projects found">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                                        {{ project.name }} ({{ project.code }})
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="isFieldInvalid('projectId')" class="text-red-500">
+                                    Project is required
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Project No. (read-only, populated from Project Name selection) -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Project No.</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="projectNo"
+                                    placeholder="Project number"
+                                    readonly
+                                    class="bg-gray-100 dark:bg-gray-700 cursor-not-allowed">
+                                <mat-error *ngIf="isFieldInvalid('projectNo')" class="text-red-500">
+                                    {{ getErrorMessage('projectNo') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- To -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">To</mat-label>
+                                <mat-select formControlName="to" class="bg-white dark:bg-gray-700">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="toSearchCtrl"
+                                            placeholderLabel="Search person"
+                                            noEntriesFoundLabel="No results">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let user of filteredToUsers" [value]="user.code">
+                                        {{ user.displayLabel }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="isFieldInvalid('to')" class="text-red-500">
+                                    {{ getErrorMessage('to') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Date -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Date</mat-label>
+                                <input
+                                    matInput
+                                    [matDatepicker]="datePicker"
+                                    formControlName="date"
+                                    placeholder="Select date"
+                                    class="bg-white dark:bg-gray-700">
+                                <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                                <mat-datepicker #datePicker [startAt]="today"></mat-datepicker>
+                                <mat-error *ngIf="isFieldInvalid('date')" class="text-red-500">
+                                    {{ getErrorMessage('date') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- CAR Issued By -->
+                            <mat-form-field class="w-full col-span-2">
+                                <mat-label class="text-gray-700 dark:text-gray-300">CAR Issued By</mat-label>
+                                <mat-select formControlName="carIssuedBy" class="bg-white dark:bg-gray-700">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="carIssuedBySearchCtrl"
+                                            placeholderLabel="Search person"
+                                            noEntriesFoundLabel="No results">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let user of filteredCarIssuedByUsers" [value]="user.code">
+                                        {{ user.displayLabel }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="isFieldInvalid('carIssuedBy')" class="text-red-500">
+                                    {{ getErrorMessage('carIssuedBy') }}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+
+                    <!-- CAR Source -->
+                    <!-- ================= CAR Source ================= -->
+                        <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+                            CAR Source (Multiple selections allowed)
+                            <span class="text-red-500 ml-1">*</span> <!-- 🆕 แสดงว่าเป็น required -->
+                        </h3>
+
+                        <!-- 🆕 ใส่กรอบแดงเมื่อยังไม่เลือก (หลังจาก submit) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 border rounded p-3"
+                            [class.border-red-500]="submitted && sourcesInvalid">
+
+                            @for (source of sourceOptions; track source.value) {
+                            <div class="checkbox-option">
+                                <mat-checkbox
+                                    class="checkbox-option__control"
+                                    [value]="source.value"
+                                    [checked]="isSourceSelected(source.value)"
+                                    (change)="onSourceChange($event)">
+                                    {{ source.label }}
+                                </mat-checkbox>
+                            </div>
+                            }
+                        </div>
+
+                        <!-- 🆕 ข้อความเตือนเมื่อยังไม่เลือก -->
+                        <p *ngIf="submitted && sourcesInvalid" class="text-red-600 text-sm mt-1">
+                            Please select at least one CAR Source.
+                        </p>
+
+                        <!-- Other Source Description (เหมือนเดิม) -->
+                        @if (sourcesArray?.value?.includes('others')) {
+                            <div class="mx-3 mt-4">
+                            <mat-form-field class="w-full non-bottom-margin">
+                                <mat-label class="text-gray-700">Other Source Description</mat-label>
+                                <input
+                                matInput
+                                formControlName="otherSourceDescription"
+                                placeholder="Please specify other source"
+                                class="bg-white dark:bg-gray-700">
+                            </mat-form-field>
+                            </div>
+                        }
+                        </div>
+
+                        <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+
+                        <!-- ============== Details of Non-Conformity ================= -->
+                        <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            1. Details of Non-Conformity: (completed by auditor / issuer)
+                            <span class="text-red-500 ml-1">*</span> <!-- 🆕 required -->
+                        </h3>
+
+                        <div class="mb-6">
+                            <!-- 🆕 ใส่กรอบแดงเมื่อยังไม่เลือก -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 border rounded p-3"
+                                [class.border-red-500]="submitted && nonConformityInvalid">
+
+                            @for (type of nonConformityTypeOptions; track $index) {
+                                <div class="checkbox-option">
+                                    <mat-checkbox
+                                    class="checkbox-option__control"
+                                    [value]="type.value"
+                                    [checked]="isNonConformityTypeSelected(type.value)"
+                                    (change)="onNonConformityTypeChange($event)">
+                                        {{ type.label }}
+                                    </mat-checkbox>
+                                </div>
+                            }
+                            </div>
+
+                            <!-- 🆕 ข้อความเตือน -->
+                            <p *ngIf="submitted && nonConformityInvalid" class="text-red-600 text-sm mt-1">
+                            Please select at least one Non-Conformity type.
+                            </p>
+                        </div>
+                        </div>
+
+
+                        <!-- Non-Conformity Description -->
+                        <div class="mx-3">
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Description</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="nonConformityDescription"
+                                    placeholder="Describe the non-conformity in detail..."
+                                    rows="4"
+                                    class="bg-white dark:bg-gray-700">
+                                </textarea>
+                                @if (isFieldInvalid('nonConformityDescription')) {
+                                    <mat-error class="text-red-500">
+                                        {{ getErrorMessage('nonConformityDescription') }}
+                                    </mat-error>
+                                }
+                            </mat-form-field>
+                        </div>
+
+
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+
+                    <!-- <mat-divider class="my-8"></mat-divider> -->
+
+                    <!-- Assignment -->
+                    <!-- <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:user-group'"></mat-icon>
+                            Assignment
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            // Responsible Person
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Responsible Person</mat-label>
+                                <mat-select formControlName="responsiblePersonId" class="bg-white dark:bg-gray-700">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="responsibleSearchCtrl"
+                                            placeholderLabel="Search person"
+                                            noEntriesFoundLabel="No results">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let user of filteredResponsibleUsers" [value]="user.id">
+                                        {{ user.displayLabel }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            // IMR
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">IMR</mat-label>
+                                <mat-select formControlName="imrId" class="bg-white dark:bg-gray-700">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="imrSearchCtrl"
+                                            placeholderLabel="Search IMR"
+                                            noEntriesFoundLabel="No results">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngFor="let user of filteredImrUsers" [value]="user.id">
+                                        {{ user.displayLabel }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div> -->
+
+                    <!-- <mat-divider class="my-8"></mat-divider> -->
+                    <!-- <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div> -->
+
+
+                    <!-- Section 2: Disposition of Non-Conformity (Cause, Remedial, Corrective filled in Complete By action request) -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <!-- <mat-icon class="mr-2 text-orange-600" [svgIcon]="'heroicons_solid:clipboard-check'"></mat-icon> -->
+                            2. Disposition of Non-Conformity (by Auditee / responsible person)
+                        </h3>
+
+                        <div class="mx-3 space-y-2">
+                            <!-- Completion and Acknowledgment -->
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="flex gap-4">
+                                    <!-- <h4 class="text-md font-medium text-gray-800 dark:text-gray-300">Completion</h4> -->
+                                    <div class="flex-1 flex items-center">
+                                        <mat-form-field class="w-full" id="control-completedBy">
+                                            <mat-label class="text-gray-700 dark:text-gray-300">Completed by <span class="text-red-500">*</span> <span class="text-sm text-gray-500 ml-2 whitespace-nowrap">(Responsible Person)</span></mat-label>
+                                            <mat-select formControlName="completedBy" class="bg-white dark:bg-gray-700">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="completedSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredCompletedUsers" [value]="user.id">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('completedBy')" class="text-red-500">
+                                                {{ getErrorMessage('completedBy') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                    <div *ngIf="isEdit" class="w-[300px]">
+                                        <mat-form-field class="w-full">
+                                            <mat-label class="text-gray-700 dark:text-gray-300">Date</mat-label>
+                                            <input matInput [matDatepicker]="completedDatePicker" formControlName="completedByDate"
+                                                placeholder="Select completion date" class="bg-white dark:bg-gray-700">
+                                            <mat-datepicker-toggle matSuffix [for]="completedDatePicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #completedDatePicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <!-- <h4 class="text-md font-medium text-gray-800 dark:text-gray-300">Acknowledgment</h4> -->
+                                    <div class="flex-1 flex items-center">
+                                        <mat-form-field class="w-full" id="control-acknowledgedBy">
+                                            <mat-label class="text-gray-700 dark:text-gray-300">Acknowledged by <span class="text-red-500">*</span> <span class="text-sm text-gray-500 ml-2 whitespace-nowrap">(MD/DI/TL/Supervisor of Responsible Person)</span></mat-label>
+                                            <mat-select formControlName="acknowledgedBy" class="bg-white dark:bg-gray-700">
+                                                <mat-option>
+                                                    <ngx-mat-select-search
+                                                        [formControl]="acknowledgedSearchCtrl"
+                                                        placeholderLabel="Search person"
+                                                        noEntriesFoundLabel="No results">
+                                                    </ngx-mat-select-search>
+                                                </mat-option>
+                                                <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.id">
+                                                    {{ user.displayLabel }}
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-error *ngIf="isFieldInvalid('acknowledgedBy')" class="text-red-500">
+                                                {{ getErrorMessage('acknowledgedBy') }}
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                    <div *ngIf="isEdit" class="w-[300px]">
+                                        <mat-form-field class="w-full">
+                                            <mat-label class="text-gray-700 dark:text-gray-300">Date</mat-label>
+                                            <input
+                                                matInput
+                                                [matDatepicker]="acknowledgedDatePicker"
+                                                formControlName="acknowledgedByDate"
+                                                placeholder="Select acknowledgment date"
+                                                class="bg-white dark:bg-gray-700">
+                                            <mat-datepicker-toggle matSuffix [for]="acknowledgedDatePicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #acknowledgedDatePicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </div>
+
+
+                               </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- <mat-divider class="my-8"></mat-divider> -->
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+
+
+                    <!-- Section 3: Follow Up Remedial and Corrective Results -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                            <!-- <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon> -->
+                            3. Follow Up Remedial and Corrective Results (completed by auditor/ issuer)
+                        </h3>
+
+                        <div class="">
+                            <!-- RA & CA satisfactory (แสดงเฉพาะตอน edit) -->
+                            <div *ngIf="isEdit" class="space-y-2">
+                                <div class="flex">
+                                    <mat-checkbox formControlName="raCaSatisfactory"></mat-checkbox>
+                                    <div class="h-10 flex items-end">RA & CA satisfactory</div>
+                                </div>
+                                @if (form.get('raCaSatisfactory')?.value) {
+                                    <div class="mx-3 mt-4">
+                                        <mat-form-field class="w-full">
+                                            <mat-label class="text-gray-700 dark:text-gray-300">Specify RA &amp; CA satisfactory details</mat-label>
+                                            <textarea
+                                                matInput
+                                                formControlName="raCaSatisfactoryDescription"
+                                                placeholder="Describe RA &amp; CA satisfactory details..."
+                                                rows="3"
+                                                class="bg-white dark:bg-gray-700">
+                                            </textarea>
+                                        </mat-form-field>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Further Action (แสดงเฉพาะตอน edit) -->
+                            <div *ngIf="isEdit" class="space-y-2" [ngClass]="form.get('furtherActionRequired')?.value ? 'mb-0': 'mb-4'">
+                                <div class="flex">
+                                    <mat-checkbox formControlName="furtherActionRequired"></mat-checkbox>
+                                    <div class="h-10 flex items-end">Further Action to be taken specify</div>
+                                </div>
+                                @if (form.get('furtherActionRequired')?.value) {
+                                    <div class="mx-3 mt-4">
+                                        <mat-form-field class="w-full">
+                                            <mat-label class="text-gray-700 dark:text-gray-300">Specify further action</mat-label>
+                                            <textarea
+                                                matInput
+                                                formControlName="furtherActionDescription"
+                                                placeholder="Describe further action required..."
+                                                rows="3"
+                                                class="bg-white dark:bg-gray-700">
+                                            </textarea>
+                                        </mat-form-field>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Verification -->
+                            <div class="flex gap-4 mx-2">
+                                <div class="flex-1">
+                                    <mat-form-field class="w-full" id="control-verifiedBy">
+                                        <mat-label class="text-gray-700 dark:text-gray-300">Verified by <span class="text-red-500">*</span> <span class="text-sm text-gray-500 ml-2">(Issuer)</span></mat-label>
+                                        <mat-select formControlName="verifiedBy" class="bg-white dark:bg-gray-700">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="verifiedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredVerifiedUsers" [value]="user.id">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="isFieldInvalid('verifiedBy')" class="text-red-500">
+                                            {{ getErrorMessage('verifiedBy') }}
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                                <div *ngIf="isEdit" class="w-[300px]">
+                                    <mat-form-field class="w-full">
+                                        <mat-label class="text-gray-700 dark:text-gray-300">Date</mat-label>
+                                        <input
+                                            matInput
+                                            [matDatepicker]="verifiedDatePicker"
+                                            formControlName="verifiedByDate"
+                                            placeholder="Select verification date"
+                                            class="bg-white dark:bg-gray-700">
+                                        <mat-datepicker-toggle matSuffix [for]="verifiedDatePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #verifiedDatePicker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 dark:border-gray-600 my-6"></div>
+                    <!-- <mat-divider class="my-8"></mat-divider> -->
+
+                    <!-- Section 4: Review by IMR -->
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                            <!-- <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:document-check'"></mat-icon> -->
+                            4. Review by IMR
+                        </h3>
+
+                        <div class="space-y-2 mx-3">
+                            <!-- Comments/Risk Assessment (แสดงเฉพาะตอน edit) -->
+                            <mat-form-field *ngIf="isEdit" class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Comments / Is it a new risk?</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="imrComments"
+                                    placeholder="Enter IMR comments and risk assessment..."
+                                    rows="3"
+                                    class="bg-white dark:bg-gray-700">
+                                </textarea>
+                            </mat-form-field>
+
+                            <!-- Response Time Check (แสดงเฉพาะตอน edit) -->
+                            <div *ngIf="isEdit" class="space-y-0 mb-6">
+                                <h4 class="text-md font-medium text-gray-800 dark:text-gray-300">Did recipient respond in the specified time?</h4>
+                                <div class="flex">
+                                    <mat-checkbox formControlName="responseTimeCheck"></mat-checkbox>
+                                    <div class="h-10 flex items-end">Yes - if No, issue a follow-up CAR</div>
+                                </div>
+                            </div>
+
+                            <!-- Approval -->
+                            <div class="flex gap-4">
+                                <div class="flex-1 flex items-center">
+                                    <mat-form-field class="w-full" id="control-approvedBy">
+                                        <mat-label class="text-gray-700 dark:text-gray-300">Approved by <span class="text-red-500">*</span> <span class="text-sm text-gray-500 ml-2">(IMR)</span></mat-label>
+                                        <mat-select formControlName="approvedBy" class="bg-white dark:bg-gray-700">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="approvedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.id">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="isFieldInvalid('approvedBy')" class="text-red-500">
+                                            {{ getErrorMessage('approvedBy') }}
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                                <div *ngIf="isEdit" class="w-[300px]">
+                                    <mat-form-field class="w-full">
+                                        <mat-label class="text-gray-700 dark:text-gray-300">Date</mat-label>
+                                        <input
+                                            matInput
+                                            [matDatepicker]="approvedDatePicker"
+                                            formControlName="approvedByDate"
+                                            placeholder="Select approval date"
+                                            class="bg-white dark:bg-gray-700">
+                                        <mat-datepicker-toggle matSuffix [for]="approvedDatePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #approvedDatePicker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                   <div class="flex justify-end space-x-6 pt-6 border-t border-gray-200 dark:border-gray-600">
+    <button
+        type="button"
+        mat-stroked-button
+        (click)="router.navigate(['/cars'])"
+        [disabled]="loading"
+        class="px-6 py-2 text-gray-600 dark:text-gray-400 border border-gray-400 dark:border-gray-600 rounded-lg">
+        Cancel
+    </button>
+
+    <button
+        type="submit"
+        mat-flat-button
+        color="primary"
+        [disabled]="loading"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+        {{ loading ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update CAR' : 'Create CAR') }}
+    </button>
+</div>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>

@@ -1,0 +1,192 @@
+<div class="min-h-full w-full bg-slate-50">
+  <div class="border-b border-slate-200 bg-white">
+    <div class="px-6 py-5">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-950">Legacy Design Review</h1>
+          <p class="mt-1 text-sm text-slate-600">Read-only status summary from the legacy Design Review database</p>
+        </div>
+
+        <button mat-stroked-button type="button" [disabled]="loadingStages || loadingRows || actionBusy" (click)="loadStages(); loadMigrationSummary()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full space-y-5 p-6">
+    <section class="w-full rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-950">Legacy Migration Control</h2>
+          <p class="text-sm text-slate-500">Sync data, map employees, then create Design Review records in the new system.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button mat-flat-button color="primary" type="button" [disabled]="actionBusy" (click)="syncLegacyData()">
+            <mat-icon *ngIf="!syncing">sync</mat-icon>
+            <mat-spinner *ngIf="syncing" diameter="18"></mat-spinner>
+            Sync Legacy Data
+          </button>
+
+          <button mat-stroked-button color="primary" type="button" [disabled]="actionBusy" (click)="mapLegacyUsers()">
+            <mat-icon *ngIf="!mappingUsers">manage_accounts</mat-icon>
+            <mat-spinner *ngIf="mappingUsers" diameter="18"></mat-spinner>
+            Map Users
+          </button>
+
+          <button mat-stroked-button color="primary" type="button" [disabled]="actionBusy" (click)="generateLegacyRecords()">
+            <mat-icon *ngIf="!generating">add_task</mat-icon>
+            <mat-spinner *ngIf="generating" diameter="18"></mat-spinner>
+            Create Records
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-md border border-slate-200 p-4">
+          <div class="text-xs font-semibold uppercase text-slate-500">Synced Items</div>
+          <div class="mt-2 text-2xl font-bold text-slate-950">{{ migrationSummary?.sync?.total ?? 0 }}</div>
+          <div class="mt-1 text-xs text-slate-500">Matched users: {{ migrationSummary?.sync?.userMatched ?? 0 }}</div>
+        </div>
+
+        <div class="rounded-md border border-slate-200 p-4">
+          <div class="text-xs font-semibold uppercase text-slate-500">Generated Records</div>
+          <div class="mt-2 text-2xl font-bold text-emerald-700">{{ migrationSummary?.sync?.generated ?? 0 }}</div>
+          <div class="mt-1 text-xs text-slate-500">Created in new Design Review tables</div>
+        </div>
+
+        <div class="rounded-md border border-slate-200 p-4">
+          <div class="text-xs font-semibold uppercase text-slate-500">Mapped Users</div>
+          <div class="mt-2 text-2xl font-bold text-blue-700">{{ migrationSummary?.users?.matched ?? 0 }}</div>
+          <div class="mt-1 text-xs text-slate-500">Total legacy users: {{ migrationSummary?.users?.total ?? 0 }}</div>
+        </div>
+
+        <div class="rounded-md border border-slate-200 p-4">
+          <div class="text-xs font-semibold uppercase text-slate-500">Need Review</div>
+          <div class="mt-2 text-2xl font-bold text-amber-700">
+            {{ (migrationSummary?.users?.unmatched ?? 0) + (migrationSummary?.users?.ambiguous ?? 0) }}
+          </div>
+          <div class="mt-1 text-xs text-slate-500">
+            Unmatched: {{ migrationSummary?.users?.unmatched ?? 0 }} / Ambiguous: {{ migrationSummary?.users?.ambiguous ?? 0 }}
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="lastMigrationResult" class="mt-4 rounded-md bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <span class="font-semibold">{{ lastMigrationAction }}:</span>
+        Created {{ lastMigrationResult.created ?? lastMigrationResult.generated ?? 0 }},
+        updated {{ lastMigrationResult.updated ?? 0 }},
+        skipped {{ lastMigrationResult.skipped ?? 0 }}.
+      </div>
+
+      <div *ngIf="migrationErrors.length > 0" class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+        <div class="font-semibold">Some items need attention</div>
+        <div *ngFor="let error of migrationErrors.slice(0, 5)" class="mt-1">{{ error }}</div>
+      </div>
+    </section>
+
+    <section class="w-full rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr_auto] lg:items-center">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Stage</mat-label>
+          <mat-select [(ngModel)]="selectedStage" [disabled]="loadingStages" (selectionChange)="onStageChange()">
+            <mat-option *ngFor="let stage of stages" [value]="stage.key">
+              {{ stage.label }} ({{ activeCount(stage.key) }}/{{ totalCount(stage.key) }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            [(ngModel)]="search"
+            (keyup.enter)="loadSummary()"
+            placeholder="Project no, project name, discipline" />
+          <button mat-icon-button matSuffix type="button" [disabled]="loadingRows" (click)="loadSummary()">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="button" [disabled]="loadingRows" (click)="loadSummary()">
+          <mat-icon>filter_alt</mat-icon>
+          Apply
+        </button>
+      </div>
+
+      <div class="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <mat-chip *ngFor="let stage of stages" class="shrink-0" [highlighted]="stage.key === selectedStage">
+          {{ stage.label }}: {{ activeCount(stage.key) }}
+        </mat-chip>
+      </div>
+    </section>
+
+    <section class="w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-950">{{ selectedStageLabel }}</h2>
+          <p class="text-sm text-slate-500">{{ rows.length }} active item{{ rows.length === 1 ? '' : 's' }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="loadingRows" class="flex items-center justify-center py-16">
+        <mat-spinner diameter="42"></mat-spinner>
+      </div>
+
+      <div *ngIf="!loadingRows && rows.length === 0" class="py-16 text-center">
+        <mat-icon class="text-5xl text-slate-300">inbox</mat-icon>
+        <h3 class="mt-3 text-base font-semibold text-slate-900">No active items</h3>
+        <p class="mt-1 text-sm text-slate-500">Try another stage or search term.</p>
+      </div>
+
+      <div *ngIf="!loadingRows && rows.length > 0" class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+            <tr>
+              <th class="px-4 py-3">Project No.</th>
+              <th class="min-w-[260px] px-4 py-3">Project Name</th>
+              <th class="px-4 py-3">Discipline</th>
+              <th class="px-4 py-3">Create Date</th>
+              <th class="px-4 py-3">Team Engineer</th>
+              <th class="px-4 py-3">Reviewer</th>
+              <th class="px-4 py-3">Teamlead</th>
+              <th class="px-4 py-3">Director</th>
+              <th class="px-4 py-3">Status</th>
+              <th class="px-4 py-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 bg-white">
+            <tr *ngFor="let row of rows" class="hover:bg-slate-50">
+              <td class="whitespace-nowrap px-4 py-3 font-semibold text-slate-950">{{ row.projectId }}</td>
+              <td class="px-4 py-3 text-slate-800">{{ row.projectName }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ row.discipline || '-' }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ row.createdDate || '-' }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ row.teamEngineer || '-' }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ row.reviewer || '-' }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ row.teamlead || '-' }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ row.director || '-' }}</td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1" [ngClass]="statusClass(row.status.label)">
+                  {{ row.status.label }}
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-right">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  type="button"
+                  [disabled]="!canOpenDetail(row)"
+                  [matTooltip]="canOpenDetail(row) ? 'Open legacy detail' : 'Detail is unavailable'"
+                  (click)="openDetail(row)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

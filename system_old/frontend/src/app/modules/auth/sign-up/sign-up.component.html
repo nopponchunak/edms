@@ -1,0 +1,148 @@
+<div class="flex min-h-screen flex-col sm:flex-row w-full">
+    <!-- Left Side - Branding -->
+    <div class="relative hidden sm:flex flex-auto items-center justify-center h-full p-16 lg:px-28 overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-900 dark:from-blue-900 dark:to-indigo-950">
+        <svg class="absolute inset-0 pointer-events-none"
+             viewBox="0 0 960 540" width="100%" height="100%" preserveAspectRatio="xMidYMax slice"
+             xmlns="http://www.w3.org/2000/svg">
+            <g class="opacity-20" fill="none" stroke="currentColor" stroke-width="100">
+                <circle r="234" cx="196" cy="23"></circle>
+                <circle r="234" cx="790" cy="491"></circle>
+            </g>
+        </svg>
+        <div class="z-10 relative w-full max-w-2xl text-white">
+            <div class="text-7xl font-bold leading-none">
+                <div>Sign Up</div>
+            </div>
+            <div class="mt-6 text-lg tracking-tight leading-6 text-blue-100">
+                Create an account to access the MEINHARDT E-Form system<br>
+                MEINHARDT Electronic Form Management System
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side - Sign Up Form -->
+    <div class="flex flex-col flex-auto items-center justify-center p-6 sm:p-12 md:p-16">
+        <div class="w-full max-w-md">
+            <!-- Logo for mobile -->
+            <div class="sm:hidden mb-8">
+                <img src="images/logo/meinhardt-logo.svg" alt="MEINHARDT Logo" class="w-32" />
+            </div>
+
+            <!-- Title -->
+            <div class="text-4xl font-extrabold tracking-tight leading-tight">Sign Up</div>
+            <div class="mt-2 flex items-baseline font-medium">
+                <div>Already have an account?</div>
+                <a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-in']">
+                    Sign in
+                </a>
+            </div>
+
+            <!-- Alert -->
+            <fuse-alert class="mt-8" *ngIf="showAlert" [appearance]="'outline'" [type]="alert.type"
+                [showIcon]="true" [dismissible]="true" (dismissed)="showAlert = false">
+                {{ alert.message }}
+            </fuse-alert>
+
+            <!-- Sign Up Form -->
+            <form class="mt-8" [formGroup]="signUpForm" (ngSubmit)="signUp()">
+                <!-- First Name & Last Name -->
+                <div class="flex gap-4">
+                    <mat-form-field class="flex-1">
+                        <mat-label>First Name</mat-label>
+                        <input matInput [formControlName]="'firstName'" placeholder="John">
+                        <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:user'"></mat-icon>
+                        <mat-error>First name is required</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field class="flex-1">
+                        <mat-label>Last Name</mat-label>
+                        <input matInput [formControlName]="'lastName'" placeholder="Doe">
+                        <mat-error>Last name is required</mat-error>
+                    </mat-form-field>
+                </div>
+
+                <!-- Email -->
+                <mat-form-field class="w-full mt-2">
+                    <mat-label>Email</mat-label>
+                    <input matInput [formControlName]="'email'" type="email" placeholder="user@example.com">
+                    <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:envelope'"></mat-icon>
+                    <mat-error *ngIf="signUpForm.get('email').hasError('required')">
+                        Email is required
+                    </mat-error>
+                    <mat-error *ngIf="signUpForm.get('email').hasError('email')">
+                        Email must be a valid email address
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Phone Number -->
+                <mat-form-field class="w-full mt-2">
+                    <mat-label>Phone Number</mat-label>
+                    <input matInput [formControlName]="'phoneNumber'" type="tel" placeholder="0812345678">
+                    <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:phone'"></mat-icon>
+                    <mat-error>
+                        Please enter a valid 10-digit phone number
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Role -->
+                <mat-form-field class="w-full mt-2">
+                    <mat-label>Role</mat-label>
+                    <mat-select [formControlName]="'role'">
+                        <mat-option *ngFor="let role of userRoles" [value]="role.value">
+                            {{ role.label }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:user-circle'"></mat-icon>
+                </mat-form-field>
+
+                <!-- Password -->
+                <mat-form-field class="w-full mt-2">
+                    <mat-label>Password</mat-label>
+                    <input matInput [formControlName]="'password'" [type]="hidePassword ? 'password' : 'text'"
+                        placeholder="********">
+                    <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:lock-closed'"></mat-icon>
+                    <button mat-icon-button type="button" (click)="togglePasswordVisibility('password')" matSuffix>
+                        <mat-icon class="icon-size-5"
+                            [svgIcon]="hidePassword ? 'heroicons_solid:eye' : 'heroicons_solid:eye-slash'">
+                        </mat-icon>
+                    </button>
+                    <mat-error *ngIf="signUpForm.get('password').hasError('required')">
+                        Password is required
+                    </mat-error>
+                    <mat-error *ngIf="signUpForm.get('password').hasError('minlength')">
+                        Password must be at least 6 characters
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Password Confirm -->
+                <mat-form-field class="w-full mt-2">
+                    <mat-label>Confirm Password</mat-label>
+                    <input matInput [formControlName]="'passwordConfirm'"
+                        [type]="hidePasswordConfirm ? 'password' : 'text'" placeholder="********">
+                    <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:lock-closed'"></mat-icon>
+                    <button mat-icon-button type="button" (click)="togglePasswordVisibility('passwordConfirm')"
+                        matSuffix>
+                        <mat-icon class="icon-size-5"
+                            [svgIcon]="hidePasswordConfirm ? 'heroicons_solid:eye' : 'heroicons_solid:eye-slash'">
+                        </mat-icon>
+                    </button>
+                    <mat-error *ngIf="signUpForm.get('passwordConfirm').hasError('required')">
+                        Please confirm your password
+                    </mat-error>
+                    <mat-error *ngIf="signUpForm.get('passwordConfirm').hasError('passwordMismatch')">
+                        Passwords do not match
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Submit Button -->
+                <button class="fuse-mat-button-large w-full mt-8" mat-flat-button [color]="'primary'"
+                    [disabled]="signUpForm.invalid || loading" type="submit">
+                    <span *ngIf="!loading">
+                        Sign Up
+                    </span>
+                    <mat-spinner *ngIf="loading" [diameter]="24"></mat-spinner>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

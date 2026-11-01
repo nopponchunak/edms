@@ -1,0 +1,192 @@
+.audit-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    th,
+    td {
+        line-height: 1.35;
+        vertical-align: middle;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    .mat-icon {
+        font-size: 18px;
+        height: 18px;
+        line-height: 18px;
+        width: 18px;
+    }
+}
+
+.mat-mdc-table {
+    width: 100%;
+    background: transparent;
+}
+
+.audit-data-table {
+    .mat-mdc-header-row {
+        height: 36px;
+        background: #f8fafc;
+    }
+
+    .mat-mdc-row {
+        height: 41px;
+        min-height: 41px;
+        transition: background-color 0.16s ease;
+
+        &:hover {
+            background-color: #f9fafb;
+        }
+    }
+
+    .mat-mdc-header-cell {
+        border-bottom: 1px solid #e2e8f0;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1.2;
+        padding: 10px 12px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .mat-mdc-cell {
+        border-bottom: 1px solid #d1d5db;
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.35;
+        padding: 8px 12px;
+    }
+
+    .mat-column-No {
+        width: 72px;
+    }
+
+    .mat-column-actor {
+        min-width: 280px;
+    }
+
+    .mat-column-type {
+        min-width: 220px;
+    }
+
+    .mat-column-description {
+        min-width: 420px;
+    }
+
+    .mat-column-created_at {
+        min-width: 180px;
+    }
+}
+
+.audit-filter-input {
+    height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.25rem;
+    outline: none;
+    padding: 0 0.75rem;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        background-color 150ms ease;
+
+    &:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+    }
+
+    &:disabled {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+}
+
+.audit-filter-field {
+    --mat-form-field-container-height: 42px;
+    --mat-form-field-container-vertical-padding: 10px;
+
+    ::ng-deep {
+        .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+        }
+
+        .mat-mdc-text-field-wrapper {
+            background-color: #fff;
+        }
+
+        .mat-mdc-form-field-infix {
+            min-height: 42px;
+        }
+    }
+}
+
+:host ::ng-deep .audit-list-paginator {
+    background: transparent;
+
+    .mat-mdc-paginator-container {
+        justify-content: flex-end;
+        padding-right: 0;
+    }
+
+    .mat-mdc-paginator-range-actions {
+        order: 1;
+    }
+
+    .mat-mdc-paginator-page-size {
+        order: 2;
+        margin-left: 16px;
+        margin-right: 0;
+    }
+}
+
+:host-context(.dark) {
+    .audit-data-table {
+        .mat-mdc-header-row {
+            background: #111827;
+        }
+
+        .mat-mdc-row {
+            &:hover {
+                background-color: #1f2937;
+            }
+        }
+
+        .mat-mdc-header-cell {
+            border-bottom-color: #374151;
+            color: #94a3b8;
+        }
+
+        .mat-mdc-cell {
+            border-bottom-color: #374151;
+            color: #e5e7eb;
+        }
+    }
+
+    .audit-filter-input {
+        border-color: #4b5563;
+        background-color: #1f2937;
+        color: #f9fafb;
+
+        &:disabled {
+            background-color: #111827;
+            color: #6b7280;
+        }
+    }
+
+    .audit-filter-field {
+        ::ng-deep {
+            .mat-mdc-text-field-wrapper {
+                background-color: #1f2937;
+            }
+        }
+    }
+}

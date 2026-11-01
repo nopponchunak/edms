@@ -1,0 +1,422 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            {{ isEditMode ? 'Edit Single Source/Price Justification' : 'Create Single Source/Price Justification' }}
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{ isEditMode ? 'Update justification information' : 'Form MTPC-09 - Meinhardt (Thailand) Ltd.' }}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                Form Details
+            </h2>
+        </div>
+
+        <div class="p-6">
+                    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                        <!-- Basic Information -->
+                        <div class="mb-8">
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                                Basic Information
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Sub-Consultant/Supplier Name -->
+                                <mat-form-field class="w-full" id="control-subConsultantSupplierName">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">Sub-Consultant / Supplier Name (ADM / Purchase)</mat-label>
+                                    <input
+                                        matInput
+                                        formControlName="subConsultantSupplierName"
+                                        placeholder="Enter supplier name"
+                                        class="bg-white dark:bg-gray-700">
+                                    <mat-error *ngIf="isFieldInvalid('subConsultantSupplierName')" class="text-red-500">
+                                        {{ getErrorMessage('subConsultantSupplierName') }}
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <!-- Items Supplied -->
+                                <mat-form-field class="w-full" id="control-itemsSupplied">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">Item(s) Supplied (ADM / Purchase)</mat-label>
+                                    <mat-select
+                                        formControlName="itemsSupplied"
+                                        class="bg-white dark:bg-gray-700"
+                                        placeholder="Select item supplied">
+                                        <mat-option *ngFor="let type of projectTypes" [value]="type.code">
+                                            {{ type.code }} - {{ type.name }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('itemsSupplied')" class="text-red-500">
+                                        {{ getErrorMessage('itemsSupplied') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Justification Type -->
+                            <div class="mt-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                    Justification Type (Exclusive Selection) (ADM / Purchase)
+                                </label>
+                                <div class="flex flex-col">
+                                    <mat-radio-group formControlName="justificationType" id="control-justificationType">
+                                        <div class="flex flex-col md:flex-row md:gap-12">
+                                            <div class="flex">
+                                                <mat-radio-button
+                                                    value="single-source"
+                                                    (change)="onJustificationTypeChange('single-source')"
+                                                    class="text-gray-700 dark:text-gray-300">
+                                                </mat-radio-button>
+                                                <div class="h-10 flex items-center text-sm">Single Source Justification</div>
+                                            </div>
+                                            <div class="flex">
+                                                <mat-radio-button
+                                                    value="price-justification"
+                                                    (change)="onJustificationTypeChange('price-justification')"
+                                                    class="text-gray-700 dark:text-gray-300">
+                                                </mat-radio-button>
+                                                <div class="h-10 flex items-center text-sm">Price Justification</div>
+                                            </div>
+                                        </div>
+                                    </mat-radio-group>
+                                </div>
+                                <mat-error *ngIf="isFieldInvalid('justificationType')" class="text-red-500">
+                                    Please select a justification type
+                                </mat-error>
+                            </div>
+                        </div>
+
+                        <mat-divider class="my-8"></mat-divider>
+
+                        <!-- Justification Details -->
+                        <div class="mb-2">
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                                Justification Details
+                            </h3>
+
+                            <!-- Circumstances -->
+                            <mat-form-field class="w-full mb-6" id="control-circumstances">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Circumstances leading to the selection ... (ADM / Purchase)</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="circumstances"
+                                    placeholder="Describe the circumstances that led to this selection"
+                                    rows="4"
+                                    class="bg-white dark:bg-gray-700">
+                                </textarea>
+                                <mat-error *ngIf="isFieldInvalid('circumstances')" class="text-red-500">
+                                    {{ getErrorMessage('circumstances') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Alternatives Considered -->
+                            <div class="mb-6 flex flex-col">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                    Any alternatives considered? (ADM / Purchase)
+                                </label>
+                                <mat-radio-group formControlName="alternativesConsidered">
+                                    <div class="flex">
+                                        <div class="flex mr-4">
+                                            <mat-radio-button
+                                                [value]="true"
+                                                (change)="onAlternativesConsideredChange(true)"
+                                                class="text-gray-700 dark:text-gray-300">
+                                            </mat-radio-button>
+                                            <div class="h-10 flex items-center text-sm">Yes</div>
+                                        </div>
+                                        <div class="flex">
+                                            <mat-radio-button
+                                                [value]="false"
+                                                (change)="onAlternativesConsideredChange(false)"
+                                                class="text-gray-700 dark:text-gray-300">
+                                            </mat-radio-button>
+                                            <div class="h-10 flex items-center text-sm">No</div>
+                                        </div>
+                                    </div>
+                                </mat-radio-group>
+                            </div>
+                            <!-- Reason for No Alternatives -->
+                            <div *ngIf="form.get('alternativesConsidered')?.value === false" class="flex-1">
+                                <mat-form-field class="w-full">
+                                    <mat-label class="text-gray-700 dark:text-gray-300">Reason for no alternatives (ADM / Purchase)</mat-label>
+                                    <textarea
+                                        matInput
+                                        formControlName="alternativesReason"
+                                        placeholder="Explain why no alternatives were considered"
+                                        rows="3"
+                                        class="bg-white dark:bg-gray-700">
+                                    </textarea>
+                                    <mat-error *ngIf="isFieldInvalid('alternativesReason')" class="text-red-500">
+                                        {{ getErrorMessage('alternativesReason') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Comments -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Comments (ADM / Purchase)</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="comments"
+                                    placeholder="Additional comments"
+                                    rows="3"
+                                    class="bg-white dark:bg-gray-700">
+                                </textarea>
+                            </mat-form-field>
+
+                            <!-- Rationale -->
+                            <mat-form-field class="w-full" id="control-rationale">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Rationale for selecting the Sub-Consultant / Supplier (ADM / Purchase)</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="rationale"
+                                    placeholder="Explain the main reasons for this selection"
+                                    rows="4"
+                                    class="bg-white dark:bg-gray-700">
+                                </textarea>
+                                <mat-error *ngIf="isFieldInvalid('rationale')" class="text-red-500">
+                                    {{ getErrorMessage('rationale') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Corresponding PO# -->
+                            <mat-form-field class="w-full">
+                                <mat-label class="text-gray-700 dark:text-gray-300">Corresponding PO# if approved (ADM / Purchase)</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="correspondingPO"
+                                    placeholder="Enter PO number"
+                                    class="bg-white dark:bg-gray-700">
+                            </mat-form-field>
+                        </div>
+
+                        <mat-divider class="mb-8 mt-2"></mat-divider>
+
+                        <!-- Approval Workflow -->
+                        <div class="mb-8">
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                                Approval Workflow
+                            </h3>
+
+                        <div class="approval-workflow">
+                            <!-- Assessed by -->
+                            <div class="approval-workflow__row" style="display: none !important;">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">1</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Assessed by</span>
+                                        <span class="approval-workflow__hint">(ADM / Purchase)</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields" formGroupName="assessedBy">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person">
+                                        <mat-label>Name</mat-label>
+                                        <mat-select formControlName="id">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="assessedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredAssessedUsers" [value]="user.id">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--date">
+                                        <mat-label>Date</mat-label>
+                                        <input matInput [matDatepicker]="assessedDatePicker" formControlName="date">
+                                        <mat-datepicker-toggle matIconSuffix [for]="assessedDatePicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #assessedDatePicker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <!-- Verified by -->
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">1</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Verified by</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields" formGroupName="verifiedBy">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person" id="control-verifiedBy">
+                                        <mat-label>Name</mat-label>
+                                        <mat-select formControlName="id">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="verifiedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredVerifiedUsers" [value]="user.id">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="form.get('verifiedBy.id')?.invalid && form.get('verifiedBy.id')?.touched">
+                                            Required
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <!-- Approved by -->
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">2</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Approved by</span>
+                                        <span class="approval-workflow__hint">(DI / MD)</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields" formGroupName="approvedBy">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person" id="control-approvedBy">
+                                        <mat-label>Name</mat-label>
+                                        <mat-select formControlName="id">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="approvedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.id">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="form.get('approvedBy.id')?.invalid && form.get('approvedBy.id')?.touched">
+                                            Required
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <!-- Acknowledged by -->
+                            <div class="approval-workflow__row">
+                                <div class="approval-workflow__header">
+                                    <span class="approval-workflow__step">3</span>
+                                    <div class="approval-workflow__label-wrap">
+                                        <span class="approval-workflow__label">Acknowledged by</span>
+                                        <span class="approval-workflow__hint">(IMR)</span>
+                                    </div>
+                                </div>
+                                <div class="approval-workflow__fields" formGroupName="acknowledgedBy">
+                                    <mat-form-field class="approval-workflow__field approval-workflow__field--person" id="control-acknowledgedBy">
+                                        <mat-label>Name</mat-label>
+                                        <mat-select formControlName="id">
+                                            <mat-option>
+                                                <ngx-mat-select-search
+                                                    [formControl]="acknowledgedSearchCtrl"
+                                                    placeholderLabel="Search person"
+                                                    noEntriesFoundLabel="No results">
+                                                </ngx-mat-select-search>
+                                            </mat-option>
+                                            <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.id">
+                                                {{ user.displayLabel }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="form.get('acknowledgedBy.id')?.invalid && form.get('acknowledgedBy.id')?.touched">
+                                            Required
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Documents Section -->
+                <div class="mb-8">
+                    <div class="mb-4">
+<h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        Attached Documents
+                    </h2>
+                </div>
+
+                    <div class="mb-4">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Please attach documents</h3>
+                        <button
+                            type="button"
+                            mat-stroked-button
+                            (click)="openUploadDialog()"
+                            class="mb-4">
+                            <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                            Upload Document
+                        </button>
+
+                        <div *ngIf="attachmentsArray?.length" class="mt-4 space-y-2">
+                            <div
+                                *ngFor="let att of attachmentsArray.controls; index as i"
+                                class="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                    <mat-icon
+                                        class="text-gray-400 dark:text-gray-500"
+                                        [svgIcon]="att.value.type === 'file' ? 'heroicons_outline:document' : 'heroicons_outline:link'">
+                                    </mat-icon>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                                            {{ att.value.file_name || att.value.file_url || att.value.name || att.value.url || 'No file name' }}
+                                        </div>
+                                        <div *ngIf="attachmentsArray.controls[i].value.file_size" class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ (attachmentsArray.controls[i].value.file_size / 1024).toFixed(2) }} KB
+                                        </div>
+                                        <div *ngIf="attachmentsArray.controls[i].value.mime_type" class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ attachmentsArray.controls[i].value.mime_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    mat-icon-button
+                                    color="warn"
+                                    (click)="removeAttachment(i)"
+                                    aria-label="Remove document">
+                                    <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!attachmentsArray?.length" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            No documents attached yet
+                        </div>
+                    </div>
+                </div>
+
+                        <!-- Form Actions -->
+                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
+                            <button
+                                type="button"
+                                mat-button
+                                (click)="onCancel()"
+                                class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                mat-flat-button
+                                color="primary"
+                                [disabled]="isSubmitting"
+                                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                                <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+                                {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>

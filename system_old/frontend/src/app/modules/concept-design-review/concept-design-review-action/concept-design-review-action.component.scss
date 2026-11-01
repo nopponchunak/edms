@@ -1,0 +1,136 @@
+.ims-card {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+  .ims-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+  }
+
+  .ims-card-body {
+    padding: 24px;
+  }
+}
+
+.view-field-box {
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  color: #111827;
+}
+
+.document-field {
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+  }
+}
+
+.section-table-note {
+  font-size: 14px;
+  color: #6b7280;
+  font-style: italic;
+  padding: 12px;
+  background: #fefce8;
+  border-left: 4px solid #fef08a;
+  border-radius: 4px;
+}
+
+.checklist-table {
+  th {
+    background: #f8fafc;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+}
+
+.dense-radio {
+  ::ng-deep .mat-mdc-radio-button .mdc-radio {
+    padding: 8px;
+  }
+}
+
+.action-footer-card {
+  margin-top: 32px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  h3 {
+    letter-spacing: -0.025em;
+  }
+}
+
+.verified-by-container {
+  background-color: #f0f7ff;
+  border: 1px solid #cce3ff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 8px;
+
+  .verified-by-label {
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .verified-by-name {
+    color: #1e3a8a;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 0;
+  }
+}
+
+:host {
+  ::ng-deep {
+    .action-footer-card {
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+      
+      .mat-mdc-text-field-wrapper {
+        background-color: white !important;
+      }
+    }
+
+    .cdk-overlay-container {
+      z-index: 2000 !important;
+    }
+
+    .cdk-overlay-pane:has(.concept-design-status-panel) {
+      z-index: 2001 !important;
+    }
+
+    .concept-design-status-panel.mat-mdc-select-panel {
+      background: white !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      min-width: 100% !important;
+    }
+
+    .concept-design-status-panel .mat-mdc-option {
+      color: #111827 !important;
+      background: white !important;
+    }
+
+    .concept-design-status-panel .mat-mdc-option:hover,
+    .concept-design-status-panel .mat-mdc-option.mdc-list-item--selected,
+    .concept-design-status-panel .mat-mdc-option.mat-mdc-option-active {
+      background: #eff6ff !important;
+    }
+  }
+}

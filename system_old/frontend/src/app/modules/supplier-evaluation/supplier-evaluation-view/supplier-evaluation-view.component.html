@@ -1,0 +1,455 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- HEADER -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 uppercase">
+          SUPPLIER EVALUATION FORM
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Meinhardt (Thailand) Ltd.
+        </p>
+      </div>
+    <!-- Standardized Actions -->
+    <app-view-actions
+      [backPath]="'/supplier-evaluation'"
+      [navId]="'supplier-evaluation'"
+      (print)="onPrint()"
+      (edit)="onEdit()"
+    ></app-view-actions>
+    </div>
+
+    <!-- ALERT -->
+    <fuse-alert
+      class="mb-6"
+      *ngIf="alert"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null"
+    >
+      {{ alert.message }}
+    </fuse-alert>
+
+    <!-- LOADING -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- CONTENT -->
+    <div *ngIf="!isLoading && evaluation" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Left Column: Details -->
+        <div class="lg:col-span-2 space-y-6">
+      <!-- CARD : Evaluation Details -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:squares-2x2'"></mat-icon>
+            Evaluation Details
+          </h2>
+          <div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+              [class]="getStatusBadgeClass(evaluation.status)">
+              {{ getStatusLabel(evaluation.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <div class="space-y-6">
+          <!-- Supplier & Project Information -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">
+              Supplier and Project Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Supplier Name:
+                </label>
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white"
+                >
+                  {{ evaluation.supplierName }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Project Name:
+                </label>
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white"
+                >
+                  {{ evaluation.projectName || '-' }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Project No.:
+                </label>
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white"
+                >
+                  {{ evaluation.projectNo || '-' }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Department / Purchased Value / Duration:
+                </label>
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white"
+                >
+                  {{ evaluation.departmentInfo || '-' }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Evaluated Date:
+                </label>
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white"
+                >
+                  {{ formatDate(evaluation.evaluatedDate) }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Average Rating:
+                </label>
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white"
+                >
+                  {{ evaluation.averageRating }}/5.0
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anti-Corruption Compliance -->
+          <div>
+            <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Anti-Corruption Compliance
+            </h3>
+
+            <div
+              class="border border-gray-200 dark:border-gray-700 rounded-lg p-5 bg-slate-50 dark:bg-gray-800/40"
+            >
+              <p class="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                Are there any reasonable grounds to believe that the Supplier has violated or
+                failed to comply with Meinhardt's Anti-Corruption programme and/or applicable laws?
+              </p>
+
+              <div class="flex flex-wrap gap-4">
+                <div class="document-check-row flex-1 min-w-[200px]" [class.active]="antiCorruption === 'yes'" [class.danger]="antiCorruption === 'yes'">
+                  <span class="document-check-box">{{ antiCorruption === 'yes' ? '✓' : '' }}</span>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">Yes</span>
+                    <span class="text-xs text-gray-500">Remove from approved list</span>
+                  </div>
+                </div>
+                <div class="document-check-row flex-1 min-w-[200px]" [class.active]="antiCorruption === 'no'">
+                  <span class="document-check-box">{{ antiCorruption === 'no' ? '✓' : '' }}</span>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">No</span>
+                    <span class="text-xs text-gray-500">Proceed to evaluation</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD : Evaluation Table -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white">
+            Evaluation
+          </h3>
+        </div>
+
+        <div class="px-6 py-4 overflow-x-auto">
+          <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle">
+                  Item
+                </th>
+                <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-28 align-middle leading-tight">
+                  Score<br><span class="text-sm font-normal text-gray-500">(0-10)</span>
+                </th>
+                <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle">
+                  Poor
+                </th>
+                <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle">
+                  Satisfactory
+                </th>
+                <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle">
+                  Good
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b align-middle min-w-[220px]">
+                  Comment
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let c of criteria"
+                class="border-b border-gray-200 dark:border-gray-700"
+              >
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle">
+                  {{ c.no }}. {{ c.item }}
+                </td>
+                <td class="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-700 align-middle">
+                  <span class="inline-flex min-w-[56px] justify-center rounded-md bg-blue-50 px-3 py-1 text-lg font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                    {{ c.rating }}
+                  </span>
+                </td>
+                <td
+                  class="px-4 py-3 text-center text-sm border-r border-gray-200 dark:border-gray-700 align-middle"
+                  [class]="getRatingRangeCellClass(c.rating, 0, 4, 'red')"
+                >
+                  0-4
+                </td>
+                <td
+                  class="px-4 py-3 text-center text-sm border-r border-gray-200 dark:border-gray-700 align-middle"
+                  [class]="getRatingRangeCellClass(c.rating, 5, 7, 'yellow')"
+                >
+                  5-7
+                </td>
+                <td
+                  class="px-4 py-3 text-center text-sm border-r border-gray-200 dark:border-gray-700 align-middle"
+                  [class]="getRatingRangeCellClass(c.rating, 8, 10, 'green')"
+                >
+                  8-10
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 align-middle">
+                  {{ c.comment || '-' }}
+                </td>
+              </tr>
+
+              <tr class="bg-gray-50 dark:bg-gray-800/60 font-semibold">
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 align-middle">
+                  Average Rating
+                </td>
+                <td class="px-4 py-3 text-center text-lg text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-700 align-middle">
+                  {{ averageScore }}
+                </td>
+                <td colspan="3" class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-700 align-middle italic text-center">
+                  {{ getAverageScoreLabel(averageScore) }}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 align-middle">
+                  {{ summaryComment || '-' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CARD : Decision & Sign-off -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="px-6 py-6 space-y-6">
+          <!-- Decision -->
+          <div>
+            <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Decision:
+            </h3>
+
+            <div class="grid grid-cols-1 gap-3">
+              <div class="document-check-row" [class.active]="decision === 'maintain'">
+                <span class="document-check-box">{{ decision === 'maintain' ? '✓' : '' }}</span>
+                <span class="text-sm leading-tight" [class.font-semibold]="decision === 'maintain'">
+                  Supplier to be maintained in approved lists (Average Rating &ge; 5)
+                </span>
+              </div>
+              <div class="document-check-row" [class.active]="decision === 'remove'" [class.danger]="decision === 'remove'">
+                <span class="document-check-box">{{ decision === 'remove' ? '✓' : '' }}</span>
+                <span class="text-sm leading-tight" [class.font-semibold]="decision === 'remove'">
+                  Supplier to be removed from approved lists (Average Rating &lt; 5)
+                </span>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+
+
+        </div> <!-- Left Column -->
+
+        <!-- Right Column: Status -->
+        <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+            <!-- Approval Workflow Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8 mt-8" *ngIf="!isLoading && evaluation">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+            Approval Workflow
+        </h2>
+
+        <div class="space-y-4">
+            <!-- Evaluated By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                        <mat-icon class="text-sm">person</mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Evaluated by: <strong>{{ getEmployeeLabel(evaluation.evaluatedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(evaluation.evaluatedByDate) }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(evaluation.approvedByStatus)">
+                        <mat-icon [class]="getByStatusColor(evaluation.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(evaluation.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-sm">
+                            {{ (evaluation.approvedByStatus || '').toLowerCase() === 'approve' || (evaluation.approvedByStatus || '').toLowerCase() === 'approved' ? 'check' : (evaluation.approvedByStatus || '').toLowerCase() === 'reject' || (evaluation.approvedByStatus || '').toLowerCase() === 'rejected' ? 'close' : 'schedule' }}
+                        </mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Approved by (MD/DI/TL): <strong>{{ getEmployeeLabel(evaluation.approvedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(evaluation.approvedByDate) }}
+                    </p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Status:
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                              [class]="getByStatusColor(evaluation.approvedByStatus)">
+                            {{ getByStatusText(evaluation.approvedByStatus) }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(evaluation.acknowledgedByStatus)">
+                        <mat-icon [class]="getByStatusColor(evaluation.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(evaluation.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-sm">
+                            {{ (evaluation.acknowledgedByStatus || '').toLowerCase() === 'approve' || (evaluation.acknowledgedByStatus || '').toLowerCase() === 'approved' ? 'check' : (evaluation.acknowledgedByStatus || '').toLowerCase() === 'reject' || (evaluation.acknowledgedByStatus || '').toLowerCase() === 'rejected' ? 'close' : 'schedule' }}
+                        </mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Acknowledged by (IMR): <strong>{{ getEmployeeLabel(evaluation.acknowledgedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(evaluation.acknowledgedByDate) }}
+                    </p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Status:
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                              [class]="getByStatusColor(evaluation.acknowledgedByStatus)">
+                            {{ getByStatusText(evaluation.acknowledgedByStatus) }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Attached Documents Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+              <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+              Attached Documents
+          </h2>
+
+          <div *ngIf="attachments?.length; else noDocs" class="space-y-4">
+            <div
+              *ngFor="let doc of attachments"
+              class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700"
+            >
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                    <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <a *ngIf="doc.url" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                    class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                    {{ doc.name }}
+                  </a>
+                  <div *ngIf="!doc.url" class="text-sm font-medium text-gray-800 dark:text-gray-100">
+                    {{ doc.name }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400" *ngIf="doc.type || doc.sizeKB">
+                    {{ doc.type || 'File' }}<span *ngIf="doc.sizeKB"> · {{ doc.sizeKB | number: '1.0-1' }} KB</span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="doc.url" class="ml-4">
+                <a
+                  mat-stroked-button
+                  color="primary"
+                  [href]="doc.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  class="text-xs"
+                >
+                  <mat-icon class="mr-1 text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                  Download
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noDocs>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              No documents attached yet
+            </div>
+          </ng-template>
+        </div>
+        </div> <!-- Right Column -->
+    </div>
+
+    <!-- NOT FOUND -->
+    <div *ngIf="!isLoading && !evaluation" class="text-center py-12">
+      <mat-icon
+        class="text-6xl text-gray-400 mb-4"
+        [svgIcon]="'heroicons_outline:chart-bar'"
+      ></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Evaluation not found
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">
+        The evaluation you're looking for doesn't exist or has been deleted.
+      </p>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onBack()"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        Back to List
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,1136 @@
+<div class="h-full bg-gray-50 text-gray-900">
+    <!-- Header -->
+    <div class="w-full border-b border-gray-200 bg-white shadow-sm">
+        <div class="w-full px-4 py-4 sm:px-6">
+            <div
+                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+                <div class="min-w-0">
+                    <h1
+                        class="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl"
+                    >
+                        Proposal & Contract Review
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600 sm:text-base">
+                        Manage and track proposal and contract review requests
+                    </p>
+                </div>
+                <button
+                    (click)="onCreateNew()"
+                    class="inline-flex w-full shrink-0 items-center justify-center rounded-lg border border-transparent bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:text-base"
+                >
+                    <mat-icon
+                        class="mr-2 text-white"
+                        [svgIcon]="'heroicons_solid:plus'"
+                    ></mat-icon>
+                    New Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="h-full w-full bg-gray-50 px-4 py-4 sm:px-6 sm:py-6">
+        <!-- Tabs -->
+        <div
+            class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+        >
+            <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                <nav
+                    class="flex min-w-max space-x-6 sm:space-x-8"
+                    aria-label="Tabs"
+                >
+                    <button
+                        *ngIf="
+                            navigationPermissionService.hasViewAllPermissionByNavId(
+                                permissionNavId
+                            )
+                        "
+                        (click)="onTabChange('all')"
+                        [class]="
+                            currentTab === 'all'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        "
+                        class="whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold transition-colors duration-200 sm:text-base"
+                    >
+                        All Requests
+                    </button>
+                    <button
+                        (click)="onTabChange('my')"
+                        [class]="
+                            currentTab === 'my'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        "
+                        class="whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold transition-colors duration-200 sm:text-base"
+                    >
+                        My Requests
+                    </button>
+                    <button
+                        (click)="onTabChange('pending')"
+                        [class]="
+                            currentTab === 'pending'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        "
+                        class="whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold transition-colors duration-200 sm:text-base"
+                    >
+                        Pending Approval
+                    </button>
+                    <button
+                        (click)="onTabChange('action')"
+                        [class]="
+                            currentTab === 'action'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        "
+                        class="whitespace-nowrap border-b-2 px-1 py-3 text-sm font-semibold transition-colors duration-200 sm:text-base"
+                    >
+                        Action Request ({{ actionRequestCount }})
+                    </button>
+                </nav>
+            </div>
+
+            <div
+                class="inline-flex w-full shrink-0 rounded-lg border border-gray-200 bg-white p-1 shadow-sm sm:w-auto"
+                aria-label="View mode"
+            >
+                <button
+                    type="button"
+                    (click)="viewMode = 'card'"
+                    [attr.aria-pressed]="viewMode === 'card'"
+                    [ngClass]="
+                        viewMode === 'card'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-600 hover:bg-gray-50'
+                    "
+                    class="inline-flex flex-1 items-center justify-center rounded-md px-3 py-2 text-sm font-semibold transition-colors sm:flex-none"
+                >
+                    <mat-icon
+                        class="mr-1"
+                        [ngClass]="
+                            viewMode === 'card' ? 'text-white' : 'text-gray-500'
+                        "
+                        >view_agenda</mat-icon
+                    >
+                    Card
+                </button>
+                <button
+                    type="button"
+                    (click)="viewMode = 'table'"
+                    [attr.aria-pressed]="viewMode === 'table'"
+                    [ngClass]="
+                        viewMode === 'table'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-600 hover:bg-gray-50'
+                    "
+                    class="inline-flex flex-1 items-center justify-center rounded-md px-3 py-2 text-sm font-semibold transition-colors sm:flex-none"
+                >
+                    <mat-icon
+                        class="mr-1"
+                        [ngClass]="
+                            viewMode === 'table'
+                                ? 'text-white'
+                                : 'text-gray-500'
+                        "
+                        >table_rows</mat-icon
+                    >
+                    Table
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-6"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <ng-template #filterControl>
+            <div class="filter-control">
+                <button
+                    type="button"
+                    (click)="toggleFilterPanel()"
+                    [ngClass]="
+                        showFilterPanel || activeFilterCount
+                            ? 'border-blue-200 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    "
+                    class="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="Filter list"
+                >
+                    <mat-icon class="mr-1 text-current">filter_list</mat-icon>
+                    Filter
+                    <span
+                        *ngIf="activeFilterCount"
+                        class="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-bold text-white"
+                    >
+                        {{ activeFilterCount }}
+                    </span>
+                </button>
+
+                <div *ngIf="showFilterPanel" class="filter-popover">
+                    <div
+                        class="flex items-center justify-between border-b border-gray-200 px-4 py-3"
+                    >
+                        <span class="text-sm font-semibold text-gray-900">
+                            Filters
+                        </span>
+                        <button
+                            type="button"
+                            (click)="closeFilterPanel()"
+                            class="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                            aria-label="Close filters"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <app-purchase-forms-filter
+                            [config]="filterConfig"
+                            [variant]="'panel'"
+                            [manualSearch]="true"
+                            [showResultCount]="false"
+                            [searchTerm]="searchTerm"
+                            [statusFilter]="statusFilter"
+                            [thirdFilter]="projectTypeFilter"
+                            [filteredCount]="filteredDataSource.length"
+                            [totalCount]="totalCount"
+                            [actionRequestCount]="actionRequestCount"
+                            [selectedTabIndex]="currentTab === 'action' ? 1 : 0"
+                            (searchFilters)="applyFilters($event)"
+                            (clearFilters)="clearFilters()"
+                        >
+                        </app-purchase-forms-filter>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+
+        <!-- Loading Spinner -->
+        <div
+            *ngIf="isLoading"
+            class="flex flex-col items-center justify-center py-12"
+        >
+            <div class="text-center">
+                <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+                <p class="text-base text-gray-500">Loading reviews...</p>
+            </div>
+        </div>
+
+        <div
+            *ngIf="!isLoading && filteredDataSource.length === 0"
+            class="mb-3 flex justify-end"
+        >
+            <ng-container *ngTemplateOutlet="filterControl"></ng-container>
+        </div>
+
+        <!-- Empty State -->
+        <div
+            *ngIf="!isLoading && filteredDataSource.length === 0"
+            class="flex flex-col items-center justify-center py-10 sm:py-12"
+        >
+            <div class="text-center">
+                <div
+                    class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 sm:h-24 sm:w-24"
+                >
+                    <mat-icon
+                        class="h-10 w-10 text-blue-600 sm:h-12 sm:w-12"
+                        [svgIcon]="'heroicons_outline:document-text'"
+                    ></mat-icon>
+                </div>
+                <h3
+                    class="mb-3 text-xl font-semibold text-gray-900 sm:text-2xl"
+                >
+                    {{
+                        currentTab === 'action'
+                            ? 'No action requests found'
+                            : 'No reviews found'
+                    }}
+                </h3>
+                <p class="mb-8 max-w-lg text-sm text-gray-500 sm:text-base">
+                    {{
+                        currentTab === 'all'
+                            ? (searchTerm || statusFilter || projectTypeFilter
+                                  ? 'Try adjusting your filters.'
+                                  : 'No proposal and contract reviews have been created yet. Start by creating your first review.')
+                            : currentTab === 'my'
+                              ? "You haven't created any reviews yet. Create your first proposal and contract review."
+                              : currentTab === 'action'
+                                ? 'No action requests found. All reviews have been processed.'
+                                : 'No reviews are waiting for approval at the moment.'
+                    }}
+                </p>
+                <button
+                    *ngIf="
+                        (currentTab === 'all' || currentTab === 'my') &&
+                        !searchTerm &&
+                        !statusFilter &&
+                        !projectTypeFilter
+                    "
+                    (click)="onCreateNew()"
+                    class="inline-flex items-center rounded-lg border border-transparent bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:px-6 sm:text-base"
+                >
+                    <mat-icon
+                        class="mr-2 text-white"
+                        [svgIcon]="'heroicons_solid:plus'"
+                    ></mat-icon>
+                    New Request
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Requests Table -->
+        <div
+            *ngIf="
+                !isLoading &&
+                currentTab === 'action' &&
+                viewMode === 'table' &&
+                filteredDataSource.length > 0
+            "
+            class="relative overflow-visible rounded-lg border border-gray-200 bg-white shadow-sm"
+        >
+            <div
+                class="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            >
+                <h2 class="text-base font-semibold text-gray-900 sm:text-lg">
+                    Action Requests
+                </h2>
+                <div class="flex items-center justify-end gap-3">
+                    <span class="text-xs font-medium text-gray-500 sm:text-sm">
+                        {{ filteredDataSource.length }} action requests
+                    </span>
+                    <ng-container
+                        *ngTemplateOutlet="filterControl"
+                    ></ng-container>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table appListTableSort
+                    mat-table
+                    [dataSource]="filteredDataSource"
+                    class="proposal-review-table proposal-data-table w-full min-w-[1080px] text-left"
+                >
+                    <ng-container matColumnDef="proposalNumber">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-36 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Proposal No.
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-gray-900"
+                        >
+                            {{ element.proposalNumber || '-' }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="projectName">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Project
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            <div
+                                class="max-w-[300px] truncate"
+                                [title]="element.projectName || '-'"
+                            >
+                                {{ element.projectName || '-' }}
+                            </div>
+                            <div class="mt-0.5 text-xs text-gray-500">
+                                {{ element.projectNo || '-' }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="clientName">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Client
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            <div
+                                class="max-w-[170px] truncate"
+                                [title]="element.clientName || '-'"
+                            >
+                                {{ element.clientName || '-' }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="estimatedValue">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-36 px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Value
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-right text-sm font-semibold text-gray-900"
+                        >
+                            {{
+                                formatCurrency(
+                                    element.estimatedValue,
+                                    element.currency
+                                )
+                            }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="filledInBy">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Filled In By
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            <div
+                                class="max-w-[170px] truncate"
+                                [title]="getEmployeeLabel(element.filledInBy)"
+                            >
+                                {{ getEmployeeLabel(element.filledInBy) }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actionStep">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Current Step
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            {{ getActionStepText(element) }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Status
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm"
+                        >
+                            <span
+                                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                                [ngClass]="getStatusBadgeClass(element.status)"
+                            >
+                                {{ getStatusLabel(element.status) }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="action">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-32 px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Action
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-right"
+                        >
+                            <button
+                                type="button"
+                                (click)="onReview(element.id)"
+                                class="review-action-button review-action-button--table"
+                            >
+                                <mat-icon>rate_review</mat-icon>
+                                Review
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr
+                        mat-header-row
+                        *matHeaderRowDef="actionDisplayedColumns"
+                    ></tr>
+                    <tr
+                        mat-row
+                        *matRowDef="
+                            let row;
+                            columns: actionDisplayedColumns
+                        "
+                    ></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Action Requests Card -->
+        <div
+            *ngIf="
+                !isLoading &&
+                currentTab === 'action' &&
+                viewMode === 'card' &&
+                filteredDataSource.length > 0
+            "
+            class="space-y-4"
+        >
+            <div
+                class="relative flex flex-col gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            >
+                <h2 class="text-base font-semibold text-gray-900 sm:text-lg">
+                    Action Requests
+                </h2>
+                <div class="flex items-center justify-end gap-3">
+                    <span class="text-xs font-medium text-gray-500 sm:text-sm">
+                        {{ filteredDataSource.length }} action requests
+                    </span>
+                    <ng-container
+                        *ngTemplateOutlet="filterControl"
+                    ></ng-container>
+                </div>
+            </div>
+
+            <div
+                *ngFor="let element of filteredDataSource"
+                class="rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md"
+            >
+                <div class="p-5 sm:p-6">
+                    <div
+                        class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+                    >
+                        <div class="min-w-0 flex-1">
+                            <div class="mb-3 flex flex-wrap items-center gap-3">
+                                <h3
+                                    class="text-base font-semibold text-gray-900 sm:text-lg"
+                                >
+                                    {{ element.proposalNumber || '-' }}
+                                </h3>
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    [ngClass]="getStatusBadgeClass(element.status)"
+                                >
+                                    {{ getStatusLabel(element.status) }}
+                                </span>
+                            </div>
+
+                            <div
+                                class="grid grid-cols-1 gap-3 text-sm md:grid-cols-2"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >work</mat-icon
+                                    >
+                                    <span class="min-w-0 text-gray-600">
+                                        <strong>Project:</strong>
+                                        {{ element.projectName || '-' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >business</mat-icon
+                                    >
+                                    <span class="min-w-0 text-gray-600">
+                                        <strong>Client:</strong>
+                                        {{ element.clientName || '-' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >person</mat-icon
+                                    >
+                                    <span class="min-w-0 text-gray-600">
+                                        <strong>Filled In By:</strong>
+                                        {{ getEmployeeLabel(element.filledInBy) }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >attach_money</mat-icon
+                                    >
+                                    <span class="font-semibold text-gray-900">
+                                        <strong>Value:</strong>
+                                        {{
+                                            formatCurrency(
+                                                element.estimatedValue,
+                                                element.currency
+                                            )
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >check_circle</mat-icon
+                                    >
+                                    <span class="text-gray-600">
+                                        <strong>Current Step:</strong>
+                                        {{ getActionStepText(element) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            (click)="onReview(element.id)"
+                            class="review-action-button review-action-button--card"
+                        >
+                            <mat-icon>rate_review</mat-icon>
+                            Review
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms Table -->
+        <div
+            *ngIf="
+                !isLoading &&
+                currentTab !== 'action' &&
+                viewMode === 'table' &&
+                filteredDataSource.length > 0
+            "
+            class="relative overflow-visible rounded-lg border border-gray-200 bg-white shadow-sm"
+        >
+            <div
+                class="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            >
+                <h2 class="text-base font-semibold text-gray-900 sm:text-lg">
+                    {{ getListTitle() }}
+                </h2>
+                <div class="flex items-center justify-end gap-3">
+                    <span class="text-xs font-medium text-gray-500 sm:text-sm">
+                        {{ filteredDataSource.length }} of {{ totalCount }} reviews
+                    </span>
+                    <ng-container
+                        *ngTemplateOutlet="filterControl"
+                    ></ng-container>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table appListTableSort
+                    [appListTableServerSort [appListTableSortState]="listSort"]="currentTab === 'all' || currentTab === 'my'"
+                    (listSortChange)="onListSortChange($event)"
+                    mat-table
+                    [dataSource]="filteredDataSource"
+                    class="proposal-review-table proposal-data-table w-full min-w-[1220px] text-left"
+                >
+                    <ng-container matColumnDef="proposalNumber">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-36 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Proposal No.
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-gray-900"
+                        >
+                            {{ element.proposalNumber || '-' }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="createdAt">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-36 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Created
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="whitespace-nowrap px-3 py-1.5 text-sm text-gray-600"
+                        >
+                            {{ formatDateTime(element.createdAt) }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="projectName">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Project
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            <div
+                                class="max-w-[280px] truncate"
+                                [title]="element.projectName || '-'"
+                            >
+                                {{ element.projectName || '-' }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="projectNo">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-36 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Project No.
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-600"
+                        >
+                            {{ element.projectNo || '-' }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="projectType">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Project Type
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-600"
+                        >
+                            <div
+                                class="max-w-[180px] truncate"
+                                [title]="element.projectType || '-'"
+                            >
+                                {{ element.projectType || '-' }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="clientName">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Client
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            <div
+                                class="max-w-[170px] truncate"
+                                [title]="element.clientName || '-'"
+                            >
+                                {{ element.clientName || '-' }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="estimatedValue">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-36 px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Value
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-right text-sm font-semibold text-gray-900"
+                        >
+                            {{
+                                formatCurrency(
+                                    element.estimatedValue,
+                                    element.currency
+                                )
+                            }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="filledInBy">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Filled In By
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm text-gray-700"
+                        >
+                            <div
+                                class="max-w-[170px] truncate"
+                                [title]="getEmployeeLabel(element.filledInBy)"
+                            >
+                                {{ getEmployeeLabel(element.filledInBy) }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                        <th appListSortHeader
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-44 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Status
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-sm"
+                        >
+                            <span
+                                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                                [ngClass]="getStatusBadgeClass(element.status)"
+                            >
+                                {{ getStatusLabel(element.status) }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            class="w-24 px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        >
+                            Actions
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="px-3 py-1.5 text-right"
+                        >
+                            <div class="flex items-center justify-end">
+                                <button
+                                    type="button"
+                                    [matMenuTriggerFor]="actionsMenu"
+                                    class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    aria-label="More actions"
+                                >
+                                    <mat-icon class="text-gray-600"
+                                        >more_vert</mat-icon
+                                    >
+                                </button>
+
+                                <mat-menu #actionsMenu="matMenu">
+                                    <button
+                                        (click)="onView(element.id)"
+                                        mat-menu-item
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon class="mr-2"
+                                            >visibility</mat-icon
+                                        >
+                                        View
+                                    </button>
+                                    <button
+                                        (click)="onEdit(element.id)"
+                                        mat-menu-item
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon class="mr-2">edit</mat-icon>
+                                        Edit
+                                    </button>
+                                    <button
+                                        *ngIf="canStartStage2(element)"
+                                        (click)="onStage2(element.id)"
+                                        mat-menu-item
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon class="mr-2"
+                                            >assignment_turned_in</mat-icon
+                                        >
+                                        Stage 2 Contract Setup
+                                    </button>
+                                    <button
+                                        *ngIf="canManageMtProjects(element)"
+                                        (click)="onManageMtProjects(element.id)"
+                                        mat-menu-item
+                                        class="flex items-center"
+                                    >
+                                        <mat-icon class="mr-2">tag</mat-icon>
+                                        MT Projects
+                                    </button>
+                                    <button
+                                        (click)="onDelete(element.id)"
+                                        mat-menu-item
+                                        class="flex items-center text-red-600"
+                                    >
+                                        <mat-icon class="mr-2">delete</mat-icon>
+                                        Delete
+                                    </button>
+                                </mat-menu>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <tr
+                        mat-header-row
+                        *matHeaderRowDef="displayedColumns"
+                    ></tr>
+                    <tr
+                        mat-row
+                        *matRowDef="let row; columns: displayedColumns"
+                    ></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Forms Card -->
+        <div
+            *ngIf="
+                !isLoading &&
+                currentTab !== 'action' &&
+                viewMode === 'card' &&
+                filteredDataSource.length > 0
+            "
+            class="space-y-4"
+        >
+            <div
+                class="relative flex flex-col gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            >
+                <h2 class="text-base font-semibold text-gray-900 sm:text-lg">
+                    {{ getListTitle() }}
+                </h2>
+                <div class="flex items-center justify-end gap-3">
+                    <span class="text-xs font-medium text-gray-500 sm:text-sm">
+                        {{ filteredDataSource.length }} of {{ totalCount }} reviews
+                    </span>
+                    <ng-container
+                        *ngTemplateOutlet="filterControl"
+                    ></ng-container>
+                </div>
+            </div>
+
+            <div
+                *ngFor="let element of filteredDataSource"
+                class="rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md"
+            >
+                <div class="p-5 sm:p-6">
+                    <div
+                        class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+                    >
+                        <div class="min-w-0 flex-1">
+                            <div class="mb-3 flex flex-wrap items-center gap-3">
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    [ngClass]="getStatusBadgeClass(element.status)"
+                                >
+                                    {{ getStatusLabel(element.status) }}
+                                </span>
+                                <h3
+                                    class="text-base font-semibold text-gray-900 sm:text-lg"
+                                >
+                                    {{ element.proposalNumber || '-' }}
+                                </h3>
+                            </div>
+
+                            <h4
+                                class="mb-3 text-base font-semibold text-gray-900"
+                            >
+                                {{ element.projectName || '-' }}
+                            </h4>
+
+                            <div
+                                class="grid grid-cols-1 gap-3 text-sm md:grid-cols-2"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >event</mat-icon
+                                    >
+                                    <span class="text-gray-600">
+                                        <strong>Created:</strong>
+                                        {{ formatDateTime(element.createdAt) }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >code</mat-icon
+                                    >
+                                    <span class="text-gray-600">
+                                        <strong>Project No.:</strong>
+                                        {{ element.projectNo || '-' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >category</mat-icon
+                                    >
+                                    <span class="text-gray-600">
+                                        <strong>Project Type:</strong>
+                                        {{ element.projectType || '-' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >business</mat-icon
+                                    >
+                                    <span class="min-w-0 text-gray-600">
+                                        <strong>Client:</strong>
+                                        {{ element.clientName || '-' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >person</mat-icon
+                                    >
+                                    <span class="min-w-0 text-gray-600">
+                                        <strong>Filled In By:</strong>
+                                        {{ getEmployeeLabel(element.filledInBy) }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400"
+                                        >attach_money</mat-icon
+                                    >
+                                    <span class="font-semibold text-gray-900">
+                                        <strong>Value:</strong>
+                                        {{
+                                            formatCurrency(
+                                                element.estimatedValue,
+                                                element.currency
+                                            )
+                                        }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex w-full items-center gap-2 sm:w-auto lg:ml-4"
+                        >
+                            <button
+                                type="button"
+                                (click)="onView(element.id)"
+                                class="inline-flex flex-1 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:flex-none"
+                            >
+                                <mat-icon class="mr-1 text-gray-500"
+                                    >visibility</mat-icon
+                                >
+                                View
+                            </button>
+
+                            <button
+                                type="button"
+                                *ngIf="canStartStage2(element)"
+                                (click)="onStage2(element.id)"
+                                class="inline-flex flex-1 items-center justify-center rounded-md border border-purple-300 bg-white px-3 py-2 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:flex-none"
+                            >
+                                <mat-icon class="mr-1 text-purple-500"
+                                    >assignment_turned_in</mat-icon
+                                >
+                                Stage 2
+                            </button>
+
+                            <button
+                                type="button"
+                                [matMenuTriggerFor]="cardActionsMenu"
+                                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                aria-label="More actions"
+                            >
+                                <mat-icon class="text-gray-600"
+                                    >more_vert</mat-icon
+                                >
+                            </button>
+
+                            <mat-menu #cardActionsMenu="matMenu">
+                                <button
+                                    (click)="onEdit(element.id)"
+                                    mat-menu-item
+                                    class="flex items-center"
+                                >
+                                    <mat-icon class="mr-2">edit</mat-icon>
+                                    Edit
+                                </button>
+                                <button
+                                    *ngIf="canManageMtProjects(element)"
+                                    (click)="onManageMtProjects(element.id)"
+                                    mat-menu-item
+                                    class="flex items-center"
+                                >
+                                    <mat-icon class="mr-2">tag</mat-icon>
+                                    MT Projects
+                                </button>
+                                <button
+                                    (click)="onDelete(element.id)"
+                                    mat-menu-item
+                                    class="flex items-center text-red-600"
+                                >
+                                    <mat-icon class="mr-2">delete</mat-icon>
+                                    Delete
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <mat-paginator
+            *ngIf="
+                !isLoading &&
+                currentTab !== 'action' &&
+                filteredDataSource.length > 0
+            "
+            [length]="totalRecords"
+            [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons
+            class="pcr-list-paginator mt-4"
+        ></mat-paginator>
+    </div>
+</div>

@@ -1,0 +1,175 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    Project Detail Settings
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    Manage Project Details for use as data source in various form dropdowns
+                </p>
+            </div>
+
+            <button
+                mat-flat-button
+                color="primary"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm flex items-center gap-2"
+                (click)="onCreate()"
+            >
+                <mat-icon class="text-white" [svgIcon]="'heroicons_solid:plus'"></mat-icon>
+                Create Project Detail
+            </button>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mt-4 mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <div
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border
+                   border-gray-200 dark:border-gray-700"
+        >
+            <!-- Title -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    Project Detail List
+                </h2>
+            </div>
+
+            <div class="p-0">
+                <!-- Loading -->
+                <div
+                    class="flex items-center justify-center py-8"
+                    *ngIf="isLoading"
+                >
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="32"
+                    ></mat-progress-spinner>
+                </div>
+
+                <!-- Empty state -->
+                <div
+                    *ngIf="!isLoading && items.length === 0"
+                    class="flex flex-col items-center justify-center py-10 text-center text-gray-500"
+                >
+                    <mat-icon
+                        class="mb-2 text-4xl text-gray-400"
+                        [svgIcon]="'heroicons_outline:document-text'"
+                    ></mat-icon>
+                    <div class="font-medium">No Project Detail data available</div>
+                    <div class="text-sm">
+                        Click the "Create Project Detail" button to add a new item
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div *ngIf="!isLoading && items.length > 0" class="overflow-x-auto">
+                    <table appListTableSort appListTableServerSort [appListTableSortState]="listSort" (listSortChange)="onListSortChange($event)"
+                        mat-table
+                        [dataSource]="items"
+                        class="mat-elevation-z0 min-w-full"
+                    >
+                        <!-- No -->
+                        <ng-container matColumnDef="no">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                #
+                            </th>
+                            <td mat-cell *matCellDef="let item; let i = index">
+                                {{ getRowNo(i) }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Code -->
+                        <ng-container matColumnDef="code">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Code
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                <span class="font-mono text-sm">{{ item.code || '-' }}</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Name -->
+                        <ng-container matColumnDef="name">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Name
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                <span class="font-medium">{{ item.name }}</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Created At -->
+                        <ng-container matColumnDef="created_at">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Created At
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.created_at | date: 'dd-MMM-yyyy' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Updated At -->
+                        <ng-container matColumnDef="updated_at">
+                            <th appListSortHeader mat-header-cell *matHeaderCellDef class="whitespace-nowrap">
+                                Updated At
+                            </th>
+                            <td mat-cell *matCellDef="let item">
+                                {{ item.updated_at | date: 'dd-MMM-yyyy' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Action -->
+                        <ng-container matColumnDef="action">
+                            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-right">
+                                Actions
+                            </th>
+                            <td mat-cell *matCellDef="let item" class="text-right">
+                                <button
+                                    mat-icon-button
+                                    color="primary"
+                                    (click)="onEdit(item)"
+                                    matTooltip="Edit"
+                                >
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button
+                                    mat-icon-button
+                                    color="warn"
+                                    (click)="onDelete(item)"
+                                    matTooltip="Delete"
+                                >
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    </table>
+                </div>
+
+                <div class="px-4 pb-4" *ngIf="!isLoading && items.length > 0">
+                    <mat-paginator
+                        [length]="totalRecords"
+                        [pageIndex]="pageIndex"
+                        [pageSize]="pageSize"
+                        [pageSizeOptions]="[5, 10, 25, 50]"
+                        (page)="onPageChange($event)"
+                    ></mat-paginator>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

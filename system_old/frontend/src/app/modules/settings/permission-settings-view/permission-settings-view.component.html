@@ -1,0 +1,193 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="mx-auto max-w-7xl bg-white p-4 dark:bg-gray-900 sm:p-6">
+        <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-3">
+                <button
+                    class="permission-view-icon-button"
+                    type="button"
+                    (click)="back()"
+                    aria-label="Back"
+                >
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ permission?.name || 'Permission detail' }}
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Permission details and assigned users
+                    </p>
+                </div>
+            </div>
+
+            <a
+                *ngIf="permission"
+                mat-flat-button
+                color="primary"
+                [routerLink]="['/settings/permissions/edit', permissionId]"
+                class="flex items-center gap-2"
+            >
+                <mat-icon>edit</mat-icon>
+                Edit Permission
+            </a>
+        </div>
+
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <div class="flex items-center justify-center py-12" *ngIf="isLoading">
+            <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+        </div>
+
+        <div *ngIf="!isLoading && permission" class="space-y-5">
+            <section
+                class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+                <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-700 sm:px-5">
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+                        Permission Information
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4 sm:p-5">
+                    <div>
+                        <div class="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">
+                            Name
+                        </div>
+                        <div class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                            {{ permission.name || '-' }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">
+                            Created By
+                        </div>
+                        <div class="mt-1 text-sm text-gray-700 dark:text-gray-200">
+                            {{ permission.create_by || '-' }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">
+                            Created At
+                        </div>
+                        <div class="mt-1 text-sm text-gray-700 dark:text-gray-200">
+                            {{ formatDate(permission.created_at) }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">
+                            Updated At
+                        </div>
+                        <div class="mt-1 text-sm text-gray-700 dark:text-gray-200">
+                            {{ formatDate(permission.updated_at) }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+                <div
+                    class="flex flex-col gap-1 border-b border-gray-200 px-4 py-3 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+                >
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+                            Users In This Permission
+                        </h2>
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                            Users currently assigned to this permission
+                        </p>
+                    </div>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ users.length }} users
+                    </span>
+                </div>
+
+                <div
+                    *ngIf="users.length === 0"
+                    class="flex flex-col items-center justify-center py-10 text-center text-gray-500"
+                >
+                    <mat-icon
+                        class="mb-2 text-4xl text-gray-400"
+                        [svgIcon]="'heroicons_outline:users'"
+                    ></mat-icon>
+                    <div class="font-medium">No users assigned</div>
+                    <div class="text-sm">This permission is not assigned to any user.</div>
+                </div>
+
+                <div *ngIf="users.length > 0" class="overflow-x-auto">
+                    <table
+                        mat-table
+                        [dataSource]="users"
+                        [trackBy]="trackByUserId"
+                        class="permission-users-table w-full min-w-[760px]"
+                    >
+                        <ng-container matColumnDef="No">
+                            <th mat-header-cell *matHeaderCellDef>#</th>
+                            <td mat-cell *matCellDef="let user">{{ user.No }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="username">
+                            <th mat-header-cell *matHeaderCellDef>Username</th>
+                            <td mat-cell *matCellDef="let user">
+                                <div class="font-semibold text-gray-900 dark:text-white">
+                                    {{ user.username || '-' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="code">
+                            <th mat-header-cell *matHeaderCellDef>Code</th>
+                            <td mat-cell *matCellDef="let user">{{ user.code || '-' }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef>Name</th>
+                            <td mat-cell *matCellDef="let user">{{ user.name || '-' }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="email">
+                            <th mat-header-cell *matHeaderCellDef>Email</th>
+                            <td mat-cell *matCellDef="let user">{{ user.email || '-' }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef>Status</th>
+                            <td mat-cell *matCellDef="let user">
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                    [ngClass]="getStatusBadgeClass(user.status)"
+                                >
+                                    {{ getStatusLabel(user.status) }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let row; columns: displayedColumns"
+                        ></tr>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div *ngIf="!isLoading && !permission && !alert" class="py-12 text-center text-gray-500">
+            Permission data not found
+        </div>
+    </div>
+</div>

@@ -1,0 +1,168 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="w-full h-full p-6 bg-white dark:bg-gray-900">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ isEditMode ? 'Edit Supplier' : 'Add New Supplier' }}
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                    This form is for setting up Supplier master data
+                </p>
+            </div>
+
+            <a
+                mat-stroked-button
+                color="primary"
+                [routerLink]="['/settings/suppliers']"
+            >
+                <mat-icon class="mr-2">arrow_back</mat-icon>
+                Back to Supplier List
+            </a>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert
+            *ngIf="alert"
+            [appearance]="'outline'"
+            [type]="alert.type"
+            [showIcon]="'true'"
+            [dismissible]="'true'"
+            (dismissed)="alert = null"
+            class="mb-4"
+        >
+            {{ alert.message }}
+        </fuse-alert>
+
+        <mat-card class="shadow-lg border border-gray-200 dark:border-gray-700 w-full">
+            <mat-card-content class="p-6 lg:p-8">
+                <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Supplier Type -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Supplier Type</mat-label>
+                            <input
+                                matInput
+                                formControlName="supplier_type"
+                                [matAutocomplete]="typeAutocomplete"
+                                placeholder="Search or select type"
+                            />
+                            <mat-autocomplete
+                                #typeAutocomplete="matAutocomplete"
+                                [displayWith]="displayTypeFn"
+                            >
+                                <mat-option *ngFor="let option of filteredTypeOptions | async" [value]="option">
+                                    {{ option }}
+                                </mat-option>
+                            </mat-autocomplete>
+                            <mat-error *ngIf="form.get('supplier_type')?.hasError('required')">
+                                Supplier Type is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Supplier Name -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Supplier Name</mat-label>
+                            <input matInput formControlName="supplier_name" />
+                            <mat-error *ngIf="form.get('supplier_name')?.hasError('required')">
+                                Supplier Name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Status -->
+                        <div class="w-full">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                Status
+                            </label>
+                            <mat-radio-group formControlName="status" class="flex flex-col gap-3">
+                                <div class="flex">
+                                    <mat-radio-button value="Active"></mat-radio-button>
+                                    <div class="h-10 flex items-center ml-2 text-gray-700 dark:text-gray-300">
+                                        Active
+                                    </div>
+                                </div>
+                                <div class="flex">
+                                    <mat-radio-button value="Inactive"></mat-radio-button>
+                                    <div class="h-10 flex items-center ml-2 text-gray-700 dark:text-gray-300">
+                                        Inactive
+                                    </div>
+                                </div>
+                            </mat-radio-group>
+                        </div>
+
+                        <!-- Address -->
+                        <mat-form-field appearance="outline" class="w-full md:col-span-2">
+                            <mat-label>Address</mat-label>
+                            <textarea matInput rows="3" formControlName="address"></textarea>
+
+                            <mat-error *ngIf="form.get('address')?.hasError('required') && form.get('address')?.touched">
+                                Address is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Phone -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Phone</mat-label>
+                            <input matInput formControlName="phone" type="tel" />
+
+                            <mat-error *ngIf="form.get('phone')?.hasError('required') && form.get('phone')?.touched">
+                                Phone is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Email -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Email</mat-label>
+                            <input matInput formControlName="email" type="email" />
+
+                            <mat-error *ngIf="form.get('email')?.hasError('required') && form.get('email')?.touched">
+                                Email is required
+                            </mat-error>
+                            <mat-error *ngIf="form.get('email')?.hasError('email') && form.get('email')?.touched">
+                                Please enter a valid email address
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Contact Person -->
+                        <mat-form-field appearance="outline" class="w-full md:col-span-2">
+                            <mat-label>Contact Person</mat-label>
+                            <input matInput formControlName="contact_person" />
+
+                            <mat-error *ngIf="form.get('contact_person')?.hasError('required') && form.get('contact_person')?.touched">
+                                Contact Person is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            color="primary"
+                            [routerLink]="['/settings/suppliers']"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="submit"
+                            [disabled]="isSubmitting"
+                            class="px-6"
+                        >
+                            <mat-progress-spinner
+                                *ngIf="isSubmitting"
+                                [diameter]="18"
+                                mode="indeterminate"
+                                class="mr-2"
+                            ></mat-progress-spinner>
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+

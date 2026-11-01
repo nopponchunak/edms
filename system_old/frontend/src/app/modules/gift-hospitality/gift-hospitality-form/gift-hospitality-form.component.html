@@ -1,0 +1,367 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="max-w-6xl mx-auto px-6 py-6 bg-white">
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-blue-600">
+          GIFT / HOSPITALITY RECEIVING
+        </h1>
+        <span class="text-sm text-gray-500">
+          4 - FORM ACGH-01
+        </span>
+      </div>
+      <p class="text-sm text-gray-600">
+        {{ isEdit ? 'Update gift/hospitality receiving request' : 'Meinhardt (Thailand) Ltd.' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 pb-6">
+
+    <!-- Form -->
+    <form [formGroup]="giftHospitalityForm" (ngSubmit)="onSubmit()" class="space-y-8">
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <mat-form-field class="w-full">
+          <mat-label>Requester Name</mat-label>
+          <mat-select formControlName="requestedBy">
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="requesterSearchCtrl"
+                placeholderLabel="Search employee..."
+                noEntriesFoundLabel="No employee found">
+              </ngx-mat-select-search>
+            </mat-option>
+            <mat-option *ngIf="requesterLoading" disabled>Searching...</mat-option>
+            <mat-option *ngFor="let user of filteredRequesterUsers" [value]="user.code">
+              {{ user.displayLabel }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Defaults to the logged-in user; choose another employee when requesting on their behalf.</mat-hint>
+          <mat-error *ngIf="giftHospitalityForm.get('requestedBy')?.invalid && giftHospitalityForm.get('requestedBy')?.touched">
+            Requester Name is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Request Type -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Request Type</h3>
+        <mat-radio-group formControlName="requestType" class="flex space-x-10">
+          <div class="flex">
+            <mat-radio-button value="gift" class="text-gray-700">
+            </mat-radio-button>
+            <div class="h-10 flex items-center ml-2">Gift</div>
+          </div>
+          <div class="flex">
+            <mat-radio-button value="hospitality" class="text-gray-700">
+            </mat-radio-button>
+            <div class="h-10 flex items-center ml-2">Hospitality</div>
+          </div>
+        </mat-radio-group>
+        <div *ngIf="giftHospitalityForm.get('requestType')?.invalid && giftHospitalityForm.get('requestType')?.touched" class="mt-2 text-sm text-red-600">
+          Please select a request type
+        </div>
+      </div>
+
+      <!-- Request Details -->
+      <div class="bg-white shadow-sm rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Request Details</h3>
+        <div class="grid grid-cols-1 gap-6">
+          <!-- Description -->
+          <mat-form-field class="w-full">
+            <mat-label>Description of Gift/Hospitality</mat-label>
+            <textarea
+              matInput
+              formControlName="description"
+              rows="3"
+              placeholder="Describe the gift or hospitality you are receiving..."
+            ></textarea>
+            <mat-error *ngIf="giftHospitalityForm.get('description')?.invalid && giftHospitalityForm.get('description')?.touched">
+              {{ getErrorMessage('description') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Purpose -->
+          <mat-form-field class="w-full">
+            <mat-label>Purpose of the Gift/Hospitality receiving</mat-label>
+            <textarea
+              matInput
+              formControlName="purpose"
+              rows="3"
+              placeholder="Explain the purpose of receiving this gift or hospitality..."
+            ></textarea>
+            <mat-error *ngIf="giftHospitalityForm.get('purpose')?.invalid && giftHospitalityForm.get('purpose')?.touched">
+              {{ getErrorMessage('purpose') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Value -->
+          <mat-form-field class="w-full">
+            <mat-label>Value of Gift/Hospitality (Including VAT)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="value"
+              placeholder="Minimum 3,000.00"
+              min="3000"
+              step="0.01"
+            />
+            <mat-error *ngIf="giftHospitalityForm.get('value')?.invalid && giftHospitalityForm.get('value')?.touched">
+              {{ getErrorMessage('value') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Approval Matrix (ตารางราคา) - ใต้ช่องกรอกราคา -->
+          <div class="w-full mt-2">
+            <h4 class="text-base font-semibold text-gray-800 mb-2 flex items-center">
+              <svg class="w-4 h-4 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+              </svg>
+              Approval Matrix
+            </h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full border border-black border-collapse">
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Amount</th>
+                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Prepared by</th>
+                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Verified by</th>
+                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Approved by</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="border border-black px-4 py-2 text-sm text-gray-800">More than 3,000</td>
+                    <td class="border border-black px-4 py-2 text-sm text-gray-800">Staff</td>
+                    <td class="border border-black px-4 py-2 text-sm text-gray-800">ACSC</td>
+                    <td class="border border-black px-4 py-2 text-sm text-gray-800">TL / DI / MD</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Company and Date Information -->
+      <div class="bg-white shadow-sm rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Company and Date Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Company of Giver -->
+          <mat-form-field class="w-full">
+            <mat-label>Company of Giver</mat-label>
+            <input
+              matInput
+              formControlName="companyOfGiver"
+              placeholder="Name of the company providing the gift/hospitality"
+            />
+            <mat-error *ngIf="giftHospitalityForm.get('companyOfGiver')?.invalid && giftHospitalityForm.get('companyOfGiver')?.touched">
+              {{ getErrorMessage('companyOfGiver') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Proposed Date -->
+          <mat-form-field class="w-full">
+            <mat-label>Proposed Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              formControlName="proposedDate"
+            />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="giftHospitalityForm.get('proposedDate')?.invalid && giftHospitalityForm.get('proposedDate')?.touched">
+              {{ getErrorMessage('proposedDate') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- MTL's Receiving Staff By -->
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>MTL's Receiving Staff By</mat-label>
+            <mat-select formControlName="mtlReceivingStaffBy">
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="mtlReceivingStaffSearchCtrl"
+                  placeholderLabel="Search person"
+                  noEntriesFoundLabel="No results">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let user of filteredMtlReceivingStaffUsers" [value]="user.code">
+                {{ user.displayLabel }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="giftHospitalityForm.get('mtlReceivingStaffBy')?.invalid && giftHospitalityForm.get('mtlReceivingStaffBy')?.touched">
+              {{ getErrorMessage('mtlReceivingStaffBy') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Workflow Approvers -->
+      <div class="bg-white shadow-sm rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Approvers</h3>
+        <div class="flex flex-col gap-6">
+          <!-- Verified By (ACSC) -->
+          <mat-form-field class="w-full md:w-[32rem]">
+            <mat-label>Verified By (ACSC)</mat-label>
+            <mat-select formControlName="verifiedBy">
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="verifiedSearchCtrl"
+                  [searching]="verifiedLoading"
+                  placeholderLabel="Search ACSC member"
+                  noEntriesFoundLabel="No ACSC member found">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let user of filteredVerifiedUsers" [value]="user.code">
+                {{ user.displayLabel }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="giftHospitalityForm.get('verifiedBy')?.invalid && giftHospitalityForm.get('verifiedBy')?.touched">
+              {{ getErrorMessage('verifiedBy') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Acknowledge 1 (ACSL), stored in the legacy IMS workflow fields -->
+          <mat-form-field class="w-full md:w-[32rem]">
+            <mat-label>Acknowledge 1 (ACSL) <span class="text-red-500">*</span></mat-label>
+            <mat-select formControlName="imsAcknowledgedBy">
+              <mat-option>
+                <ngx-mat-select-search [formControl]="imsSearchCtrl" [searching]="imsLoading"
+                  placeholderLabel="Search ACSL member" noEntriesFoundLabel="No ACSL member found">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let user of filteredImsUsers" [value]="user.code">
+                {{ user.displayLabel }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="giftHospitalityForm.get('imsAcknowledgedBy')?.invalid && giftHospitalityForm.get('imsAcknowledgedBy')?.touched">
+              {{ getErrorMessage('imsAcknowledgedBy') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Approved By (TL/DI/MD) -->
+          <mat-form-field class="w-full md:w-[32rem]">
+            <mat-label>Approved By (TL/DI/MD)</mat-label>
+            <mat-select formControlName="approvedBy">
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="approvedSearchCtrl"
+                  [searching]="approvedLoading"
+                  placeholderLabel="Search TL/DI/MD"
+                  noEntriesFoundLabel="No results">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.code">
+                {{ user.displayLabel }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="giftHospitalityForm.get('approvedBy')?.invalid && giftHospitalityForm.get('approvedBy')?.touched">
+              {{ getErrorMessage('approvedBy') }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Acknowledged By Accounts (CA) -->
+          <mat-form-field class="w-full md:w-[32rem]">
+            <mat-label>Acknowledged By Accounts (CA)</mat-label>
+            <mat-select formControlName="acknowledgedBy">
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="acknowledgedSearchCtrl"
+                  [searching]="acknowledgedLoading"
+                  placeholderLabel="Search JN"
+                  noEntriesFoundLabel="No results">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.code">
+                {{ user.displayLabel }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="giftHospitalityForm.get('acknowledgedBy')?.invalid && giftHospitalityForm.get('acknowledgedBy')?.touched">
+              {{ getErrorMessage('acknowledgedBy') }}
+            </mat-error>
+          </mat-form-field>
+
+        </div>
+      </div>
+
+      <div class="bg-white shadow-sm rounded-lg p-6">
+        <div class="mb-4">
+          <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+            Attached Documents
+          </h2>
+        </div>
+
+        <div class="mb-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-3">Please attach documents</h3>
+          <button type="button" mat-stroked-button (click)="openUploadDialog()" class="mb-4">
+            <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+            Upload Document
+          </button>
+
+          <div *ngIf="attachmentsArray?.length" class="mt-4 space-y-2">
+            <div
+              *ngFor="let att of attachmentsArray.controls; index as i"
+              class="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-50"
+            >
+              <div class="flex items-center space-x-3 flex-1 min-w-0">
+                <mat-icon
+                  class="text-gray-400 flex-shrink-0 self-center"
+                  [svgIcon]="att.value.type === 'file' ? 'heroicons_outline:document-text' : 'heroicons_outline:link'"
+                ></mat-icon>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-medium text-gray-700 truncate">
+                    {{ att.value.file_name || att.value.file_url || att.value.name || att.value.url || 'No file name' }}
+                  </div>
+                  <div *ngIf="attachmentsArray.controls[i].value.file_size" class="text-xs text-gray-500">
+                    {{ (attachmentsArray.controls[i].value.file_size / 1024).toFixed(2) }} KB
+                  </div>
+                  <div *ngIf="attachmentsArray.controls[i].value.mime_type" class="text-xs text-gray-500">
+                    {{ attachmentsArray.controls[i].value.mime_type }}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                mat-icon-button
+                color="warn"
+                (click)="removeAttachment(i)"
+                aria-label="Remove document"
+              >
+                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="!attachmentsArray?.length" class="text-sm text-gray-500 mt-2">
+            No documents attached yet
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="flex justify-end space-x-4">
+        <button
+          type="button"
+          (click)="router.navigate(['/gift-hospitality'])"
+          class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="loading"
+          class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span *ngIf="!loading">
+            {{ isEdit ? 'Update Request' : 'Submit Request' }}
+
+          </span>
+          <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

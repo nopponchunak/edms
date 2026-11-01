@@ -1,0 +1,668 @@
+.document-section {
+  margin-bottom: 2rem;
+}
+
+.document-section.borderless {
+  margin-bottom: 0;
+}
+
+.document-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+
+  .dark & {
+    color: #f9fafb;
+  }
+}
+
+.section-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  .dark & {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+  }
+}
+
+.document-field label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+
+  .dark & {
+    color: #d1d5db;
+  }
+}
+
+.section-brief {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.section-brief--compact {
+  grid-template-columns: 1fr;
+}
+
+.brief-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.875rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+
+  .dark & {
+    background: #1e293b;
+    border-color: #334155;
+  }
+}
+
+.brief-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #2563eb;
+
+  .dark & {
+    color: #93c5fd;
+  }
+}
+
+.brief-text {
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.45;
+
+  .dark & {
+    color: #cbd5e1;
+  }
+}
+
+.section-divider-top {
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+
+  .dark & {
+    border-top-color: #334155;
+  }
+}
+
+.section-table-note {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #64748b;
+
+  .dark & {
+    color: #94a3b8;
+  }
+}
+
+.table-stack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.fee-revision-table {
+  min-width: 920px;
+}
+
+.fee-label-col {
+  width: 24%;
+  min-width: 220px;
+}
+
+.jc-label-col {
+  width: 80px;
+  min-width: 80px;
+}
+
+.fee-revision-col {
+  min-width: 310px;
+}
+
+.previous-revision-col {
+  min-width: 310px;
+}
+
+.previous-snapshot-head {
+  background: #eef2f7;
+  color: #64748b;
+
+  .dark & {
+    background: #1f2937;
+    color: #cbd5e1;
+  }
+}
+
+.previous-snapshot-cell {
+  background: #f3f4f6;
+  color: #64748b;
+  vertical-align: middle;
+
+  .dark & {
+    background: #1f2937;
+    color: #cbd5e1;
+  }
+}
+
+.previous-snapshot-value {
+  min-height: 2.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #e5e7eb;
+  color: #64748b;
+  line-height: 1.25rem;
+  word-break: break-word;
+
+  .dark & {
+    border-color: #475569;
+    background: #334155;
+    color: #cbd5e1;
+  }
+}
+
+.previous-snapshot-value--strong {
+  font-weight: 600;
+}
+
+.previous-fee-items {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.previous-fee-item,
+.previous-fee-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #e5e7eb;
+  color: #64748b;
+  line-height: 1.25rem;
+
+  span {
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  strong {
+    flex: 0 0 auto;
+    font-weight: 600;
+  }
+
+  .dark & {
+    border-color: #475569;
+    background: #334155;
+    color: #cbd5e1;
+  }
+}
+
+.previous-fee-total {
+  background: #dbeafe;
+  color: #1d4ed8;
+
+  .dark & {
+    background: rgba(37, 99, 235, 0.25);
+    color: #bfdbfe;
+  }
+}
+
+.fee-items-editor {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.fee-items-editor-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.fee-line-editor {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(110px, 0.55fr) 40px;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.fee-line-remove-btn {
+  width: 40px;
+  height: 40px;
+
+  mat-icon {
+    color: #ef4444;
+  }
+}
+
+.fee-line-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.fee-line-total {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+
+  .dark & {
+    color: #cbd5e1;
+  }
+}
+
+.previous-snapshot-title {
+  color: #64748b;
+
+  .dark & {
+    color: #cbd5e1;
+  }
+}
+
+.previous-billing-card {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+
+  .dark & {
+    background: #1f2937;
+    border-color: #475569;
+  }
+}
+
+.previous-billing-table {
+  thead tr {
+    background: #e5e7eb;
+    color: #64748b;
+
+    .dark & {
+      background: #334155;
+      color: #cbd5e1;
+    }
+  }
+}
+
+.fee-agreement-sheet {
+  margin-top: 0.25rem;
+}
+
+.fee-agreement-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.fee-agreement-labels {
+  display: grid;
+  grid-template-rows: 44px repeat(6, minmax(54px, auto));
+  align-items: center;
+  padding-top: 1px;
+}
+
+.fee-agreement-label {
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: #111827;
+
+  .dark & {
+    color: #e5e7eb;
+  }
+}
+
+.fee-agreement-label--spacer {
+  visibility: hidden;
+}
+
+.fee-agreement-label--sub {
+  padding-left: 1rem;
+}
+
+.fee-agreement-label--net {
+  font-weight: 600;
+}
+
+.fee-agreement-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+
+  .dark & {
+    border-color: #475569;
+    background: #0f172a;
+  }
+
+  th,
+  td {
+    border: 1px solid #cbd5e1;
+    padding: 0.25rem 0.5rem;
+    vertical-align: middle;
+
+    .dark & {
+      border-color: #475569;
+    }
+  }
+
+  thead th {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    padding: 0.5rem;
+
+    .dark & {
+      color: #f8fafc;
+    }
+  }
+
+  tbody td {
+    height: 54px;
+  }
+}
+
+.fee-agreement-placeholder {
+  height: 100%;
+  min-height: 28px;
+}
+
+.fee-agreement-net-row td {
+  background: rgba(37, 99, 235, 0.04);
+
+  .dark & {
+    background: rgba(37, 99, 235, 0.08);
+  }
+}
+
+.revision-header-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.revision-remove-btn {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  margin-top: 0.1rem;
+}
+
+.billing-forecast-table {
+  min-width: 408px;
+
+  .billing-forecast-date-col {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .billing-forecast-amount-col {
+    width: 136px;
+    min-width: 136px;
+  }
+
+  .billing-forecast-remove-col {
+    width: 52px;
+    min-width: 52px;
+  }
+
+  .billing-forecast-remove-cell {
+    width: 52px;
+    min-width: 52px;
+    vertical-align: middle;
+  }
+
+  .billing-forecast-remove-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      color: #ef4444;
+    }
+
+    &:disabled mat-icon {
+      color: #cbd5e1;
+    }
+  }
+}
+
+.standard-reference {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+
+  .dark & {
+    background: #1e293b;
+    border-color: #334155;
+  }
+}
+
+.standard-projects-sheet {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+  align-items: start;
+}
+
+.standard-projects-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111827;
+
+  .dark & {
+    color: #f8fafc;
+  }
+}
+
+.standard-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(44px, auto));
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+}
+
+.standard-projects-head,
+.standard-projects-value {
+  font-size: 0.95rem;
+  color: #111827;
+
+  .dark & {
+    color: #e5e7eb;
+  }
+}
+
+.standard-projects-head {
+  text-align: center;
+  font-weight: 500;
+}
+
+.standard-projects-value {
+  text-align: center;
+}
+
+.standard-projects-report {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+.standard-projects-report-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111827;
+
+  .dark & {
+    color: #f8fafc;
+  }
+}
+
+.standard-projects-report-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(44px, auto));
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+}
+
+.project-type-reference {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 2rem;
+}
+
+.project-type-sheet {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.project-type-sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.project-type-sheet-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+
+  .dark & {
+    color: #f8fafc;
+  }
+}
+
+.project-type-sheet-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 2px solid #111827;
+  background: #fff;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+
+  .dark & {
+    border-color: #e5e7eb;
+    background: #0f172a;
+    color: #f8fafc;
+  }
+}
+
+.project-type-column {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.project-type-item {
+  display: flex;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: #374151;
+  align-items: flex-start;
+
+  .dark & {
+    color: #d1d5db;
+  }
+}
+
+.type-code {
+  min-width: 1rem;
+  font-weight: 700;
+  color: #111827;
+
+  .dark & {
+    color: #f9fafb;
+  }
+}
+
+.type-name {
+  line-height: 1.4;
+}
+
+:host ::ng-deep .dense-field.mat-mdc-form-field {
+  display: block;
+}
+
+:host ::ng-deep .dense-field .mat-mdc-form-field-subscript-wrapper {
+  min-height: 0;
+}
+
+:host ::ng-deep .dense-field .mat-mdc-form-field-infix {
+  min-height: 44px;
+}
+
+:host ::ng-deep textarea.mat-mdc-input-element {
+  resize: vertical;
+}
+
+:host-context(.dark) {
+  .bg-blue-50 {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+  }
+
+  .bg-white {
+    background-color: #1e293b !important;
+  }
+
+  .border-blue-100 {
+    border-color: #334155 !important;
+  }
+
+  .text-blue-700 {
+    color: #93c5fd !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-brief,
+  .standard-projects-sheet,
+  .project-type-reference {
+    grid-template-columns: 1fr;
+  }
+
+  .fee-agreement-layout {
+    grid-template-columns: 160px minmax(720px, 1fr);
+    gap: 0.5rem;
+  }
+
+  .fee-agreement-label {
+    font-size: 0.875rem;
+  }
+
+  .standard-projects-grid {
+    grid-template-columns: 90px repeat(4, minmax(40px, 1fr));
+    gap: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}

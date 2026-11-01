@@ -1,0 +1,147 @@
+// Project Quality Assurance Plan Form Component Styles
+// Matches proposal-contract-review theme
+
+// Center checkboxes in table cells
+td {
+  ::ng-deep mat-checkbox {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+
+    .mdc-form-field {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    .mdc-checkbox {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .mdc-label {
+      display: none !important;
+    }
+  }
+}
+
+.document-section {
+  margin-bottom: 2rem;
+}
+
+.document-section.borderless {
+  margin-bottom: 0;
+}
+
+.document-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+
+  .dark & {
+    color: #f9fafb;
+  }
+}
+
+.section-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  .dark & {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+  }
+}
+
+.document-field label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+
+  .dark & {
+    color: #d1d5db;
+  }
+}
+
+.document-check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  ::ng-deep mat-checkbox {
+    flex: 1;
+    min-width: 200px;
+    border: 1px solid #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+
+    .dark & {
+      border-color: #334155;
+      background: #1e293b;
+    }
+
+    &:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      .dark & {
+        background: rgba(59, 130, 246, 0.1);
+      }
+    }
+
+    &.mat-mdc-checkbox-checked {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      border-width: 2px;
+      padding: 7px 11px;
+
+      .dark & {
+        background: rgba(59, 130, 246, 0.1);
+      }
+    }
+
+    .mdc-checkbox {
+      margin-right: 8px;
+    }
+  }
+}
+
+:host ::ng-deep .dense-field.mat-mdc-form-field {
+  display: block;
+}
+
+:host ::ng-deep .dense-field .mat-mdc-form-field-subscript-wrapper {
+  min-height: 0;
+}
+
+:host-context(.dark) {
+  .bg-blue-50 {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+  }
+  .bg-white {
+    background-color: #1e293b !important;
+  }
+  .border-blue-100 {
+    border-color: #334155 !important;
+  }
+  .text-blue-700 {
+    color: #93c5fd !important;
+  }
+}

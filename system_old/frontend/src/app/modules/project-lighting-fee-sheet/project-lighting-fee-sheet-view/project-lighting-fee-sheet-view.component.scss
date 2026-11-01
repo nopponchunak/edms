@@ -1,0 +1,71 @@
+/* Project Lighting Fee Sheet View Component Styles */
+/* This component uses Tailwind CSS classes for styling */
+
+/* Custom table styling */
+.mat-mdc-table {
+  width: 100%;
+}
+
+/* Ensure proper spacing for action buttons */
+.flex.items-center.space-x-4 > * + * {
+  margin-left: 1rem;
+}
+
+/* Custom hover effects for table rows */
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+.dark .hover\:bg-gray-700:hover {
+  background-color: #374151;
+}
+
+/* Status badge styling */
+.inline-flex.items-center.px-3.py-1.rounded-full {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Loading spinner positioning */
+.flex.justify-center.items-center.py-12 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+/* Empty state styling */
+.text-center.py-12 {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+/* Icon sizing for empty state */
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1;
+}
+
+/* Custom styling for fee table cells */
+.font-bold.text-blue-600 {
+  font-weight: 700;
+  color: #2563eb;
+}
+
+/* Grid layout for standard projects */
+.grid.grid-cols-2.md\:grid-cols-4.gap-4 > * + * {
+  margin-top: 0;
+}
+
+/* Report section styling */
+.bg-gray-50.dark\:bg-gray-700 {
+  background-color: #f9fafb;
+}
+
+.dark .bg-gray-50.dark\:bg-gray-700 {
+  background-color: #374151;
+}

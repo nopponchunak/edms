@@ -1,0 +1,666 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        Supplier Assessment Form
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Review and approve supplier assessment
+      </p>
+    </div>
+
+    <!-- Alert -->
+    <fuse-alert
+      class="mb-6"
+      *ngIf="alert"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null"
+    >
+      {{ alert.message }}
+    </fuse-alert>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- ================= DOCUMENT PART (เหมือนหน้า View) ================= -->
+    <div *ngIf="!isLoading && assessment">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
+      >
+        <!-- หัวการ์ด + Status + Back -->
+        <div
+          class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
+        >
+          <div>
+            <h2
+              class="text-xl font-semibold text-gray-900 dark:text-white mb-1"
+            >
+              Assessment Details
+            </h2>
+            <p
+              class="text-sm text-gray-500 dark:text-gray-400"
+            >
+              Supplier: {{ assessment.supplierName }} · Assessment Date:
+              {{ formatDate(assessment.assessmentDate) }}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <span
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+              [class]="getStatusBadgeClass(assessment.status)"
+            >
+              {{ getStatusLabel(assessment.status) }}
+            </span>
+
+            <!-- Standardized Actions -->
+            <app-view-actions
+              [backPath]="'/supplier-assessment'"
+              [navId]="'supplier-assessment'"
+              [showPrint]="true"
+            ></app-view-actions>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-10 text-sm">
+          <!-- 1. Assessment Details -->
+          <section>
+            <div class="flex items-center gap-2 mb-4">
+              <mat-icon
+                class="text-blue-600"
+                [svgIcon]="'heroicons_solid:document-text'"
+              ></mat-icon>
+              <h3
+                class="text-base font-semibold text-gray-900 dark:text-white"
+              >
+                Assessment Details
+              </h3>
+            </div>
+
+            <!-- Item(s) supplied -->
+            <div class="mb-4">
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                >Item(s) supplied:</label
+              >
+              <div
+                class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white"
+              >
+                {{ assessment.itemSupplied }}
+              </div>
+            </div>
+
+            <!-- Information used for Assessment -->
+            <div>
+              <p
+                class="text-xs font-medium text-gray-600 dark:text-gray-300 mb-2"
+              >
+                Information used for Assessment:
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <!-- left -->
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 rounded border flex items-center justify-center"
+                      [ngClass]="assessment.informationUsed.companyProfile
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-gray-400 text-transparent'"
+                    >
+                      ✓
+                    </span>
+                    <span>Company Profile / Biodata</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 rounded border flex items-center justify-center"
+                      [ngClass]="assessment.informationUsed.projectReference
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-gray-400 text-transparent'"
+                    >
+                      ✓
+                    </span>
+                    <span>Project Reference / Certificates</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 rounded border flex items-center justify-center"
+                      [ngClass]="assessment.informationUsed.siteVisit
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-gray-400 text-transparent'"
+                    >
+                      ✓
+                    </span>
+                    <span>Site Visit</span>
+                  </div>
+                </div>
+
+                <!-- right -->
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 rounded border flex items-center justify-center"
+                      [ngClass]="assessment.informationUsed.prevAssessmentRecord
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-gray-400 text-transparent'"
+                    >
+                      ✓
+                    </span>
+                    <span>Previous Assessment Record</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 rounded border flex items-center justify-center"
+                      [ngClass]="assessment.informationUsed.prevEvaluationRecord
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-gray-400 text-transparent'"
+                    >
+                      ✓
+                    </span>
+                    <span>Previous Evaluation Record</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 rounded border flex items-center justify-center"
+                      [ngClass]="assessment.informationUsed.isoCertificates
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-gray-400 text-transparent'"
+                    >
+                      ✓
+                    </span>
+                    <span>ISO Certificates</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 1. Assessment (Table) -->
+          <section>
+            <h3
+              class="text-base font-semibold text-gray-900 dark:text-white mb-3"
+            >
+              Assessment
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full border text-xs">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th
+                      class="border px-4 py-2 text-left font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      Assessment Areas
+                    </th>
+                    <th
+                      class="border px-4 py-2 text-center font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      Score (1 to 10)
+                    </th>
+                    <th
+                      class="border px-4 py-2 text-center font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      Poor
+                    </th>
+                    <th
+                      class="border px-4 py-2 text-center font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      Fair
+                    </th>
+                    <th
+                      class="border px-4 py-2 text-center font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      Good
+                    </th>
+                    <th
+                      class="border px-4 py-2 text-center font-semibold text-gray-700 dark:text-gray-200"
+                    >
+                      Excellent
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let row of assessment.assessmentAreas"
+                    class="bg-white dark:bg-gray-800"
+                  >
+                    <td class="border px-4 py-3 align-top">
+                      {{ row.name }}
+                    </td>
+                    <td class="border px-4 py-3 text-center">
+                      <div
+                        class="border rounded-md bg-gray-50 dark:bg-gray-800 inline-block px-3 py-1"
+                      >
+                        {{ row.score }}
+                      </div>
+                    </td>
+                    <td class="border px-4 py-3 text-center">
+                      {{ row.criteriaPoor }}
+                    </td>
+                    <td class="border px-4 py-3 text-center">
+                      {{ row.criteriaFair }}
+                    </td>
+                    <td class="border px-4 py-3 text-center">
+                      {{ row.criteriaGood }}
+                    </td>
+                    <td class="border px-4 py-3 text-center">
+                      {{ row.criteriaExcellent }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-3 flex items-center gap-3 text-xs">
+              <span class="font-semibold">Total Score =</span>
+              <div
+                class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-4 py-1"
+              >
+                {{ assessment.totalScore }}
+              </div>
+              <span class="text-gray-500 dark:text-gray-400"
+                >(Score in this section should exceed 15.)</span
+              >
+            </div>
+          </section>
+
+          <!-- 2. References -->
+          <section>
+            <h3
+              class="text-base font-semibold text-gray-900 dark:text-white mb-3"
+            >
+              2. References
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Contact at least one external reference and record name and
+              opinion.
+            </p>
+
+            <div class="space-y-4">
+              <div
+                *ngFor="let ref of assessment.references; let i = index"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                <div>
+                  <label
+                    class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                    >{{ i === 0 ? 'a) Name:' : 'b) Name:' }}</label
+                  >
+                  <div
+                    class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                  >
+                    {{ ref.name }}
+                  </div>
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                    >Opinion:</label
+                  >
+                  <div
+                    class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                  >
+                    {{ ref.opinion }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Recommendation -->
+          <section>
+            <h3
+              class="text-base font-semibold text-gray-900 dark:text-white mb-3"
+            >
+              Recommendation
+            </h3>
+
+            <div class="space-y-3 text-sm">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-4 h-4 rounded-full border flex items-center justify-center"
+                    [ngClass]="assessment.recommendation.accept
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'border-gray-400 text-transparent'"
+                  >
+                    ●
+                  </span>
+                  <span>
+                    Accept (total score in item 1 is above the minimum and at
+                    least one positive external reference is obtained).
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-4 h-4 rounded-full border flex items-center justify-center"
+                    [ngClass]="!assessment.recommendation.accept
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'border-gray-400 text-transparent'"
+                  >
+                    ●
+                  </span>
+                  <span>Not accept.</span>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Reason:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2 whitespace-pre-wrap"
+                >
+                  {{ assessment.recommendation.reason }}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sign-off Section / Approved Supplier -->
+          <section class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Assessed By:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                >
+                  {{ assessment.signoff.assessedBy }}
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Date:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                >
+                  {{ formatDate(assessment.signoff.assessedDate) }}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                Is the above Supplier approved to go on the Approved Supplier
+                List?
+              </p>
+              <div class="mt-2 flex items-center gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-4 h-4 rounded-full border flex items-center justify-center"
+                    [ngClass]="assessment.approvedSupplier.isApproved
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'border-gray-400 text-transparent'"
+                  >
+                    ●
+                  </span>
+                  <span>Yes</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-4 h-4 rounded-full border flex items-center justify-center"
+                    [ngClass]="!assessment.approvedSupplier.isApproved
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'border-gray-400 text-transparent'"
+                  >
+                    ●
+                  </span>
+                  <span>No</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                >Remark:</label
+              >
+              <div
+                class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2 whitespace-pre-wrap"
+              >
+                {{ assessment.approvedSupplier.remark }}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Approved By:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                >
+                  {{ assessment.signoff.approvedBy }}
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Date:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                >
+                  {{ formatDate(assessment.signoff.approvedDate) }}
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Acknowledged By:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                >
+                  {{ assessment.signoff.acknowledgedBy }}
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                  >Date:</label
+                >
+                <div
+                  class="border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 px-3 py-2"
+                >
+                  {{ formatDate(assessment.signoff.acknowledgedDate) }}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Attached Documents -->
+          <section>
+            <div class="flex items-center gap-2 mb-3">
+              <mat-icon
+                class="text-blue-600"
+                [svgIcon]="'heroicons_solid:folder-open'"
+              ></mat-icon>
+              <h3
+                class="text-base font-semibold text-gray-900 dark:text-white"
+              >
+                Attached Documents
+              </h3>
+            </div>
+
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Please attach documents
+            </p>
+
+            <div
+              *ngIf="assessment.attachments && assessment.attachments.length"
+              class="space-y-4"
+            >
+              <div
+                *ngFor="let doc of assessment.attachments"
+                class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700"
+              >
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                      <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ doc.fileName }}
+                    </span>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ doc.size }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              *ngIf="!assessment.attachments || !assessment.attachments.length"
+              class="text-xs text-gray-500 dark:text-gray-400"
+            >
+              No documents attached yet
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ==================== APPROVAL DECISION (ส่วน Review เพิ่มเติม) ==================== -->
+      <mat-card class="mb-2 mt-6">
+        <mat-card-header>
+          <mat-card-title class="text-lg font-semibold flex items-center">
+            <mat-icon
+              class="mr-2 text-green-600"
+              [svgIcon]="'heroicons_outline:check-circle'"
+            ></mat-icon>
+            Approval Decision
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="pt-4">
+          <div class="space-y-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              >
+                Decision
+              </label>
+              <mat-radio-group
+                [(ngModel)]="approvalDecision"
+                class="flex space-x-6"
+              >
+                <mat-radio-button
+                  value="approve"
+                  class="text-green-700 dark:text-green-400"
+                >
+                  <span class="ml-2">Approve</span>
+                </mat-radio-button>
+                <mat-radio-button
+                  value="decline"
+                  class="text-red-700 dark:text-red-400"
+                >
+                  <span class="ml-2">Decline</span>
+                </mat-radio-button>
+              </mat-radio-group>
+            </div>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Comments (Optional)</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="approvalComments"
+                rows="4"
+                placeholder="Enter your approval comments or remarks..."
+                class="bg-white dark:bg-gray-700"
+              ></textarea>
+            </mat-form-field>
+
+            <div class="flex justify-end space-x-3 pt-4">
+              <button
+                mat-stroked-button
+                (click)="onBack()"
+                class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                (click)="onApprove()"
+                [disabled]="!approvalDecision"
+                [class]="
+                  approvalDecision === 'approve'
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-red-600 hover:bg-red-700'
+                "
+                class="px-6 py-2 text-white rounded-lg transition-colors"
+              >
+                <mat-icon
+                  class="mr-2"
+                  [svgIcon]="
+                    approvalDecision === 'approve'
+                      ? 'heroicons_outline:check-circle'
+                      : 'heroicons_outline:x-circle'
+                  "
+                ></mat-icon>
+                {{
+                  approvalDecision === 'approve'
+                    ? 'Approve'
+                    : 'Decline'
+                }}
+                Review
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <!-- ==================== / APPROVAL DECISION ==================== -->
+    </div>
+
+    <!-- Not Found -->
+    <div *ngIf="!isLoading && !assessment" class="text-center py-12">
+      <mat-icon
+        class="text-6xl text-gray-400 mb-4"
+        [svgIcon]="'heroicons_outline:clipboard-document-list'"
+      ></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Assessment not found
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">
+        The assessment you're looking for doesn't exist or has been deleted.
+      </p>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onBack()"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        <mat-icon
+          class="mr-2"
+          [svgIcon]="'heroicons_outline:arrow-left'"
+        ></mat-icon>
+        Back to List
+      </button>
+    </div>
+  </div>
+</div>

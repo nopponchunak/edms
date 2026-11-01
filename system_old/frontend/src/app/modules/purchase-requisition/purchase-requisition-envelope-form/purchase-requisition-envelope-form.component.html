@@ -1,0 +1,499 @@
+<div class="pr-envelope-shell">
+    <div class="pr-envelope-toolbar" aria-label="Purchase requisition document toolbar">
+        <div class="pr-envelope-title">
+            <span class="pr-envelope-title__main">Purchase Requisition</span>
+            <span class="pr-envelope-title__sub">Envelope PR_FORM</span>
+        </div>
+
+        <div class="pr-envelope-progress" aria-label="Required fields progress">
+            <span>Required Fields Left</span>
+            <strong>{{ requiredFieldsLeft }}</strong>
+            <div class="pr-envelope-progress__track">
+                <div class="pr-envelope-progress__bar" [style.width.%]="requiredProgressPercent"></div>
+            </div>
+        </div>
+
+        <div class="pr-envelope-toolbar-actions">
+            <nav class="pr-envelope-version-switch" aria-label="Purchase requisition form version">
+                <a
+                    class="pr-envelope-version-switch__option"
+                    routerLink="/purchase-requisition/new"
+                >
+                    Modern
+                </a>
+                <a
+                    class="pr-envelope-version-switch__option pr-envelope-version-switch__option--active"
+                    routerLink="/purchase-requisition/new-document"
+                    aria-current="page"
+                >
+                    Legacy
+                </a>
+            </nav>
+
+            <div class="pr-envelope-page-status">
+                <span>Page 1 / 1</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="pr-envelope-subbar">
+        <span>PR_FORM</span>
+        <button type="button" class="pr-envelope-next-button" (click)="focusNextRequiredField()">
+            <mat-icon [svgIcon]="'heroicons_outline:arrow-down-circle'"></mat-icon>
+            <span>Next Required Field</span>
+        </button>
+    </div>
+
+    <div *ngIf="isLoading" class="pr-envelope-loading">
+        <mat-spinner diameter="50"></mat-spinner>
+    </div>
+
+    <form *ngIf="!isLoading" class="pr-document" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <section class="pr-document-page" aria-label="Purchase requisition form">
+            <header class="pr-document-header">
+                <div class="pr-document-company">Meinhardt (Thailand) Ltd.</div>
+                <div class="pr-document-logo-block">
+                    <img src="/images/logo/logo-meinharde.png" alt="Meinhardt" class="pr-document-logo" />
+                    <div>27 - FORM MTPC-02</div>
+                </div>
+            </header>
+
+            <h1 class="pr-document-heading">PURCHASE REQUISITION FORM</h1>
+
+            <div class="pr-document-meta-strip">
+                <div class="pr-document-meta-copy">
+                    <span>Draft entry</span>
+                    <strong>{{ requiredFieldsLeft }} required field{{ requiredFieldsLeft === 1 ? '' : 's' }} left</strong>
+                </div>
+                <label class="pr-document-currency" for="control-currency">
+                    <span>Currency</span>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-currency-field" appearance="outline" subscriptSizing="dynamic" id="control-currency">
+                        <mat-select formControlName="currency">
+                            <mat-option *ngFor="let opt of currencyOptions" [value]="opt.value">
+                                {{ opt.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </label>
+            </div>
+
+            <div class="pr-document-fields">
+                <div class="pr-doc-row pr-doc-row--to-date">
+                    <label class="pr-doc-label" for="control-to">To:</label>
+                    <input
+                        id="control-to"
+                        class="pr-doc-input"
+                        formControlName="to"
+                        readonly
+                        [class.pr-doc-input--invalid]="isFieldInvalid('to')"
+                    />
+
+                    <label class="pr-doc-label" for="control-date">Date:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-date-field" appearance="outline" subscriptSizing="dynamic" id="control-date">
+                        <input matInput [matDatepicker]="datePicker" formControlName="date" />
+                        <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #datePicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+                <div class="pr-doc-row pr-doc-row--subject">
+                    <label class="pr-doc-label" for="control-subject">Subject:</label>
+                    <input
+                        id="control-subject"
+                        class="pr-doc-input"
+                        formControlName="subject"
+                        aria-label="Subject"
+                        [attr.aria-describedby]="isFieldInvalid('subject') ? 'control-subject-error' : null"
+                        [class.pr-doc-input--invalid]="isFieldInvalid('subject')"
+                    />
+                    <span
+                        *ngIf="isFieldInvalid('subject')"
+                        id="control-subject-error"
+                        class="pr-doc-field-error"
+                    >
+                        {{ getErrorMessage('subject') }}
+                    </span>
+                </div>
+
+                <div class="pr-doc-row pr-doc-row--split">
+                    <label class="pr-doc-label" for="control-requestedBy">Requested By:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-select-field" appearance="outline" subscriptSizing="dynamic" id="control-requestedBy">
+                        <mat-select formControlName="requestedBy">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="requestedSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredRequestedUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <label class="pr-doc-label" for="control-recommendedBy">Recommended By:</label>
+                    <input
+                        id="control-recommendedBy"
+                        class="pr-doc-input"
+                        formControlName="recommendedBy"
+                    />
+                    <span class="pr-doc-inline-note">(if any)</span>
+                </div>
+
+                <div class="pr-doc-row pr-doc-row--deadline-received">
+                    <label class="pr-doc-label" for="control-deadline">Deadline:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-date-field" appearance="outline" subscriptSizing="dynamic" id="control-deadline">
+                        <input matInput [matDatepicker]="deadlinePicker" formControlName="deadline" />
+                        <mat-datepicker-toggle matIconSuffix [for]="deadlinePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #deadlinePicker></mat-datepicker>
+                    </mat-form-field>
+                    <span class="pr-doc-inline-note">(if any)</span>
+
+                    <label class="pr-doc-label" for="control-receivedFrom">Received From:</label>
+                    <input
+                        id="control-receivedFrom"
+                        class="pr-doc-input"
+                        formControlName="receivedFrom"
+                    />
+                    <span class="pr-doc-inline-note">(if any)</span>
+                </div>
+
+                <div class="pr-doc-row pr-doc-row--reason">
+                    <label class="pr-doc-label" for="control-reasonsForPurchase">Reasons for Purchase:</label>
+                    <textarea
+                        id="control-reasonsForPurchase"
+                        class="pr-doc-textarea"
+                        formControlName="reasonsForPurchase"
+                        rows="3"
+                        [class.pr-doc-input--invalid]="isFieldInvalid('reasonsForPurchase')"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="pr-document-section-head">
+                <span>Itemized Purchase List</span>
+                <button type="button" class="pr-document-inline-action" (click)="addItem()">
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span>Add row</span>
+                </button>
+            </div>
+
+            <div class="pr-document-table-wrap">
+                <table class="pr-document-table">
+                    <thead>
+                        <tr>
+                            <th>Item(s)</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>*Unit Price<br />({{ selectedCurrency }})</th>
+                            <th>*Amount<br />({{ selectedCurrency }})</th>
+                        </tr>
+                    </thead>
+                    <tbody formArrayName="items">
+                        <tr *ngFor="let itemGroup of itemsFormArray.controls; let i = index; trackBy: trackByIndex" [formGroupName]="i">
+                            <td>
+                                <div class="pr-document-item-cell">
+                                    <input class="pr-doc-table-input pr-doc-table-input--center" formControlName="item" readonly />
+                                    <button
+                                        type="button"
+                                        class="pr-document-row-remove"
+                                        (click)="removeItem(i)"
+                                        [disabled]="itemsFormArray.length <= 1"
+                                        aria-label="Remove item">
+                                        <mat-icon [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <textarea
+                                    class="pr-doc-table-input pr-doc-table-textarea"
+                                    formControlName="description"
+                                    [class.pr-doc-input--invalid]="itemGroup.get('description')?.invalid && itemGroup.get('description')?.touched"
+                                    rows="3"
+                                    aria-label="Item description"
+                                ></textarea>
+                            </td>
+                            <td>
+                                <input
+                                    class="pr-doc-table-input pr-doc-table-input--number"
+                                    type="number"
+                                    min="1"
+                                    formControlName="quantity"
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    class="pr-doc-table-input pr-doc-table-input--number"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    formControlName="unitPrice"
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    class="pr-doc-table-input pr-doc-table-input--number"
+                                    [value]="toAmountNumber(itemGroup.get('amount')?.value) | currency:selectedCurrency:'symbol':'1.2-2'"
+                                    readonly
+                                />
+                            </td>
+                        </tr>
+                        <tr *ngFor="let row of placeholderTableRows; trackBy: trackByIndex" class="pr-document-table__placeholder-row">
+                            <td><span></span></td>
+                            <td><span></span></td>
+                            <td><span></span></td>
+                            <td><span></span></td>
+                            <td><span></span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <button type="button" class="pr-document-attachment" (click)="openUploadDialog()">
+                                    <mat-icon [svgIcon]="'heroicons_outline:paper-clip'"></mat-icon>
+                                    <span>Attachment</span>
+                                    <strong *ngIf="attachmentsArray?.length">{{ attachmentsArray.length }}</strong>
+                                </button>
+                            </td>
+                            <td colspan="3" class="pr-document-total-cell">
+                                <div class="pr-document-total-row">
+                                    <span>Discount</span>
+                                    <input
+                                        class="pr-doc-total-input"
+                                        type="number"
+                                        formControlName="discount"
+                                        min="0"
+                                        step="0.01"
+                                    />
+                                </div>
+                                <div class="pr-document-total-row">
+                                    <span>Sub Total</span>
+                                    <input
+                                        class="pr-doc-total-input"
+                                        [value]="form.get('subTotal')?.value | currency:selectedCurrency:'symbol':'1.2-2'"
+                                        readonly
+                                    />
+                                </div>
+                                <label class="pr-document-total-row pr-document-total-row--vat">
+                                    <span>VAT 7%</span>
+                                    <input type="checkbox" formControlName="vat" />
+                                    <input
+                                        class="pr-doc-total-input"
+                                        [value]="form.get('vatValue')?.value | currency:selectedCurrency:'symbol':'1.2-2'"
+                                        readonly
+                                    />
+                                </label>
+                                <div class="pr-document-total-row">
+                                    <span>Grand Total</span>
+                                    <input
+                                        class="pr-doc-total-input"
+                                        [value]="form.get('grandTotal')?.value | currency:selectedCurrency:'symbol':'1.2-2'"
+                                        readonly
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="pr-document-terms">
+                <p>
+                    <span class="pr-document-underline">Note:</span>
+                    <span>In case of purchasing software and/or IT equipment, this request must be verified by IT department to confirm our existing hardware is adequate and doesn't need any further upgrading.</span>
+                </p>
+                <div class="pr-document-other">
+                    <label for="control-paymentTerm">Payment Term:</label>
+                    <textarea
+                        id="control-paymentTerm"
+                        class="pr-doc-textarea"
+                        formControlName="paymentTerm"
+                        [placeholder]="defaultPaymentTerm"
+                        rows="2"></textarea>
+                </div>
+                <div class="pr-document-other">
+                    <label for="control-otherConditions">Other conditions (if any):</label>
+                    <input id="control-otherConditions" class="pr-doc-other-input" formControlName="otherConditions" />
+                </div>
+                <label class="pr-document-quotation">
+                    <input type="checkbox" formControlName="quotationAttached" />
+                    <span>*Please fill in the price and attach quotation (if any)</span>
+                </label>
+            </div>
+
+            <div class="pr-document-approval">
+                <div class="pr-sign-row pr-sign-row--requested">
+                    <label>Requested By:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic">
+                        <mat-select formControlName="requestedBy">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="requestedSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredRequestedUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <input class="pr-doc-sign-date" [value]="form.get('requestedDate')?.value | date:'dd-MMM-yy'" readonly />
+                </div>
+
+                <label class="pr-document-not-it">
+                    <input type="checkbox" formControlName="notITEquipment" />
+                    <span>Not IT equipment</span>
+                </label>
+
+                <div class="pr-sign-row" *ngIf="!form.get('notITEquipment')?.value">
+                    <label>Verified By:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic">
+                        <mat-select formControlName="verifiedByIS">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="verifiedISSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredVerifiedISUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span class="pr-sign-note">(IS for all IT equipment only)</span>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <span class="pr-doc-dotted-line"></span>
+                </div>
+
+                <div class="pr-sign-row">
+                    <label>Verified By:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic" id="control-verifiedBy">
+                        <mat-select formControlName="verifiedBy">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="verifiedSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredVerifiedUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span class="pr-sign-note">(MD/DI/AD/TL)</span>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <span class="pr-doc-dotted-line"></span>
+                </div>
+
+                <div class="pr-sign-row">
+                    <label>Approved By:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic" id="control-approvedBy">
+                        <mat-select formControlName="approvedBy">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="approvedSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span class="pr-sign-note">(MD/DI)</span>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <span class="pr-doc-dotted-line"></span>
+                </div>
+
+                <div class="pr-sign-row" *ngIf="requiresSecondApprover()">
+                    <label>Approved By 2:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic" id="control-approvedBy2">
+                        <mat-select formControlName="approvedBy2">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="approvedSearchCtrl2"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredApprovedUsers2" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span class="pr-sign-note">(DI)</span>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <span class="pr-doc-dotted-line"></span>
+                </div>
+
+                <div class="pr-sign-row">
+                    <label>Acknowledged:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic" id="control-acknowledgedBy">
+                        <mat-select formControlName="acknowledgedBy">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="acknowledgedSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span class="pr-sign-note">(CA)</span>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <span class="pr-doc-dotted-line"></span>
+                </div>
+
+                <div class="pr-asset-row">
+                    <span>Need asset code registration?</span>
+                    <label><input type="radio" formControlName="needAssetCodeRegistration" value="yes" /> Yes</label>
+                    <label><input type="radio" formControlName="needAssetCodeRegistration" value="no" /> No</label>
+                </div>
+
+                <div class="pr-sign-row">
+                    <label>Action by:</label>
+                    <mat-form-field class="pr-doc-mat-field pr-doc-sign-field" appearance="outline" subscriptSizing="dynamic" id="control-actionByAdmin">
+                        <mat-select formControlName="actionByAdmin">
+                            <mat-option>
+                                <ngx-mat-select-search
+                                    [formControl]="actionByAdminSearchCtrl"
+                                    placeholderLabel="Search person"
+                                    noEntriesFoundLabel="No results">
+                                </ngx-mat-select-search>
+                            </mat-option>
+                            <mat-option *ngFor="let user of filteredActionByAdminUsers" [value]="user.code">
+                                {{ user.displayLabel }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <span class="pr-sign-note">(ADM)</span>
+                    <label class="pr-sign-date-label">Date:</label>
+                    <span class="pr-doc-dotted-line"></span>
+                </div>
+            </div>
+
+            <footer class="pr-document-footer">
+                <span>M:/MTL_INDEX/IMS DOCUMENTATION/FORMS/27 - MTPC-02-PURCHASE REQUISITION FORM.DOC/CC/NK</span>
+                <span>Page 1 of 1</span>
+            </footer>
+        </section>
+
+        <div class="pr-document-submit-bar">
+            <button type="button" class="pr-document-secondary-action" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="pr-document-submit-action" [disabled]="isSubmitting">
+                <mat-spinner *ngIf="isSubmitting" diameter="18"></mat-spinner>
+                <span>{{ isSubmitting ? 'Submitting...' : 'Submit' }}</span>
+            </button>
+        </div>
+    </form>
+</div>

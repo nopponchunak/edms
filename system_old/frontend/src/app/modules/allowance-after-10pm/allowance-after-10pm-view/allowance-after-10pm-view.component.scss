@@ -1,0 +1,1455 @@
+.document-card {
+  .section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: rgb(17 24 39);
+  }
+}
+
+.document-field {
+  label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+  }
+}
+
+.document-value {
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(229 231 235);
+  border-radius: 0.5rem;
+  background: rgb(249 250 251);
+  color: rgb(17 24 39);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.workflow-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgb(243 244 246);
+  border-radius: 0.5rem;
+  background: rgb(249 250 251);
+}
+
+.workflow-icon {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.print-only {
+  display: none;
+}
+
+.print-document-render {
+  display: block;
+  margin: 0 auto;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.print-document-render.allowance-after-10pm-print-root {
+  width: 210mm;
+}
+
+.allowance-row-measurement {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 176.60mm;
+  visibility: hidden;
+  pointer-events: none;
+
+  table {
+    width: 176.60mm;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    line-height: 1.15;
+  }
+
+  col.date-col {
+    width: 15.88mm;
+  }
+
+  col.project-col {
+    width: 19.05mm;
+  }
+
+  col.description-col {
+    width: 39mm;
+  }
+
+  col.time-col {
+    width: 12.49mm;
+  }
+
+  col.baht-col {
+    width: 17.88mm;
+  }
+
+  col.requested-col {
+    width: 29.05mm;
+  }
+
+  col.approved-col {
+    width: 30.57mm;
+  }
+
+  td {
+    height: 9.186mm;
+    padding: 0.65mm 0.72mm;
+    border: 0.5pt solid transparent;
+    box-sizing: border-box;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .date-cell,
+  .center {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .right {
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 4mm;
+  }
+
+  .screen-view {
+    display: none !important;
+  }
+
+  .allowance-row-measurement {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-document {
+    display: flex;
+    width: 202mm;
+    min-height: 289mm;
+    flex-direction: column;
+    margin: 0 auto;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    line-height: 1.25;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-page-break {
+    display: block;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .print-attachments {
+    display: block;
+  }
+
+  .print-attachment-page {
+    width: 190mm;
+    min-height: 277mm;
+    margin: 0 auto;
+    padding: 8mm 6mm;
+    break-before: page;
+    page-break-before: always;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .print-attachment-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8mm;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid #000;
+
+    h2 {
+      margin: 0 0 2mm;
+      font-size: 18px;
+      font-weight: 700;
+    }
+  }
+
+  .print-attachment-meta {
+    flex: 0 0 auto;
+    text-align: right;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .print-attachment-body {
+    display: flex;
+    min-height: 248mm;
+    align-items: center;
+    justify-content: center;
+    padding-top: 6mm;
+  }
+
+  .print-attachment-image {
+    display: block;
+    max-width: 100%;
+    max-height: 248mm;
+    object-fit: contain;
+  }
+
+  .print-attachment-frame {
+    width: 100%;
+    height: 248mm;
+    border: 0;
+  }
+
+  .print-attachment-fallback {
+    max-width: 150mm;
+    text-align: center;
+    font-size: 12px;
+
+    h3 {
+      margin: 4mm 0 2mm;
+      font-size: 16px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    p {
+      margin: 0 0 2mm;
+    }
+  }
+
+  .fallback-file-icon {
+    display: inline-flex;
+    width: 28mm;
+    height: 28mm;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .fallback-path {
+    word-break: break-all;
+  }
+
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7mm 4mm 3mm;
+
+    h1 {
+      margin: 0 0 6mm;
+      font-size: 18px;
+      font-weight: 700;
+    }
+  }
+
+  .print-brand {
+    text-align: right;
+    font-size: 10px;
+    font-weight: 700;
+
+    img {
+      display: block;
+      width: 102px;
+      height: auto;
+      margin-left: auto;
+      margin-bottom: 1px;
+    }
+  }
+
+  .print-to,
+  .print-name-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 11px;
+  }
+
+  .dotted-line {
+    display: inline-block;
+    min-width: 62mm;
+    padding: 0 2mm;
+    border-bottom: 1px dotted #000;
+    min-height: 16px;
+  }
+
+  .solid-line {
+    display: inline-block;
+    min-width: 62mm;
+    padding: 0 2mm;
+    border-bottom: 1px solid #000;
+    min-height: 16px;
+  }
+
+  .print-box {
+    margin: 0 3mm;
+  }
+
+  .print-title {
+    padding: 4mm 3mm;
+    border-bottom: 1px solid #000;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .print-name-row {
+    padding: 5mm 3mm 3mm;
+    border-bottom: 1px solid #000;
+
+    .dotted-line {
+      min-width: 82mm;
+    }
+  }
+
+  .print-discipline-row {
+    display: grid;
+    grid-template-columns: 32mm repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    border-bottom: 1px solid #000;
+
+    .print-discipline-label {
+      display: flex;
+      align-items: center;
+      padding: 3mm 2mm;
+    }
+
+    > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5mm;
+      min-width: 0;
+      padding: 3mm 0;
+    }
+  }
+
+  .print-other-discipline {
+    display: inline-block;
+    min-width: 18mm;
+    max-width: 34mm;
+    padding: 0 1mm;
+    border-bottom: 1px dotted #000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .print-checkbox {
+    display: inline-flex;
+    width: 4mm;
+    height: 4mm;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .print-intro {
+    padding: 5mm 3mm 3mm;
+    font-size: 10px;
+  }
+
+  .print-table {
+    width: calc(100% - 6mm);
+    margin: 0 3mm 4mm;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 8.5px;
+
+    th,
+    td {
+      border: 1px solid #555;
+      padding: 1.2mm;
+      vertical-align: top;
+    }
+
+    th {
+      text-align: center;
+      font-weight: 700;
+    }
+
+    tbody td {
+      height: 11.5mm;
+    }
+
+    tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .date-col {
+      width: 18mm;
+    }
+
+    .project-col {
+      width: 24mm;
+    }
+
+    .time-col {
+      width: 18mm;
+      white-space: nowrap;
+    }
+
+    .baht-col {
+      width: 26mm;
+      white-space: nowrap;
+    }
+
+    .requested-col {
+      width: 24mm;
+    }
+
+    .approved-col {
+      width: 24mm;
+    }
+
+    .center {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .signature-cell {
+      padding: 0.35mm;
+      vertical-align: middle;
+      overflow: hidden;
+    }
+
+    .signature-cell ::ng-deep .signature-print-block {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      display: flex;
+      width: max-content;
+      min-width: 0;
+      max-width: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      isolation: isolate;
+      line-height: 1;
+      pointer-events: none;
+      transform: translateX(-50%) scale(var(--signature-print-scale, 1));
+      transform-origin: center bottom;
+      vertical-align: middle;
+    }
+
+    .signature-cell ::ng-deep .signature-watermark {
+      position: absolute;
+      left: 52%;
+      right: auto;
+      bottom: 1.1mm;
+      z-index: 0;
+      width: 4.5mm;
+      height: 4.5mm;
+      display: block;
+      object-fit: contain;
+      opacity: 0.09;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .signature-cell ::ng-deep .signature-name {
+      position: relative;
+      z-index: 1;
+      color: #0b3e88;
+      font-family: 'testimonia-font', cursive;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 0.78;
+      white-space: nowrap;
+    }
+
+    .signature-cell ::ng-deep .signature-id {
+      position: relative;
+      z-index: 1;
+      margin-top: -1px;
+      color: #0b3e88;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 6.5px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .total-label {
+      border-left: 0;
+      border-bottom: 0;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .total-value {
+      font-weight: 700;
+    }
+  }
+
+  .print-received-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8mm;
+    padding: 5mm 4mm 4mm;
+    font-size: 10px;
+
+    > div {
+      display: flex;
+      min-width: 0;
+      align-items: flex-end;
+      gap: 1mm;
+    }
+
+    .solid-line {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+  }
+
+  .print-note {
+    display: grid;
+    grid-template-columns: 12mm 1fr;
+    column-gap: 2mm;
+    row-gap: 1mm;
+    padding: 0 4mm 5mm;
+    font-size: 9px;
+
+    .note-title {
+      text-decoration: underline;
+      font-weight: 700;
+    }
+
+    div:not(:first-child) {
+      grid-column: 2;
+    }
+  }
+
+  .print-approval-workflow-page {
+    width: 190mm;
+    min-height: 277mm;
+    margin: 0 auto;
+    padding: 10mm 5mm;
+    break-before: page;
+    page-break-before: always;
+    background: #ffffff;
+    color: #111827;
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+  }
+
+  .print-approval-card {
+    width: 100%;
+    min-height: 86mm;
+    padding: 9mm 10mm 10mm;
+    border: 1px solid #dbe3ef;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    box-sizing: border-box;
+  }
+
+  .print-approval-card-title {
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+    margin-bottom: 8mm;
+    color: #111827;
+    font-size: 20px;
+    font-weight: bold;
+
+    mat-icon {
+      width: 21px;
+      height: 21px;
+      color: #059669;
+    }
+  }
+
+  .print-approval-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5mm;
+  }
+
+  .print-approval-card-row {
+    display: flex;
+    align-items: center;
+    gap: 5mm;
+    min-height: 28mm;
+    padding: 5mm 6mm;
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    background: #f8fafc;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-workflow-step-icon {
+    display: flex;
+    width: 12mm;
+    height: 12mm;
+    flex: 0 0 12mm;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #d9fbe8;
+    color: #64748b;
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+      line-height: 16px;
+    }
+  }
+
+  .print-workflow-step-content {
+    min-width: 0;
+    color: #111827;
+    font-size: 12px;
+
+    p {
+      margin: 0 0 1mm;
+      line-height: 1.28;
+    }
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  .print-workflow-date {
+    color: #64748b;
+  }
+
+  .print-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 6mm;
+    margin-left: 1.5mm;
+    padding: 0 3mm;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  .print-only,
+  .print-document-render {
+    width: 210mm;
+    margin: 0;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .print-document {
+    position: relative;
+    display: block;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    margin: 0;
+    overflow: hidden;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.96pt;
+    line-height: 1;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-header {
+    position: static;
+    display: block;
+    padding: 0;
+    margin: 0;
+
+    h1 {
+      position: absolute;
+      top: 13.12mm;
+      left: 17.78mm;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 21.96pt;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+  }
+
+  .print-brand {
+    position: absolute;
+    top: 14.46mm;
+    left: 164.94mm;
+    width: 35.56mm;
+    margin: 0;
+    color: #000;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.04pt;
+    font-weight: 700;
+    line-height: 1;
+
+    img {
+      display: block;
+      width: 35.56mm;
+      height: 7.34mm;
+      margin: 0;
+    }
+
+    div {
+      margin-top: 0.44mm;
+      white-space: nowrap;
+    }
+  }
+
+  .print-to {
+    position: static;
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    line-height: 1;
+
+    > span:first-child {
+      position: absolute;
+      top: 29.33mm;
+      left: 17.78mm;
+      white-space: nowrap;
+    }
+
+    .print-to-leader {
+      position: absolute;
+      top: 33.20mm;
+      left: 23.42mm;
+      width: 46.24mm;
+      height: 0;
+      border-bottom: 0.5pt dotted #000;
+    }
+
+    .print-to-target {
+      position: absolute;
+      top: 29.33mm;
+      left: 68.60mm;
+      white-space: nowrap;
+    }
+  }
+
+  .print-box {
+    position: absolute;
+    top: 38.84mm;
+    left: 14.71mm;
+    width: 184.19mm;
+    height: 237.98mm;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+
+    &::before {
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      border: 4pt double #0000ff;
+      box-sizing: border-box;
+      content: '';
+      pointer-events: none;
+    }
+  }
+
+  .print-title {
+    position: absolute;
+    top: 4.35mm;
+    left: 2.93mm;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15.50pt;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .print-name-row {
+    position: absolute;
+    top: 15.66mm;
+    left: 0.53mm;
+    display: flex;
+    width: 183.13mm;
+    height: 9.60mm;
+    align-items: flex-start;
+    gap: 0;
+    margin: 0;
+    padding: 1.74mm 0 0 2.54mm;
+    border: 0;
+    border-bottom: 0.75pt solid #000;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.04pt;
+    line-height: 1;
+
+    .dotted-line {
+      display: inline-block;
+      width: 65.08mm;
+      min-width: 65.08mm;
+      min-height: 4.20mm;
+      margin-left: 0;
+      padding: 0 1mm 0.48mm;
+      overflow: visible;
+      border: 0;
+      border-bottom: 0.5pt dotted #000;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5pt;
+      line-height: 1;
+      white-space: nowrap;
+    }
+  }
+
+  .print-discipline-row {
+    position: absolute;
+    top: 25mm;
+    left: 0.53mm;
+    display: block;
+    width: 183.13mm;
+    height: 11.35mm;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-bottom: 0.75pt solid #000;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.04pt;
+    font-weight: 700;
+    line-height: 1;
+
+    .print-discipline-label {
+      position: absolute;
+      top: 4.50mm;
+      left: 2.54mm;
+      display: block;
+      margin: 0;
+      padding: 0;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    > div {
+      position: absolute;
+      top: 4.42mm;
+      display: flex;
+      width: 29mm;
+      min-width: 0;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 2.18mm;
+      margin: 0;
+      padding: 0;
+      white-space: nowrap;
+    }
+
+    > div:nth-of-type(1) {
+      left: 37.63mm;
+    }
+
+    > div:nth-of-type(2) {
+      left: 72.57mm;
+    }
+
+    > div:nth-of-type(3) {
+      left: 110.68mm;
+    }
+
+    > div:nth-of-type(4) {
+      left: 148.78mm;
+    }
+
+    > div strong {
+      font-weight: 700;
+    }
+  }
+
+  .print-checkbox {
+    display: inline-flex;
+    width: 4.04mm;
+    height: 3.73mm;
+    flex: 0 0 4.04mm;
+    align-items: center;
+    justify-content: center;
+    border: 0.75pt solid #000;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .print-intro {
+    position: absolute;
+    top: 42.45mm;
+    left: 3.07mm;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.96pt;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .print-table {
+    position: absolute;
+    top: 51.59mm;
+    left: 2.99mm;
+    width: 176.60mm;
+    margin: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.04pt;
+    line-height: 1.12;
+
+    col.date-col {
+      width: 15.88mm;
+    }
+
+    col.project-col {
+      width: 19.05mm;
+    }
+
+    col.description-col {
+      width: 39mm;
+    }
+
+    col.time-col {
+      width: 12.49mm;
+    }
+
+    col.baht-col {
+      width: 17.88mm;
+    }
+
+    col.requested-col {
+      width: 29.05mm;
+    }
+
+    col.approved-col {
+      width: 30.57mm;
+    }
+
+    th,
+    td {
+      padding: 0.65mm 0.72mm;
+      border: 0.5pt solid #000;
+      box-sizing: border-box;
+    }
+
+    th {
+      padding-top: 0;
+      padding-bottom: 0;
+      vertical-align: middle;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.04pt;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    th.approved-col {
+      position: relative;
+      top: 0;
+      font-size: 7.56pt;
+      line-height: 1.37;
+
+      .approved-detail {
+        font-size: 6.48pt;
+        white-space: nowrap;
+      }
+    }
+
+    .header-content {
+      position: relative;
+      display: inline-block;
+    }
+
+    thead tr:first-child > th[rowspan='2'] > .header-content {
+      top: -0.38mm;
+    }
+
+    thead tr:first-child > th.project-col > .header-content {
+      top: -1.02mm;
+    }
+
+    thead tr:first-child > th.time-col > .header-content {
+      top: -0.44mm;
+    }
+
+    thead tr:first-child > th.requested-col > .header-content {
+      top: -0.40mm;
+      line-height: 1.34;
+    }
+
+    thead tr:first-child > th.approved-col > .header-content {
+      top: 0;
+    }
+
+    thead tr:last-child > th > .header-content {
+      top: -0.47mm;
+    }
+
+    thead tr:first-child {
+      height: 4.07mm;
+    }
+
+    thead tr:last-child {
+      height: 7.62mm;
+    }
+
+    tbody tr {
+      height: 9.186mm;
+    }
+
+    tbody td {
+      height: auto;
+      overflow: hidden;
+      vertical-align: top;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    tbody td.date-cell {
+      padding-right: 0.1mm;
+      padding-left: 0.1mm;
+      font-size: 7.6pt;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .center {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .signature-cell {
+      padding: 0;
+      vertical-align: middle;
+      overflow: hidden;
+    }
+
+    .signature-cell-content {
+      --signature-print-scale: 1;
+    }
+
+    tfoot tr {
+      height: 9.186mm;
+    }
+
+    tfoot td {
+      vertical-align: middle;
+    }
+
+    .total-label {
+      position: relative;
+      top: -0.64mm;
+      padding: 0 1.82mm 0 0;
+      border: 0;
+      text-align: right;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11.04pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .total-value {
+      position: relative;
+      top: -0.64mm;
+      padding-right: 0.72mm;
+      border: 0.5pt solid #000;
+      font-weight: 400;
+    }
+  }
+
+  .print-received-row {
+    position: absolute;
+    top: 199.48mm;
+    left: 3.07mm;
+    display: grid;
+    width: 176.52mm;
+    grid-template-columns: 89.14mm 1fr;
+    gap: 10.59mm;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.04pt;
+    font-weight: 700;
+    line-height: 1;
+
+    > div {
+      display: flex;
+      min-width: 0;
+      align-items: flex-end;
+      gap: 0;
+    }
+
+    strong {
+      font-weight: 700;
+    }
+
+    .solid-line {
+      display: inline-block;
+      min-width: 0;
+      height: 4.2mm;
+      flex: 1 1 auto;
+      margin: 0;
+      padding: 0 1mm 0.45mm;
+      overflow: visible;
+      border: 0;
+      border-bottom: 0.5pt solid #000;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5pt;
+      font-weight: 400;
+      line-height: 1;
+      white-space: nowrap;
+    }
+  }
+
+  .print-note {
+    position: absolute;
+    top: 209.20mm;
+    left: 3.07mm;
+    display: block;
+    width: 181.12mm;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.96pt;
+    font-weight: 400;
+    line-height: 4.74mm;
+
+    .note-title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-weight: 400;
+      line-height: 4.74mm;
+      text-decoration: underline;
+    }
+
+    .note-line {
+      display: flex;
+      margin-left: 12.49mm;
+      gap: 6.33mm;
+      line-height: 4.74mm;
+      white-space: nowrap;
+
+      span {
+        display: block;
+      }
+    }
+
+    .note-line--period {
+      height: 9.48mm;
+    }
+
+    sup {
+      position: relative;
+      top: -0.18em;
+      font-size: 65%;
+      line-height: 0;
+      vertical-align: baseline;
+    }
+  }
+
+  .print-footer {
+    position: absolute;
+    top: 284.14mm;
+    left: 17.78mm;
+    width: 160mm;
+    margin: 0;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 5.04pt;
+    font-weight: 400;
+    line-height: 2.03mm;
+    white-space: nowrap;
+  }
+
+  // Use the original Word form as the immutable print layer. Only record data
+  // is rendered above it, so the form's lines, colours and typography stay exact.
+  .print-template-image {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: block;
+    width: 210mm;
+    height: 297mm;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .print-box.print-box--data-overlay {
+    z-index: 1;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .print-name-value {
+    position: absolute;
+    top: 17.28mm;
+    left: 14.72mm;
+    width: 64.25mm;
+    height: 4.1mm;
+    margin: 0;
+    padding: 0 0.8mm 0.35mm;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 400;
+    line-height: 1;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .print-discipline-marks {
+    position: absolute;
+    top: 29.34mm;
+    left: 0;
+    width: 183.13mm;
+    height: 3.73mm;
+    margin: 0;
+    padding: 0;
+
+    .print-checkbox-mark {
+      position: absolute;
+      top: 0;
+      display: flex;
+      width: 4.04mm;
+      height: 3.73mm;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .print-checkbox-mark:nth-child(1) {
+      left: 37.63mm;
+    }
+
+    .print-checkbox-mark:nth-child(2) {
+      left: 72.57mm;
+    }
+
+    .print-checkbox-mark:nth-child(3) {
+      left: 110.68mm;
+    }
+
+    .print-checkbox-mark:nth-child(4) {
+      left: 148.78mm;
+    }
+
+    svg {
+      display: block;
+      width: 3.05mm;
+      height: 2.9mm;
+    }
+
+    path {
+      fill: none;
+      stroke: #000;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+      stroke-width: 1.15;
+    }
+  }
+
+  .print-table.print-table--data-overlay {
+    z-index: 1;
+    background: #fff;
+
+    thead {
+      visibility: visible;
+    }
+
+    th,
+    td,
+    .total-value {
+      border-color: #000;
+      background: #fff;
+    }
+
+    thead tr:first-child > th {
+      border-top: 0.5pt solid #000;
+    }
+
+    tbody tr {
+      height: 9.186mm;
+    }
+
+    tbody td:not(.signature-cell) {
+      overflow: visible;
+    }
+
+    .print-cell-content {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .print-cell-content--single-line {
+      text-overflow: clip;
+      white-space: nowrap;
+    }
+
+    .signature-cell-content {
+      display: flex;
+      position: relative;
+      align-items: center;
+      justify-content: center;
+      width: calc(100% - 1mm);
+      max-width: calc(100% - 1mm);
+      margin: 0 auto;
+      min-height: 22px;
+      max-height: 9.0mm;
+      overflow: hidden;
+      contain: none;
+      text-align: center;
+    }
+
+    .total-label {
+      position: static;
+      top: auto;
+      border-top: 0.5pt solid #000;
+      color: transparent;
+    }
+
+    .total-value {
+      position: static;
+      top: auto;
+
+      .print-cell-content {
+        position: relative;
+        top: -0.64mm;
+      }
+    }
+  }
+
+  .print-received-value {
+    position: absolute;
+    top: 201.18mm;
+    left: 28.35mm;
+    width: 63.5mm;
+    height: 4.2mm;
+    margin: 0;
+    padding: 0 1mm 0.4mm;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 400;
+    line-height: 1;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+}
+
+:host-context(.dark) {
+  .document-card .section-title,
+  .document-value {
+    color: rgb(243 244 246);
+  }
+
+  .document-field label {
+    color: rgb(156 163 175);
+  }
+
+  .document-value {
+    border-color: rgb(75 85 99);
+    background: rgb(31 41 55);
+  }
+
+  .workflow-row {
+    border-color: rgb(55 65 81);
+    background: rgb(31 41 55 / 0.5);
+  }
+}

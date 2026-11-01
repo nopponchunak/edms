@@ -1,0 +1,676 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Lighting Project Fee Sheet
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+            For implementing new projects or changing the fee or billings
+        </p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:currency-dollar'"></mat-icon>
+                    Lighting Project Fee Sheet Form
+                </h2>
+            </div>
+            
+            <div class="p-6">
+                
+                <!-- Header Information - Hidden -->
+                <!-- <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                        Header Information
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Copies to</mat-label>
+                                <input matInput formControlName="copiesTo" placeholder="Accts.">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Circ</mat-label>
+                                <input matInput formControlName="circ" placeholder="ADM/">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>CH/ File</mat-label>
+                                <input matInput formControlName="chFile" placeholder="LMT">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Fee</mat-label>
+                                <input matInput formControlName="fee" placeholder="Fee">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider> -->
+
+                <!-- Project Information -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:building-office'"></mat-icon>
+                        Project Information
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Standardized Project Search -->
+                        <div class="md:col-span-2">
+                            <mat-form-field class="w-full" appearance="outline">
+                                <mat-label>Select Project</mat-label>
+                                <mat-select
+                                    formControlName="projectReferenceId"
+                                    (selectionChange)="onProjectSelectedById($event.value)"
+                                    placeholder="Search and select project"
+                                >
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="projectSearchCtrl"
+                                            placeholderLabel="Search project..."
+                                            noEntriesFoundLabel="No projects found"
+                                        >
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option
+                                        *ngFor="let project of filteredProjectOptions"
+                                        [value]="project.id"
+                                    >
+                                        {{ project.project_name }} ({{ project.mt_project_no || project.project_no }})
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="form.get('projectNo')?.hasError('required')">
+                                    Project is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Project No.</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="projectNo"
+                                    placeholder="LMT"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Project Name</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="projectName"
+                                    placeholder="Project Name"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Team</mat-label>
+                                <input matInput formControlName="team" placeholder="Team (TL)">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Date</mat-label>
+                                <input matInput [matDatepicker]="datePicker" formControlName="date">
+                                <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                                <mat-datepicker #datePicker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Director In Charge</mat-label>
+                                <mat-select formControlName="directorInCharge">
+                                    <mat-option [value]="null">-- Select --</mat-option>
+                                    <mat-option *ngFor="let emp of employees" [value]="+emp.id">
+                                        {{ emp.name }} ({{ emp.position }})
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Discipline</mat-label>
+                                <input matInput formControlName="discipline" placeholder="Lighting">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Location</mat-label>
+                                <input matInput formControlName="location" placeholder="Location">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Client</mat-label>
+                                <input matInput formControlName="client" placeholder="Client">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Contact Name</mat-label>
+                                <input matInput formControlName="contactName" placeholder="Contact Name">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>MTL Scope</mat-label>
+                                <textarea matInput formControlName="mtlScope" rows="3" placeholder="MTL Scope"></textarea>
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Comments</mat-label>
+                                <textarea matInput formControlName="comments" rows="5" placeholder="Comments"></textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Fee Agreement Received -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:currency-dollar'"></mat-icon>
+                        Fee Agreement Received
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                            <thead>
+                                <tr class="bg-gray-50 dark:bg-gray-700">
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                                        Description
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        Original
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        Rev. 1
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        Rev. 2
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        Rev. 3
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        Fee Agreement Received?
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-checkbox formControlName="feeAgreementOriginal"></mat-checkbox>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-checkbox formControlName="feeAgreementRev1"></mat-checkbox>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-checkbox formControlName="feeAgreementRev2"></mat-checkbox>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-checkbox formControlName="feeAgreementRev3"></mat-checkbox>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        Gross Fee (excl VAT)
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="grossFeeOriginal" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="grossFeeRev1" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="grossFeeRev2" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="grossFeeRev3" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        Less Subconsultants
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="subconsultantsAmountOriginal" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="subconsultantsAmountRev1" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="subconsultantsAmountRev2" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="subconsultantsAmountRev3" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white pl-8">
+                                        (Name)
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput formControlName="subconsultantsNameOriginal" placeholder="Name">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput formControlName="subconsultantsNameRev1" placeholder="Name">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput formControlName="subconsultantsNameRev2" placeholder="Name">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput formControlName="subconsultantsNameRev3" placeholder="Name">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        Less Other Expenses
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="otherExpensesOriginal" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="otherExpensesRev1" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="otherExpensesRev2" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="otherExpensesRev3" (input)="calculateNettFee()">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                        Nett Fee (excl VAT)
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <div class="text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(form.get('nettFeeOriginal')?.value || 0) }}
+                                        </div>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <div class="text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(form.get('nettFeeRev1')?.value || 0) }}
+                                        </div>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <div class="text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(form.get('nettFeeRev2')?.value || 0) }}
+                                        </div>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <div class="text-sm font-bold text-blue-600">
+                                            {{ formatCurrency(form.get('nettFeeRev3')?.value || 0) }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Job Costing Allocation -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:chart-pie'"></mat-icon>
+                        Job Costing Allocation
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                            <thead>
+                                <tr class="bg-gray-50 dark:bg-gray-700">
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                                        Phase
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        % of Fee
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        Start
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        End
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        (P)reliminary
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="preliminaryPercentage" (input)="updateJobCostingAllocation()">
+                                            <span matSuffix>%</span>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="preliminaryStartPicker" formControlName="preliminaryStartDate">
+                                            <mat-datepicker-toggle matSuffix [for]="preliminaryStartPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #preliminaryStartPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="preliminaryEndPicker" formControlName="preliminaryEndDate">
+                                            <mat-datepicker-toggle matSuffix [for]="preliminaryEndPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #preliminaryEndPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        (D)etailed Design
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="detailedDesignPercentage" (input)="updateJobCostingAllocation()">
+                                            <span matSuffix>%</span>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="detailedDesignStartPicker" formControlName="detailedDesignStartDate">
+                                            <mat-datepicker-toggle matSuffix [for]="detailedDesignStartPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #detailedDesignStartPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="detailedDesignEndPicker" formControlName="detailedDesignEndDate">
+                                            <mat-datepicker-toggle matSuffix [for]="detailedDesignEndPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #detailedDesignEndPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        (T)ender
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="tenderPercentage" (input)="updateJobCostingAllocation()">
+                                            <span matSuffix>%</span>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="tenderStartPicker" formControlName="tenderStartDate">
+                                            <mat-datepicker-toggle matSuffix [for]="tenderStartPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #tenderStartPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="tenderEndPicker" formControlName="tenderEndDate">
+                                            <mat-datepicker-toggle matSuffix [for]="tenderEndPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #tenderEndPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm text-gray-900 dark:text-white">
+                                        (C)onstruction
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" formControlName="constructionPercentage" (input)="updateJobCostingAllocation()">
+                                            <span matSuffix>%</span>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="constructionStartPicker" formControlName="constructionStartDate">
+                                            <mat-datepicker-toggle matSuffix [for]="constructionStartPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #constructionStartPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="constructionEndPicker" formControlName="constructionEndDate">
+                                            <mat-datepicker-toggle matSuffix [for]="constructionEndPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #constructionEndPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Standard Projects -->
+                    <div class="mt-4">
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">Standard Projects:</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-sm">
+                                <span class="font-medium">P:</span>
+                                <span class="ml-2">40%</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium">D:</span>
+                                <span class="ml-2">15%</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium">T:</span>
+                                <span class="ml-2">30%</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium">C:</span>
+                                <span class="ml-2">15%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Billing Forecast -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                        Billing Forecast (based on the Agreement)
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+                            <thead>
+                                <tr class="bg-gray-50 dark:bg-gray-700">
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-white">
+                                        1st of Month
+                                    </th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                        Amount (approx)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let forecast of billingForecastArray.controls; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput [matDatepicker]="forecastMonthPicker" [formControl]="forecast.get('month')">
+                                            <mat-datepicker-toggle matSuffix [for]="forecastMonthPicker"></mat-datepicker-toggle>
+                                            <mat-datepicker #forecastMonthPicker></mat-datepicker>
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-center">
+                                        <mat-form-field appearance="outline" class="w-full non-bottom-margin">
+                                            <input matInput type="number" [formControl]="forecast.get('amount')">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Report and Project Type -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                        Report and Project Type
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report</label>
+                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                <div class="text-sm text-gray-700 dark:text-gray-300">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="font-medium">Report:</span>
+                                        <span>100%</span>
+                                        <span>0</span>
+                                        <span>0</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Type</label>
+                            <mat-form-field appearance="outline" class="w-full">
+  <mat-label>Select Project Type</mat-label>
+
+  <mat-select formControlName="projectType">
+    <mat-option [value]="null">-- Select Project Type --</mat-option>
+
+    <mat-option *ngFor="let t of projectTypes" [value]="+t.id">
+      {{ t.code }} {{ t.name }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Signatures -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                        Signatures
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Form filled in by</mat-label>
+                                <mat-select formControlName="filledInBy">
+                                    <mat-option [value]="null">-- Select --</mat-option>
+                                    <mat-option *ngFor="let emp of employees" [value]="emp.employeeCode || emp.id">
+                                        {{ emp.name }} ({{ emp.position }})
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Date</mat-label>
+                                <input matInput [matDatepicker]="filledInDatePicker" formControlName="filledInDate">
+                                <mat-datepicker-toggle matSuffix [for]="filledInDatePicker"></mat-datepicker-toggle>
+                                <mat-datepicker #filledInDatePicker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Approved by CH</mat-label>
+                                <mat-select formControlName="approvedBy">
+                                    <mat-option [value]="null">-- Select --</mat-option>
+                                    <mat-option *ngFor="let emp of employees" [value]="emp.employeeCode || emp.id">
+                                        {{ emp.name }} ({{ emp.position }})
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Date</mat-label>
+                                <input matInput [matDatepicker]="approvedDatePicker" formControlName="approvedDate">
+                                <mat-datepicker-toggle matSuffix [for]="approvedDatePicker"></mat-datepicker-toggle>
+                                <mat-datepicker #approvedDatePicker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <button 
+                        type="button" 
+                        mat-button 
+                        (click)="onCancel()"
+                        class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        mat-flat-button 
+                        color="primary"
+                        [disabled]="form.invalid || isSubmitting"
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50">
+                        <mat-spinner *ngIf="isSubmitting" [diameter]="20" class="mr-2"></mat-spinner>
+                        {{ isEditMode ? 'Update' : 'Create' }} Lighting Fee Sheet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

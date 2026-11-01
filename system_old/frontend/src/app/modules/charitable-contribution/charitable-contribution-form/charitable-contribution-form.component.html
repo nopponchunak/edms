@@ -1,0 +1,393 @@
+<div class="h-full bg-gray-50">
+    <!-- Header -->
+    <div class="max-w-6xl mx-auto p-6 bg-white">
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-blue-600">
+                    CHARITABLE CONTRIBUTION / SPONSORSHIP
+                </h1>
+                <span class="text-sm text-gray-500">
+                    1 - FORM ACCC-01
+                </span>
+            </div>
+            <p class="text-sm text-gray-600">
+                {{ isEdit ? 'Update charitable contribution request' : 'Meinhardt (Thailand) Ltd.' }}
+            </p>
+        </div>
+
+        <div class="w-full h-full">
+
+            <!-- Form -->
+            <mat-card class="mb-6" style="background-color: var(--fuse-bg-card); backdrop-filter: none; opacity: 1;">
+                <mat-card-header>
+                    <mat-card-title class="text-xl font-semibold flex items-center">
+                        <mat-icon class="mr-2" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        Form Details
+                    </mat-card-title>
+                </mat-card-header>
+
+                <mat-card-content class="pt-6">
+                    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                        <!-- Request Type -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                Request Type <span class="text-red-500">*</span>
+                            </h3>
+                            <mat-radio-group formControlName="requestType" class="flex">
+                                <!-- <div  class="flex items-center space-x-3"> -->
+                                <div *ngFor="let type of requestTypes" class="flex mr-4">
+                                    <mat-radio-button [value]="type.value">
+                                    </mat-radio-button>
+                                    <div class="h-10 flex items-center mt-[1px]">
+                                        <span class="text-gray-700 text-sm font-medium">
+                                            {{ type.label }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- </div> -->
+                            </mat-radio-group>
+                        </div>
+
+                        <mat-divider class="my-6"></mat-divider>
+
+                        <div class="mb-6">
+                            <mat-form-field class="w-full">
+                                <mat-label>Requester Name</mat-label>
+                                <mat-select formControlName="requestedBy">
+                                    <mat-option>
+                                        <ngx-mat-select-search
+                                            [formControl]="requesterSearchCtrl"
+                                            placeholderLabel="Search employee..."
+                                            noEntriesFoundLabel="No employee found">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
+                                    <mat-option *ngIf="requesterLoading" disabled>Searching...</mat-option>
+                                    <mat-option *ngFor="let user of filteredRequesterUsers" [value]="user.id">
+                                        {{ user.displayLabel }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-hint>Defaults to the logged-in user; choose another employee when requesting on their behalf.</mat-hint>
+                                <mat-error *ngIf="isFieldInvalid('requestedBy')">Requester Name is required</mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <mat-divider class="my-6"></mat-divider>
+
+                        <!-- Event Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Event Description -->
+                            <div class="md:col-span-2">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Event Description</mat-label>
+                                    <textarea matInput formControlName="eventDescription"
+                                        placeholder="Describe the event in detail..." rows="3">
+                                    </textarea>
+                                    <mat-error *ngIf="isFieldInvalid('eventDescription')">
+                                        {{ getErrorMessage('eventDescription') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Event Purpose -->
+                            <div class="md:col-span-2">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Event Purpose</mat-label>
+                                    <textarea matInput formControlName="eventPurpose"
+                                        placeholder="What is the purpose of this event?" rows="3">
+                                    </textarea>
+                                    <mat-error *ngIf="isFieldInvalid('eventPurpose')">
+                                        {{ getErrorMessage('eventPurpose') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Organizer Name -->
+                            <div class="md:col-span-2">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Name of Organizer / Sponsorship Receiver</mat-label>
+                                    <input matInput formControlName="organizerName"
+                                        placeholder="Enter organizer or sponsorship receiver name">
+                                    <mat-error *ngIf="isFieldInvalid('organizerName')">
+                                        {{ getErrorMessage('organizerName') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Contribution Description -->
+                            <div class="md:col-span-2">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Description of Contribution / Sponsorship</mat-label>
+                                    <textarea matInput formControlName="contributionDescription"
+                                        placeholder="Describe what will be contributed or sponsored..." rows="3">
+                                    </textarea>
+                                    <mat-error *ngIf="isFieldInvalid('contributionDescription')">
+                                        {{ getErrorMessage('contributionDescription') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Value Amount -->
+                            <div>
+                                <mat-form-field class="w-full" appearance="outline">
+                                    <mat-label>Value of Charitable Contribution or Sponsorship (Including VAT)</mat-label>
+                                    <input
+                                        matInput
+                                        type="number"
+                                        formControlName="valueAmount"
+                                        [placeholder]="getValueAmountPlaceholder()"
+                                        [attr.min]="getValueAmountMin()"
+                                        step="1"
+                                    />
+                                    <span matSuffix>{{ selectedCurrency }}&nbsp;</span>
+                                    <mat-error *ngIf="isFieldInvalid('valueAmount')">
+                                        {{ getErrorMessage('valueAmount') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Currency -->
+                            <div>
+                                <mat-form-field class="w-full" appearance="outline">
+                                    <mat-label>Currency</mat-label>
+                                    <mat-select formControlName="currencyCode">
+                                        <mat-option *ngFor="let opt of currencyOptions" [value]="opt.value">
+                                            {{ opt.label }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('currencyCode')">
+                                        {{ getErrorMessage('currencyCode') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Approval Matrix (ตารางราคา) - ใต้ช่องกรอกราคา -->
+                            <div class="md:col-span-2 mt-4">
+                                <h4 class="text-sm font-semibold text-gray-800 mb-2">
+                                    <mat-icon class="align-middle mr-1 text-base" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                                    Approval Matrix (THB)
+                                </h4>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse border border-gray-300">
+                                        <thead>
+                                            <tr>
+                                                <th class="border border-gray-300 p-2 text-left text-center">Amount</th>
+                                                <th class="border border-gray-300 p-2 text-left text-center">Prepared by</th>
+                                                <th class="border border-gray-300 p-2 text-left text-center">Verified by</th>
+                                                <th class="border border-gray-300 p-2 text-left text-center">Approved by</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="border border-gray-300 p-2 text-center">≤ 20,000 THB</td>
+                                                <td class="border border-gray-300 p-2 text-center">Staff</td>
+                                                <td rowspan="2" class="border border-gray-300 p-2 text-center">ACSC</td>
+                                                <td class="border border-gray-300 p-2 text-center">DI or MD</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-gray-300 p-2 text-center">> 20,000 THB</td>
+                                                <td class="border border-gray-300 p-2 text-center">EE or above</td>
+                                                <td class="border border-gray-300 p-2 text-center">2 DIs or MD</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p *ngIf="!isThbCurrency()" class="mt-2 text-sm text-amber-700">
+                                    Foreign currency requests do not use THB approval validation.
+                                </p>
+                            </div>
+
+                            <!-- VAT Amount -->
+                            <!-- <div>
+                                <mat-form-field class="w-full">
+                                    <mat-label>VAT Amount (THB)</mat-label>
+                                    <input
+                                        matInput
+                                        type="number"
+                                        formControlName="vatAmount"
+                                        placeholder="0"
+                                        readonly>
+                                    <span matSuffix>THB&nbsp;</span>
+                                    <mat-error *ngIf="isFieldInvalid('vatAmount')">
+                                        {{ getErrorMessage('vatAmount') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div> -->
+
+                            <!-- Proposed Date -->
+                            <div class="md:col-span-2">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Proposed Date</mat-label>
+                                    <input matInput [matDatepicker]="picker" formControlName="proposedDate"
+                                        placeholder="Select proposed date">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                    <mat-error *ngIf="isFieldInvalid('proposedDate')">
+                                        {{ getErrorMessage('proposedDate') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <mat-divider class="my-6"></mat-divider>
+
+                        <!-- Approval Routing -->
+                        <div class="mb-6 bg-white shadow-sm rounded-lg p-6 border border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <mat-icon class="mr-2" [svgIcon]="'heroicons_solid:user-group'"></mat-icon>
+                                Approval Routing
+                            </h3>
+
+                            <div class="flex flex-col gap-6">
+                                <mat-form-field class="w-full md:w-[32rem]">
+                                    <mat-label>Verify (ACSC) <span class="text-red-500">*</span></mat-label>
+                                    <mat-select formControlName="acscBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="acscSearchCtrl"
+                                                [searching]="acscLoading" placeholderLabel="Search ACSC member"
+                                                noEntriesFoundLabel="No ACSC member found">
+                                            </ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredAcscUsers" [value]="user.code">
+                                            {{ user.displayLabel }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('acscBy')">
+                                        {{ getErrorMessage('acscBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field class="w-full md:w-[32rem]">
+                                    <mat-label>Acknowledge 1 (ACSL) <span class="text-red-500">*</span></mat-label>
+                                    <mat-select formControlName="imsAcknowledgedBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="imsSearchCtrl"
+                                                [searching]="imsLoading" placeholderLabel="Search ACSL member"
+                                                noEntriesFoundLabel="No ACSL member found">
+                                            </ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredImsUsers" [value]="user.code">
+                                            {{ user.displayLabel }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('imsAcknowledgedBy')">
+                                        {{ getErrorMessage('imsAcknowledgedBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field class="w-full md:w-[32rem]">
+                                    <mat-label>Approve {{ isThbCurrency() ? '(DI/MD)' : '' }} <span class="text-red-500">*</span></mat-label>
+                                    <mat-select formControlName="approverBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="approverSearchCtrl"
+                                                [searching]="approverLoading" placeholderLabel="Search DI/MD"
+                                                noEntriesFoundLabel="No DI/MD employee found">
+                                            </ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredApproverUsers" [value]="user.code">
+                                            {{ user.displayLabel }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-hint *ngIf="!isThbCurrency()">
+                                        Foreign currency requests do not use THB approval validation.
+                                    </mat-hint>
+                                    <mat-hint *ngIf="isThbCurrency() && form.get('valueAmount')?.value <= 20000">
+                                        Amount under 20,000 THB requires 1 DI or 1 MD.
+                                    </mat-hint>
+                                    <mat-hint *ngIf="isThbCurrency() && form.get('valueAmount')?.value > 20000">
+                                        Amount above 20,000 THB requires 2 DIs or 1 MD.
+                                    </mat-hint>
+                                    <mat-error *ngIf="isFieldInvalid('approverBy')">
+                                        {{ getErrorMessage('approverBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <div *ngIf="shouldShowManualSecondApproverToggle()" class="w-full md:w-[32rem]">
+                                    <mat-checkbox formControlName="useSecondApprover">
+                                        Add Approver 2
+                                    </mat-checkbox>
+                                    <div class="mt-1 text-sm text-slate-500">
+                                        Optional for foreign currency requests.
+                                    </div>
+                                </div>
+
+                                <mat-form-field *ngIf="shouldDisplaySecondApprover()" class="w-full md:w-[32rem]">
+                                    <mat-label>Approve 2 {{ isThbCurrency() ? '(DI)' : '' }} <span *ngIf="isSecondApproverRequired()" class="text-red-500">*</span></mat-label>
+                                    <mat-select formControlName="approverBy2">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="approverSearchCtrl2"
+                                                [searching]="approver2Loading" placeholderLabel="Search DI"
+                                                noEntriesFoundLabel="No DI employee found">
+                                            </ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of getSecondApproverCandidates()" [value]="user.code">
+                                            {{ user.displayLabel }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-hint *ngIf="isSecondApproverRequired() && isThbCurrency()">
+                                        Required when amount is above 20,000 THB and Approver 1 is DI.
+                                    </mat-hint>
+                                    <mat-hint *ngIf="isSecondApproverRequired() && !isThbCurrency()">
+                                        Optional for this foreign currency request.
+                                    </mat-hint>
+                                    <mat-hint *ngIf="!isSecondApproverRequired() && !isThbCurrency()">
+                                        Optional for this foreign currency request.
+                                    </mat-hint>
+                                    <mat-hint *ngIf="!isSecondApproverRequired() && isThbCurrency()">
+                                        Optional unless Approver 1 is DI.
+                                    </mat-hint>
+                                    <mat-error *ngIf="isFieldInvalid('approverBy2')">
+                                        {{ getErrorMessage('approverBy2') }}
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field class="w-full md:w-[32rem]">
+                                    <mat-label>Acknowledge 2 (CA - JN) <span class="text-red-500">*</span></mat-label>
+                                    <mat-select formControlName="acslBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="acslSearchCtrl"
+                                                [searching]="acslLoading" placeholderLabel="Search JN"
+                                                noEntriesFoundLabel="JN employee not found">
+                                            </ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredAcslUsers" [value]="user.code">
+                                            {{ user.displayLabel }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('acslBy')">
+                                        {{ getErrorMessage('acslBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div *ngIf="getApprovalRoutingError()" class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {{ getApprovalRoutingError() }}
+                            </div>
+
+                            <div *ngIf="getApprovalRoutingWarning()" class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {{ getApprovalRoutingWarning() }}
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex justify-end gap-4 mt-8">
+                            <button type="button" mat-stroked-button
+                                (click)="router.navigate(['/charitable-contributions'])" [disabled]="loading">
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                mat-flat-button
+                                color="primary"
+                                class="bg-primary text-on-primary"
+                                [disabled]="loading">
+                                <span *ngIf="!loading">{{ isEdit ? 'Update Request' : 'Create Request' }}</span>
+                                <mat-spinner *ngIf="loading" [diameter]="20"></mat-spinner>
+                            </button>
+                        </div>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+<div class="p-4">
+    <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add Attachment</h2>
+    <div class="space-y-4">
+      <!-- ● File   ○ Link แบบเรียงแถวเดียวกันสวย ๆ -->
+      <!-- File / Link Toggle -->
+      <mat-radio-group *ngIf="allowLinks" [(ngModel)]="mode" class="flex items-center gap-6">
+        <mat-radio-button value="file" color="primary">File</mat-radio-button>
+        <mat-radio-button value="link" color="primary">Link</mat-radio-button>
+      </mat-radio-group>
+
+      <div *ngIf="mode === 'file'" class="space-y-3">
+        <div
+          class="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700 transition-colors"
+          (click)="triggerFileInput()"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          [class.bg-blue-50]="dragOver"
+          [class.dark:bg-blue-900]="dragOver">
+          <mat-icon class="text-gray-400 dark:text-gray-500 text-4xl mb-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+          <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">Drag & drop files here</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">or click to select</div>
+          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Allowed file type: {{ allowedFileTypesLabel }}</div>
+          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Maximum file size: {{ maxFileSizeLabel }}</div>
+          <input type="file" class="hidden" #fileInput [attr.accept]="accept || null" (change)="onFileSelected($event)" multiple />
+        </div>
+
+        <!-- Error / limit message -->
+        <div
+          *ngIf="errorMessage"
+          role="alert"
+          class="mt-2 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          <mat-icon class="icon-size-4 shrink-0" [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
+          <span>{{ errorMessage }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="mode === 'link'">
+        <mat-form-field class="w-full">
+          <mat-label>File URL or Path</mat-label>
+          <input matInput [(ngModel)]="url" placeholder="https://... or \\\\server\\path" class="bg-white dark:bg-gray-700" />
+        </mat-form-field>
+      </div>
+
+      <!-- Uploaded files list (Visible in both modes) -->
+      <div *ngIf="files.length > 0" class="space-y-2 max-h-64 overflow-y-auto">
+        <div *ngFor="let uploadedFile of files; let i = index" 
+             class="border rounded-md p-3 bg-gray-50 dark:bg-gray-800">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {{ uploadedFile.file.name }}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {{ (uploadedFile.file.size / 1024).toFixed(2) }} KB
+              </div>
+              <!-- Upload progress -->
+              <div *ngIf="uploadedFile.status === 'uploading'" class="mt-2">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Uploading...</div>
+              </div>
+              <!-- Success -->
+              <div *ngIf="uploadedFile.status === 'success'" class="mt-2 flex items-center gap-2">
+                <mat-icon class="text-green-500 text-sm" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                <span class="text-xs text-green-600 dark:text-green-400">Uploaded successfully</span>
+              </div>
+              <!-- Error -->
+              <div *ngIf="uploadedFile.status === 'error'" class="mt-2">
+                <div class="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                  <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
+                  <span>{{ uploadedFile.error || 'Upload failed' }}</span>
+                </div>
+                <button 
+                  mat-button 
+                  class="text-xs mt-1 p-0 h-auto min-w-0"
+                  (click)="retryUpload(i)">
+                  Retry
+                </button>
+              </div>
+            </div>
+            <button 
+              mat-icon-button 
+              class="ml-2"
+              (click)="removeFile(i)"
+              [disabled]="uploadedFile.status === 'uploading'">
+              <mat-icon [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2">
+        <button mat-button (click)="dialogRef.close()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="confirm()" [disabled]="!canSubmit() || isUploading">
+          <span *ngIf="isUploading">Uploading...</span>
+          <span *ngIf="!isUploading">Add</span>
+        </button>
+      </div>
+    </div>
+</div>

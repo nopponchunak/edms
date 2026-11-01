@@ -1,0 +1,217 @@
+table {
+  border-collapse: collapse;
+}
+
+.document-card {
+  .section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: rgb(17 24 39);
+  }
+}
+
+.document-field {
+  label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+  }
+}
+
+.document-value {
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(229 231 235);
+  border-radius: 0.5rem;
+  background: rgb(249 250 251);
+  color: rgb(17 24 39);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.workflow-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgb(243 244 246);
+  border-radius: 0.5rem;
+  background: rgb(249 250 251);
+}
+
+.workflow-icon {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+.action-card {
+  padding: 1.5rem;
+  border: 1px solid rgb(229 231 235);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+}
+
+.action-card__header {
+  margin-bottom: 1.25rem;
+
+  h2 {
+    margin: 0;
+    color: rgb(17 24 39);
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  p {
+    margin: 0.125rem 0 0;
+    color: rgb(71 85 105);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+.action-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.action-status-field {
+  margin-bottom: 0;
+}
+
+.action-reviewer-card {
+  display: flex;
+  min-height: 5rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 1rem;
+  border: 1px solid rgb(191 219 254);
+  border-radius: 0.75rem;
+  background: rgb(239 246 255);
+  color: rgb(30 64 175);
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  strong {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+}
+
+.action-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.action-secondary-button,
+.action-primary-button {
+  display: inline-flex;
+  min-width: 4.625rem;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+.action-secondary-button {
+  border: 1px solid rgb(203 213 225);
+  background: rgb(255 255 255);
+  color: rgb(30 41 59);
+
+  &:hover {
+    background: rgb(248 250 252);
+  }
+}
+
+.action-primary-button {
+  min-width: 7.375rem;
+  border: 1px solid transparent;
+  background: rgb(37 99 235);
+  color: rgb(255 255 255);
+
+  &:hover:not(:disabled) {
+    background: rgb(29 78 216);
+  }
+
+  &:disabled {
+    background: rgb(129 147 239);
+    color: rgb(255 255 255);
+    cursor: not-allowed;
+    opacity: 1;
+  }
+}
+
+:host-context(.dark) {
+  .document-card .section-title,
+  .document-value {
+    color: rgb(243 244 246);
+  }
+
+  .document-field label {
+    color: rgb(156 163 175);
+  }
+
+  .document-value {
+    border-color: rgb(75 85 99);
+    background: rgb(31 41 55);
+  }
+
+  .workflow-row {
+    border-color: rgb(55 65 81);
+    background: rgb(31 41 55 / 0.5);
+  }
+
+  .action-card {
+    border-color: rgb(55 65 81);
+    background: rgb(31 41 55);
+  }
+
+  .action-card__header h2 {
+    color: rgb(243 244 246);
+  }
+
+  .action-card__header p {
+    color: rgb(148 163 184);
+  }
+
+  .action-reviewer-card {
+    border-color: rgb(37 99 235 / 0.5);
+    background: rgb(30 58 138 / 0.3);
+    color: rgb(191 219 254);
+  }
+
+  .action-secondary-button {
+    border-color: rgb(75 85 99);
+    background: rgb(31 41 55);
+    color: rgb(229 231 235);
+
+    &:hover {
+      background: rgb(55 65 81);
+    }
+  }
+}

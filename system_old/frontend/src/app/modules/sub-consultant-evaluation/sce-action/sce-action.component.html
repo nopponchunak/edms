@@ -1,0 +1,380 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ getActionTitle() }}
+          </h1>
+          <p class="text-base text-gray-600 mt-1">
+            {{ getActionDescription() }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/sub-consultant-evaluation/list'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !evaluation" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading evaluation...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="evaluation" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="document-card bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div class="space-y-1">
+                <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase">
+                  Meinhardt (Thailand) Ltd.
+                </div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Sub-Consultant Evaluation Form
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  Detail view in document format
+                </p>
+              </div>
+
+              <div class="text-right text-sm text-gray-500 dark:text-gray-400">
+                <div>{{ evaluation.circ || '/AM/T6SC' }}</div>
+                <div>10 - FORM MTSC-02</div>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-4">
+              <div class="document-field">
+                <label>To</label>
+                <div class="document-value">{{ evaluation.to || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-8">
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                Evaluation Details
+              </h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="document-field">
+                  <label>Sub-Consultant Name</label>
+                  <div class="document-value">{{ evaluation.sub_consultant_name || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Project Name</label>
+                  <div class="document-value">{{ evaluation.project_name || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Project No.</label>
+                  <div class="document-value">{{ evaluation.project_no || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Department / Sub-Contract Value / Duration</label>
+                  <div class="document-value">{{ evaluation.department_value_duration || '-' }}</div>
+                </div>
+                <div class="document-field md:col-span-2">
+                  <label>Scope of Services Provided</label>
+                  <div class="document-value min-h-[72px]">{{ evaluation.scope_of_services || '-' }}</div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-rose-600" [svgIcon]="'heroicons_solid:shield-exclamation'"></mat-icon>
+                Anti-Corruption compliance
+              </h3>
+
+              <div class="mb-3 text-sm text-gray-700 dark:text-gray-300">
+                Are there any reasonable grounds to believe that the Sub-Consultant has violated or failed to comply with Meinhardt’s Anti-Corruption programme and/or applicable laws?
+              </div>
+
+              <div class="flex flex-wrap gap-6">
+                <div class="document-check-row">
+                  <span class="document-check-box">{{ evaluation.anti_corruption_is_violation === 1 ? '✓' : '' }}</span>
+                  <span>Yes - remove from approved list</span>
+                </div>
+                <div class="document-check-row">
+                  <span class="document-check-box">{{ evaluation.anti_corruption_is_violation !== 1 ? '✓' : '' }}</span>
+                  <span>No - proceed below</span>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-amber-600" [svgIcon]="'heroicons_solid:cpu-chip'"></mat-icon>
+                CAD Confirmation
+              </h3>
+
+              <div class="mb-3 text-sm text-gray-700 dark:text-gray-300">
+                For Architectural and Interior Design Sub-Consultants only: Have they submitted written confirmation that their CAD Software is legal and has current annual maintenance licenses.
+              </div>
+
+              <div class="flex flex-wrap gap-6">
+                <div class="document-check-row">
+                  <span class="document-check-box">{{ evaluation.cad_software_confirmed === 1 ? '✓' : '' }}</span>
+                  <span>Yes - proceed below</span>
+                </div>
+                <div class="document-check-row">
+                  <span class="document-check-box">{{ evaluation.cad_software_confirmed !== 1 ? '✓' : '' }}</span>
+                  <span>No - remove from approved list</span>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:table-cells'"></mat-icon>
+                Rating Summary
+              </h3>
+
+              <div *ngIf="evaluation.items && evaluation.items.length > 0" class="overflow-x-auto mb-6">
+                <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle">Item</th>
+                      <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-28 align-middle leading-tight">
+                        Score<br><span class="text-xs font-normal text-gray-400">(1-10)</span>
+                      </th>
+                      <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b align-middle">Comment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of evaluation.items" class="border-b border-gray-200 dark:border-gray-700">
+                      <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle">
+                        {{ item.item_no }}. {{ item.item_name }}
+                      </td>
+                      <td class="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-700 align-middle">
+                        <span class="inline-flex min-w-[56px] justify-center rounded-md bg-blue-50 px-3 py-1 text-lg font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                          {{ parseFloat(item.rating) }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 align-middle">
+                        {{ item.comment || '-' }}
+                      </td>
+                    </tr>
+                    <tr class="bg-gray-50 dark:bg-gray-800/60 font-semibold">
+                      <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 align-middle">Average</td>
+                      <td class="px-4 py-3 text-center text-lg text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-700 align-middle">
+                        {{ calculateAverage() }}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-900 dark:text-white align-middle">–</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="text-sm text-gray-700 dark:text-gray-300 mb-4">
+                Score: Poor (0 - 4)   Satisfactory (5 - 7)   Good (8 - 10)
+              </div>
+
+              <div class="space-y-3">
+                <div class="document-check-row">
+                  <span class="document-check-box">{{ evaluation.is_maintained === 1 ? '✓' : '' }}</span>
+                  <span>Sub-Consultant to be maintained in approved lists (Average Score ≥ 5)</span>
+                </div>
+                <div class="document-check-row">
+                  <span class="document-check-box">{{ evaluation.is_removed === 1 ? '✓' : '' }}</span>
+                  <span>Sub-Consultant to be removed from approved lists (Average Score < 5)</span>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider *ngIf="evaluation.files && evaluation.files.length > 0"></mat-divider>
+
+            <section *ngIf="evaluation.files && evaluation.files.length > 0">
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                Attached Documents
+              </h3>
+              <div class="space-y-3">
+                <div *ngFor="let file of evaluation.files"
+                     class="flex items-center justify-between p-4 bg-gray-50/60 dark:bg-gray-900/20 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div class="flex items-center space-x-3">
+                    <mat-icon class="text-gray-400" [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ file.name }}</span>
+                  </div>
+                  <a [href]="getAttachmentUrl(file.path)" target="_blank" rel="noopener noreferrer" 
+                     class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                    <mat-icon class="text-sm mr-1" [svgIcon]="'heroicons_outline:arrow-top-right-on-square'"></mat-icon>
+                    View
+                  </a>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Action Form -->
+        <mat-card class="shadow-sm rounded-xl mt-6">
+          <mat-card-header>
+            <mat-card-title class="text-lg font-medium text-gray-900">{{ getActionTitle() }}</mat-card-title>
+            <mat-card-subtitle class="text-sm text-gray-500">You are updating the status for this evaluation</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="pt-4">
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Status -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Display current "by" field -->
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-sm text-blue-800 mb-2">
+                  <strong>{{ actionType === 'evaluated_by_status' ? 'Evaluated By' : 
+                              actionType === 'acknowledged_by_status' ? 'Acknowledged By' : 
+                              actionType === 'approved_by_status' ? 'Approved By' : 'By' }}:</strong>
+                </p>
+                <p class="text-base font-semibold text-blue-900">
+                  {{ evaluation && actionType === 'evaluated_by_status' ? getEmployeeLabel(evaluation.evaluated_by) :
+                     evaluation && actionType === 'acknowledged_by_status' ? getEmployeeLabel(evaluation.acknowledged_by) :
+                     evaluation && actionType === 'approved_by_status' ? getEmployeeLabel(evaluation.approved_by) : 'N/A' }}
+                </p>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  (click)="router.navigate(['/sub-consultant-evaluation/list'])"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+
+
+        <!-- Workflow Status -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Workflow Status</h3>
+          <div class="space-y-2">
+            <!-- Evaluated By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-100">
+                  <mat-icon class="text-base text-green-600">check</mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Evaluate by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(evaluation.evaluated_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(evaluation.evaluated_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(evaluation.evaluated_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(evaluation.evaluated_date) }}
+                </p>
+
+              </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-100">
+                  <mat-icon class="text-base text-green-600">
+                    {{ evaluation.approved_by_status === 'approve' || evaluation.approved_by_status === 'approved' ? 'check' : evaluation.approved_by_status === 'reject' || evaluation.approved_by_status === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(evaluation.approved_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(evaluation.approved_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(evaluation.approved_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(evaluation.approved_date) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(evaluation.approved_by_status)">
+                    {{ getByStatusText(evaluation.approved_by_status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-purple-100">
+                  <mat-icon class="text-base text-purple-600">
+                    {{ evaluation.acknowledged_by_status === 'approve' || evaluation.acknowledged_by_status === 'approved' ? 'check' : evaluation.acknowledged_by_status === 'reject' || evaluation.acknowledged_by_status === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(evaluation.acknowledged_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(evaluation.acknowledged_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(evaluation.acknowledged_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(evaluation.acknowledged_date) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(evaluation.acknowledged_by_status)">
+                    {{ getByStatusText(evaluation.acknowledged_by_status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

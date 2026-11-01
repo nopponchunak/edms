@@ -1,0 +1,599 @@
+<div class="h-full bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                SUPPLIER EVALUATION FORM
+        </h1>
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+                27 - FORM MTPC-04
+            </span>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{ isEditMode ? 'Update evaluation information' : 'Meinhardt (Thailand) Ltd.' }}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:chart-bar'"></mat-icon>
+                Evaluation Details
+            </h2>
+        </div>
+
+        <div class="p-6">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                <!-- Supplier and Project Information -->
+                <div class="mb-8">
+                    <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
+                        Supplier and Project Information
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Supplier Name -->
+                        <mat-form-field class="w-full" id="control-supplierName">
+                            <mat-label class="text-gray-700 dark:text-gray-300">Supplier Name:</mat-label>
+                            <input
+                                matInput
+                                formControlName="supplierName"
+                                [matAutocomplete]="supplierAuto"
+                                placeholder="Search supplier name"
+                                class="bg-white dark:bg-gray-700">
+                            <mat-autocomplete
+                                #supplierAuto="matAutocomplete">
+                                <mat-option *ngFor="let supplier of filteredSuppliers$ | async" [value]="supplier.name">
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ supplier.name }}</span>
+                                        <span class="text-xs text-gray-500" *ngIf="supplier.type">{{ supplier.type }}</span>
+                                    </div>
+                                </mat-option>
+                            </mat-autocomplete>
+                            <mat-error *ngIf="isFieldInvalid('supplierName')" class="text-red-500">
+                                {{ getErrorMessage('supplierName') }}
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Project Name (searchable dropdown) -->
+                        <mat-form-field class="w-full" id="control-projectName">
+                            <mat-label class="text-gray-700 dark:text-gray-300">Project Name:</mat-label>
+                            <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)" [disabled]="isView">
+                                <mat-option>
+                                    <ngx-mat-select-search
+                                        [formControl]="projectSearchCtrl"
+                                        placeholderLabel="Search Project..."
+                                        noEntriesFoundLabel="No projects found">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                                    {{ project.name }} ({{ project.code }})
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- Project No. (read-only, populated from Project Name selection) -->
+                        <mat-form-field class="w-full" id="control-projectNo">
+                            <mat-label class="text-gray-700 dark:text-gray-300">Project No.:</mat-label>
+                            <input
+                                matInput
+                                formControlName="projectNo"
+                                placeholder="Project number"
+                                readonly
+                                class="bg-gray-100 dark:bg-gray-700 cursor-not-allowed">
+                        </mat-form-field>
+
+                        <!-- Department / Purchased Value / Duration -->
+                        <mat-form-field class="w-full">
+                            <mat-label class="text-gray-700 dark:text-gray-300">Department / Purchased Value / Duration:</mat-label>
+                            <input
+                                matInput
+                                formControlName="departmentValueDuration"
+                                placeholder="Enter department, value, and duration"
+                                class="bg-white dark:bg-gray-700">
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Anti-Corruption Compliance -->
+                <div class="mb-8">
+                    <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
+                        Anti-Corruption Compliance
+                    </h3>
+
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-yellow-800 dark:text-yellow-200 mb-4">
+                            Are there any reasonable grounds to believe that the Supplier has violated or failed to comply with Meinhardt's Anti-Corruption programme and/or applicable laws?
+                        </p>
+
+                        <mat-radio-group formControlName="antiCorruptionCompliance" class="flex space-x-4">
+                            <div class="flex">
+                                <mat-radio-button [value]="true">
+                                </mat-radio-button>
+                                <div class="h-10 flex items-center text-sm">Yes - remove from approved list</div>
+                            </div>
+                            <div class="flex">
+                                <mat-radio-button [value]="false">
+                                </mat-radio-button>
+                                <div class="h-10 flex items-center text-sm">No - proceed below</div>
+                            </div>
+                        </mat-radio-group>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Evaluation Table -->
+                <div class="mb-8">
+                    <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">
+                        Evaluation
+                    </h3>
+                    <!-- Rating Scale -->
+                    <div class="mb-6">
+                        <h4 class="text-base font-medium text-gray-700 dark:text-gray-300 mb-3">Rating Scale:</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg text-center">
+                                <span class="text-red-600 dark:text-red-400 font-medium">Poor (0-4)</span>
+                            </div>
+                            <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg text-center">
+                                <span class="text-yellow-600 dark:text-yellow-400 font-medium">Satisfactory (5-7)</span>
+                            </div>
+                            <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg text-center">
+                                <span class="text-green-600 dark:text-green-400 font-medium">Good (8-10)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b">Item</th>
+                                    <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b">Rating</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b">Comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Quality and Accuracy of Document -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        1. Quality and Accuracy of Document
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="qualityRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="qualityComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Timeliness of Documentation -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        2. Timeliness of Documentation
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="timelinessRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="timelinessComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Understanding of MTL's Needs -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        3. Understanding of MTL's Needs
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="understandingRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="understandingComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Cooperation and Responsiveness -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        4. Cooperation and Responsiveness of Frontline Staff
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="cooperationRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="cooperationComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Timeliness of Delivery -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        5. Timeliness of Delivery
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="deliveryRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="deliveryComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Quality of Products -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        6. Quality of Products
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="productQualityRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="productQualityComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Meet EMS / OHSMS Requirements -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        7. Meet EMS / OHSMS Requirements
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="emsRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="emsComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Others -->
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        8. Others
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="othersRating"
+                                                min="0"
+                                                max="10"
+                                                class="bg-white dark:bg-gray-700 text-center">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="othersComment"
+                                                placeholder="Enter comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+
+                                <!-- Average Row -->
+                                <tr class="bg-gray-100 dark:bg-gray-800 font-medium">
+                                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                        Average
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <mat-form-field class="w-20 non-bottom-margin">
+                                            <input
+                                                matInput
+                                                type="number"
+                                                formControlName="averageRating"
+                                                min="0"
+                                                max="10"
+                                                step="0.1"
+                                                readonly
+                                                class="bg-gray-100 dark:bg-gray-700 text-center cursor-not-allowed">
+                                        </mat-form-field>
+                                    </td>
+                                    <td class="px-4 py-3">
+                        <mat-form-field class="w-full non-bottom-margin">
+                                            <input
+                                                matInput
+                                                formControlName="averageComment"
+                                                placeholder="Enter summary comment"
+                                                class="bg-white dark:bg-gray-700">
+                                        </mat-form-field>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Rating Scale and Decision -->
+                <div class="mb-8">
+                    <!-- <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        Decision -->
+                    <!-- </h3>Rating Scale and  -->
+
+                    <!-- Decision -->
+                    <div class="space-y-4">
+                        <h4 class="text-base font-medium text-gray-700 dark:text-gray-300">Decision:</h4>
+                        <mat-radio-group formControlName="decision" class="flex flex-col space-y-2">
+                            <div class="flex">
+                                <mat-radio-button value="maintain">
+                                </mat-radio-button>
+                                <div class="h-10 flex items-center text-sm">Supplier to be maintained in approved lists (Average Rating ≥ 5)</div>
+                            </div>
+                            <div class="flex">
+                                <mat-radio-button value="remove">
+                                </mat-radio-button>
+                                <div class="h-10 flex items-center text-sm">Supplier to be removed from approved lists (Average Rating < 5)</div>
+                            </div>
+                        </mat-radio-group>
+                    </div>
+                </div>
+
+                <!-- Approval and Action Workflow -->
+                <div class="approval-workflow-section mb-8">
+                    <h3 class="approval-workflow-section__title">
+                        <mat-icon class="approval-workflow-section__icon">verified_user</mat-icon>
+                        Approval and Action Workflow
+                    </h3>
+
+                    <div class="approval-workflow">
+                        <!-- 1. Evaluated by -->
+                        <div class="approval-workflow__row">
+                            <div class="approval-workflow__header">
+                                <span class="approval-workflow__step">1</span>
+                                <div class="approval-workflow__label-wrap">
+                                    <span class="approval-workflow__label">Evaluated by</span>
+                                    <span class="approval-workflow__hint">(ADM)</span>
+                                </div>
+                            </div>
+                            <div class="approval-workflow__fields">
+                                <mat-form-field class="approval-workflow__field approval-workflow__field--person" id="control-evaluatedBy">
+                                    <mat-label>Person</mat-label>
+                                    <mat-select formControlName="evaluatedBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="evaluatedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredEvaluatedUsers" [value]="user.id">{{ user.displayLabel }}</mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('evaluatedBy')">
+                                        {{ getErrorMessage('evaluatedBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <!-- 2. Approved by -->
+                        <div class="approval-workflow__row">
+                            <div class="approval-workflow__header">
+                                <span class="approval-workflow__step">2</span>
+                                <div class="approval-workflow__label-wrap">
+                                    <span class="approval-workflow__label">Approved by</span>
+                                    <span class="approval-workflow__hint">(MD/DI/TL)</span>
+                                </div>
+                            </div>
+                            <div class="approval-workflow__fields">
+                                <mat-form-field class="approval-workflow__field approval-workflow__field--person" id="control-approvedBy">
+                                    <mat-label>Person</mat-label>
+                                    <mat-select formControlName="approvedBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="approvedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredApprovedUsers" [value]="user.id">{{ user.displayLabel }}</mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('approvedBy')">
+                                        {{ getErrorMessage('approvedBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <!-- 3. Acknowledged by -->
+                        <div class="approval-workflow__row">
+                            <div class="approval-workflow__header">
+                                <span class="approval-workflow__step">3</span>
+                                <div class="approval-workflow__label-wrap">
+                                    <span class="approval-workflow__label">Acknowledged by</span>
+                                    <span class="approval-workflow__hint">(IMR)</span>
+                                </div>
+                            </div>
+                            <div class="approval-workflow__fields">
+                                <mat-form-field class="approval-workflow__field approval-workflow__field--person" id="control-acknowledgedBy">
+                                    <mat-label>Person</mat-label>
+                                    <mat-select formControlName="acknowledgedBy">
+                                        <mat-option>
+                                            <ngx-mat-select-search [formControl]="acknowledgedSearchCtrl" placeholderLabel="Search person" noEntriesFoundLabel="No results"></ngx-mat-select-search>
+                                        </mat-option>
+                                        <mat-option *ngFor="let user of filteredAcknowledgedUsers" [value]="user.id">{{ user.displayLabel }}</mat-option>
+                                    </mat-select>
+                                    <mat-error *ngIf="isFieldInvalid('acknowledgedBy')">
+                                        {{ getErrorMessage('acknowledgedBy') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <mat-divider class="my-8"></mat-divider>
+
+                <!-- Documents Section -->
+                <div class="mb-8">
+                    <div class="mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                            Attached Documents
+                        </h2>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Please attach documents</h3>
+                        <button
+                            type="button"
+                            mat-stroked-button
+                            (click)="openUploadDialog()"
+                            class="mb-4">
+                            <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                            Upload Document
+                        </button>
+
+                        <div *ngIf="attachmentsArray?.length" class="mt-4 space-y-2">
+                            <div
+                                *ngFor="let att of attachmentsArray.controls; index as i"
+                                class="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                    <mat-icon
+                                        class="text-gray-400 dark:text-gray-500"
+                                        [svgIcon]="att.value.type === 'file' ? 'heroicons_outline:document' : 'heroicons_outline:link'">
+                                    </mat-icon>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                                            {{ att.value.file_name || att.value.file_url || att.value.name || att.value.url || 'No file name' }}
+                                        </div>
+                                        <div *ngIf="attachmentsArray.controls[i].value.file_size" class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ (attachmentsArray.controls[i].value.file_size / 1024).toFixed(2) }} KB
+                                        </div>
+                                        <div *ngIf="attachmentsArray.controls[i].value.mime_type" class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ attachmentsArray.controls[i].value.mime_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    mat-icon-button
+                                    color="warn"
+                                    (click)="removeAttachment(i)"
+                                    aria-label="Remove document">
+                                    <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!attachmentsArray?.length" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            No documents attached yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
+                    <button
+                        type="button"
+                        mat-button
+                        (click)="onCancel()"
+                        class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        mat-flat-button
+                        color="primary"
+                        [disabled]="isSubmitting"
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                        <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+                        {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

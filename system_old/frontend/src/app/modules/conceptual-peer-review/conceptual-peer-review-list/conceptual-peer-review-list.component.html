@@ -1,0 +1,241 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Conceptual Peer Reviews</h1>
+          <p class="text-sm text-gray-600">MTDD-01 - Conceptual Peer Review Checklist/Action Sheet</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button
+            type="button"
+            (click)="navigateToNew()"
+            class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <mat-icon class="mr-2 text-white">add</mat-icon>
+            New Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="px-6">
+      <mat-tab-group [(selectedIndex)]="currentTab" class="w-full">
+        <mat-tab label="All">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Total: {{ reviews.length }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Draft">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Draft: {{ draftCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="In Review">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                In Review: {{ inReviewCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Responded">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Responded: {{ respondedCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Signed">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Signed: {{ signedCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Acknowledged">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Acknowledged: {{ acknowledgedCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Completed">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Completed: {{ completedCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab label="Rejected">
+          <ng-template matTabContent>
+            <div class="py-4">
+              <div class="text-sm text-gray-600">
+                Rejected: {{ rejectedCount }} reviews
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-6">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && getFilteredReviews().length === 0" class="text-center py-12">
+      <mat-icon class="text-gray-400 text-6xl mb-4">description</mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No reviews found</h3>
+      <p class="text-gray-600 mb-6">Get started by creating a new conceptual peer review.</p>
+      <button
+        type="button"
+        (click)="navigateToNew()"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <mat-icon class="mr-2">add</mat-icon>
+        New Request</button>
+    </div>
+
+    <!-- Reviews List -->
+    <div *ngIf="!loading && getFilteredReviews().length > 0" class="space-y-4">
+      <div *ngFor="let review of getFilteredReviews()" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
+        <div class="p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-2">
+                <h3 class="text-lg font-semibold text-gray-900">{{ review.projectName }}</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [class]="getStatusColor(review.status)">
+                  {{ getStatusLabel(review.status) }}
+                </span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
+                <div>
+                  <span class="font-medium">Project Number:</span> {{ review.projectNumber }}
+                </div>
+                <div>
+                  <span class="font-medium">Prepared By:</span> {{ review.preparedBy }}
+                </div>
+                <div>
+                  <span class="font-medium">Present:</span> {{ review.present }}
+                </div>
+                <div>
+                  <span class="font-medium">Disciplines:</span> {{ review.disciplines.join(', ') }}
+                </div>
+                <div>
+                  <span class="font-medium">Documentations:</span> {{ review.documentations.join(', ') }}
+                </div>
+                <div>
+                  <span class="font-medium">Reviewed By:</span> {{ review.reviewedBy }}
+                </div>
+                <div>
+                  <span class="font-medium">Reviewed Date:</span> {{ formatDate(review.reviewedByDate) }}
+                </div>
+                <div>
+                  <span class="font-medium">Responded By:</span> {{ review.respondedBy }}
+                </div>
+                <div>
+                  <span class="font-medium">Responded Date:</span> {{ formatDate(review.respondedByDate) }}
+                </div>
+                <div>
+                  <span class="font-medium">Satisfactorily Taken:</span> 
+                  <span [class]="review.recommendedActionsSatisfactorilyTaken ? 'text-green-600' : 'text-red-600'">
+                    {{ review.recommendedActionsSatisfactorilyTaken ? 'Yes' : 'No' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="font-medium">Signed by VVE:</span> {{ review.signedByVVE }}
+                </div>
+                <div>
+                  <span class="font-medium">VVE Date:</span> {{ formatDate(review.signedByVVEDate) }}
+                </div>
+                <div>
+                  <span class="font-medium">Signed by TL:</span> {{ review.signedByTL }}
+                </div>
+                <div>
+                  <span class="font-medium">TL Date:</span> {{ formatDate(review.signedByTLDate) }}
+                </div>
+                <div>
+                  <span class="font-medium">Acknowledged By:</span> {{ review.acknowledgedBy }}
+                </div>
+                <div>
+                  <span class="font-medium">Acknowledged Date:</span> {{ formatDate(review.acknowledgedByDate) }}
+                </div>
+              </div>
+              
+              <div class="mt-4 text-xs text-gray-500">
+                <span class="font-medium">Created:</span> {{ formatDate(review.createdDate) }} | 
+                <span class="font-medium">Last Modified:</span> {{ formatDate(review.lastModified) }}
+              </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 ml-4">
+              <button
+                type="button"
+                (click)="navigateToView(review.id)"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <mat-icon class="mr-1">visibility</mat-icon>
+                View
+              </button>
+              
+              <!-- Actions Menu -->
+              
+              <button [matMenuTriggerFor]="actionsMenu"
+              
+                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+              
+                <mat-icon class="mr-1 text-sm">more_vert</mat-icon>
+              
+                Actions
+              
+              </button>
+              
+              <mat-menu #actionsMenu="matMenu">
+              
+                <button (click)="navigateToEdit(review.id)" mat-menu-item class="flex items-center">
+              
+                  <mat-icon class="mr-2">edit</mat-icon>
+              
+                  Edit
+              
+                </button>
+              
+                <button (click)="deleteReview(review.id)" mat-menu-item class="flex items-center text-red-600">
+              
+                  <mat-icon class="mr-2">delete</mat-icon>
+              
+                  Delete
+              
+                </button>
+              
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

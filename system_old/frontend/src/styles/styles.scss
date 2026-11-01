@@ -1,0 +1,595 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */
+
+/* Import transparency fix styles */
+@use '../app/styles/transparency-fix.scss';
+
+@font-face {
+    font-family: 'testimonia-font';
+    src: url('/fonts/testimonia/Testimonia-3zp8X.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/*  Full-width page content overrides                                                            */
+/*  Remove left/right gaps on common page wrappers without impacting buttons or inner elements.  */
+/* --------------------------------------------------------------------------------------------- */
+
+/* Remove centering and max-width from common page containers */
+.mx-auto.max-w-7xl,
+.mx-auto.max-w-6xl {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Remove horizontal padding only on page containers that also use p-6/px-6 */
+.mx-auto.max-w-7xl.p-6,
+.mx-auto.max-w-7xl.px-6,
+.mx-auto.max-w-6xl.p-6,
+.mx-auto.max-w-6xl.px-6 {
+    /* Add a tiny horizontal gutter */
+    padding-left: 12px !important; /* ~0.75rem */
+    padding-right: 12px !important;
+}
+
+/* Also cover variants where padding is applied on a direct child of the page container */
+.mx-auto.max-w-7xl > .p-6,
+.mx-auto.max-w-7xl > .px-6,
+.mx-auto.max-w-6xl > .p-6,
+.mx-auto.max-w-6xl > .px-6 {
+    /* Add a tiny horizontal gutter */
+    padding-left: 12px !important; /* ~0.75rem */
+    padding-right: 12px !important;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/*  Design Review discussion comment indicator                                                     */
+/* --------------------------------------------------------------------------------------------- */
+
+.design-review-comment-badge--pulse {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    box-shadow:
+        0 0 0 1px rgba(251, 146, 60, 0.22),
+        0 0 0 0 rgba(251, 146, 60, 0);
+    animation: design-review-comment-badge-glow 1.7s ease-in-out infinite;
+}
+
+@keyframes design-review-comment-badge-glow {
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 1px rgba(251, 146, 60, 0.18),
+            0 0 0 0 rgba(251, 146, 60, 0),
+            0 0 0 rgba(251, 146, 60, 0);
+    }
+
+    50% {
+        box-shadow:
+            0 0 0 1px rgba(251, 146, 60, 0.5),
+            0 0 0 4px rgba(251, 146, 60, 0.16),
+            0 0 14px rgba(251, 146, 60, 0.4);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .design-review-comment-badge--pulse {
+        animation: none;
+    }
+}
+
+    // /* ทำให้ปุ่มยืนยัน (confirm) ที่ color="warn" ใน dialog เป็นปุ่มสีแดง */
+    // .mat-mdc-dialog-actions .mat-mdc-button-base.mat-warn {
+    //   background-color: #ef4444 !important;  /* แดง */
+    //   color: #ffffff !important;             /* ตัวอักษรขาว */
+    //   border-radius: 999px;                  /* ให้โค้งแบบเม็ดแคปซูลเหมือนรูปตัวอย่าง */
+    // }
+
+    // /* กันตัวหนังสือข้างในโดน override */
+    // .mat-mdc-dialog-actions .mat-mdc-button-base.mat-warn .mdc-button__label {
+    //   color: #ffffff !important;
+    // }
+
+html[data-print-document-ready] .signature-print-block {
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    display: flex;
+    width: max-content;
+    min-width: 0;
+    max-width: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    isolation: isolate;
+    line-height: 1;
+    transform: translateX(-50%) scale(var(--signature-print-scale, 1));
+    transform-origin: center bottom;
+    pointer-events: none;
+}
+
+html[data-print-document-ready] .signature-watermark {
+    position: absolute;
+    left: 52%;
+    right: auto;
+    bottom: 1.1mm;
+    z-index: 0;
+    width: 4.5mm;
+    height: 4.5mm;
+    display: block;
+    object-fit: contain;
+    opacity: 0.09;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+html[data-print-document-ready] .signature-name {
+    position: relative;
+    z-index: 1;
+    color: #174ea6;
+    font-family: 'testimonia-font', cursive !important;
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    line-height: 0.78;
+    white-space: nowrap;
+}
+
+html[data-print-document-ready] .signature-id {
+    position: relative;
+    z-index: 1;
+    margin-top: -1px;
+    color: #174ea6;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 6.5px;
+    font-weight: 700 !important;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+@media print {
+    body.allowance-after-10pm-printing .signature-print-block,
+    body.expenses-claim-printing .signature-print-block {
+        position: absolute;
+        left: 50%;
+        bottom: -4px;
+        display: flex;
+        min-width: 34mm;
+        max-width: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        isolation: isolate;
+        line-height: 1;
+        transform: translateX(-50%) scale(var(--signature-print-scale, 1));
+        transform-origin: center bottom;
+        pointer-events: none;
+    }
+
+    body.allowance-after-10pm-printing .signature-watermark,
+    body.expenses-claim-printing .signature-watermark {
+        position: absolute;
+        left: 52%;
+        right: auto;
+        bottom: 1.1mm;
+        z-index: 0;
+        width: 4.5mm;
+        height: 4.5mm;
+        display: block;
+        object-fit: contain;
+        opacity: 0.09;
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+
+    body.allowance-after-10pm-printing .signature-name,
+    body.expenses-claim-printing .signature-name {
+        position: relative;
+        z-index: 1;
+        color: #174ea6;
+        font-family: 'testimonia-font-data', 'testimonia-font', cursive !important;
+        font-size: 18px !important;
+        line-height: 0.78;
+        white-space: nowrap;
+    }
+
+    body.allowance-after-10pm-printing .signature-id,
+    body.expenses-claim-printing .signature-id {
+        position: relative;
+        z-index: 1;
+        margin-top: -1px;
+        color: #174ea6;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 6.5px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    body.purchase-requisition-printing,
+    body.allowance-after-10pm-printing,
+    body.expenses-claim-printing,
+    body.concept-design-review-printing,
+    body.schematic-design-review-printing,
+    body.submission-review-printing,
+    body.construction-validation-printing,
+    body.engineering-audit-review-printing,
+    body.value-engineering-printing,
+    body.leed-review-printing,
+    body.purchase-requisition-printing app-root,
+    body.allowance-after-10pm-printing app-root,
+    body.expenses-claim-printing app-root,
+    body.concept-design-review-printing app-root,
+    body.schematic-design-review-printing app-root,
+    body.submission-review-printing app-root,
+    body.construction-validation-printing app-root,
+    body.engineering-audit-review-printing app-root,
+    body.value-engineering-printing app-root,
+    body.leed-review-printing app-root,
+    body.purchase-requisition-printing layout,
+    body.allowance-after-10pm-printing layout,
+    body.expenses-claim-printing layout,
+    body.concept-design-review-printing layout,
+    body.schematic-design-review-printing layout,
+    body.submission-review-printing layout,
+    body.construction-validation-printing layout,
+    body.engineering-audit-review-printing layout,
+    body.value-engineering-printing layout,
+    body.leed-review-printing layout,
+    body.purchase-requisition-printing fuse-layout,
+    body.allowance-after-10pm-printing fuse-layout,
+    body.expenses-claim-printing fuse-layout,
+    body.concept-design-review-printing fuse-layout,
+    body.schematic-design-review-printing fuse-layout,
+    body.submission-review-printing fuse-layout,
+    body.construction-validation-printing fuse-layout,
+    body.engineering-audit-review-printing fuse-layout,
+    body.value-engineering-printing fuse-layout,
+    body.leed-review-printing fuse-layout,
+    body.purchase-requisition-printing .h-screen,
+    body.allowance-after-10pm-printing .h-screen,
+    body.expenses-claim-printing .h-screen,
+    body.concept-design-review-printing .h-screen,
+    body.schematic-design-review-printing .h-screen,
+    body.submission-review-printing .h-screen,
+    body.construction-validation-printing .h-screen,
+    body.engineering-audit-review-printing .h-screen,
+    body.value-engineering-printing .h-screen,
+    body.leed-review-printing .h-screen,
+    body.purchase-requisition-printing .h-full,
+    body.allowance-after-10pm-printing .h-full,
+    body.expenses-claim-printing .h-full,
+    body.concept-design-review-printing .h-full,
+    body.schematic-design-review-printing .h-full,
+    body.submission-review-printing .h-full,
+    body.construction-validation-printing .h-full,
+    body.engineering-audit-review-printing .h-full,
+    body.value-engineering-printing .h-full,
+    body.leed-review-printing .h-full,
+    body.purchase-requisition-printing .min-h-full,
+    body.allowance-after-10pm-printing .min-h-full,
+    body.expenses-claim-printing .min-h-full,
+    body.concept-design-review-printing .min-h-full,
+    body.schematic-design-review-printing .min-h-full,
+    body.submission-review-printing .min-h-full,
+    body.construction-validation-printing .min-h-full,
+    body.engineering-audit-review-printing .min-h-full,
+    body.value-engineering-printing .min-h-full,
+    body.leed-review-printing .min-h-full,
+    body.purchase-requisition-printing .overflow-hidden,
+    body.allowance-after-10pm-printing .overflow-hidden,
+    body.expenses-claim-printing .overflow-hidden,
+    body.concept-design-review-printing .overflow-hidden,
+    body.schematic-design-review-printing .overflow-hidden,
+    body.submission-review-printing .overflow-hidden,
+    body.construction-validation-printing .overflow-hidden,
+    body.engineering-audit-review-printing .overflow-hidden,
+    body.value-engineering-printing .overflow-hidden,
+    body.leed-review-printing .overflow-hidden,
+    body.purchase-requisition-printing .overflow-y-auto,
+    body.allowance-after-10pm-printing .overflow-y-auto,
+    body.expenses-claim-printing .overflow-y-auto,
+    body.concept-design-review-printing .overflow-y-auto,
+    body.schematic-design-review-printing .overflow-y-auto,
+    body.submission-review-printing .overflow-y-auto,
+    body.construction-validation-printing .overflow-y-auto,
+    body.engineering-audit-review-printing .overflow-y-auto,
+    body.value-engineering-printing .overflow-y-auto,
+    body.leed-review-printing .overflow-y-auto,
+    body.purchase-requisition-printing .overflow-x-hidden,
+    body.allowance-after-10pm-printing .overflow-x-hidden,
+    body.expenses-claim-printing .overflow-x-hidden,
+    body.concept-design-review-printing .overflow-x-hidden,
+    body.schematic-design-review-printing .overflow-x-hidden,
+    body.submission-review-printing .overflow-x-hidden,
+    body.construction-validation-printing .overflow-x-hidden,
+    body.engineering-audit-review-printing .overflow-x-hidden,
+    body.value-engineering-printing .overflow-x-hidden,
+    body.leed-review-printing .overflow-x-hidden {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    body.allowance-after-10pm-printing .screen-view {
+        display: none !important;
+    }
+
+    body.expenses-claim-printing .screen-view {
+        display: none !important;
+    }
+
+    body.concept-design-review-printing .screen-view {
+        display: none !important;
+    }
+
+    body.schematic-design-review-printing .screen-view {
+        display: none !important;
+    }
+
+    body.submission-review-printing .screen-view {
+        display: none !important;
+    }
+
+    body.construction-validation-printing .screen-view {
+        display: none !important;
+    }
+
+    body.engineering-audit-review-printing .screen-view {
+        display: none !important;
+    }
+
+    body.value-engineering-printing .screen-view {
+        display: none !important;
+    }
+
+    body.leed-review-printing .screen-view {
+        display: none !important;
+    }
+
+    body.allowance-after-10pm-printing .print-only,
+    body.expenses-claim-printing .print-only,
+    body.concept-design-review-printing .print-only,
+    body.schematic-design-review-printing .print-only,
+    body.submission-review-printing .print-only,
+    body.construction-validation-printing .print-only,
+    body.engineering-audit-review-printing .print-only,
+    body.value-engineering-printing .print-only,
+    body.leed-review-printing .print-only {
+        display: block !important;
+    }
+
+    body.design-workflow-printing,
+    body.design-workflow-printing app-root,
+    body.design-workflow-printing layout,
+    body.design-workflow-printing fuse-layout,
+    body.design-workflow-printing empty-layout,
+    body.design-workflow-printing centered-layout,
+    body.design-workflow-printing enterprise-layout,
+    body.design-workflow-printing material-layout,
+    body.design-workflow-printing modern-layout,
+    body.design-workflow-printing classic-layout,
+    body.design-workflow-printing classy-layout,
+    body.design-workflow-printing compact-layout,
+    body.design-workflow-printing dense-layout,
+    body.design-workflow-printing futuristic-layout,
+    body.design-workflow-printing thin-layout,
+    body.design-workflow-printing .h-screen,
+    body.design-workflow-printing .h-full,
+    body.design-workflow-printing .min-h-full,
+    body.design-workflow-printing .overflow-hidden,
+    body.design-workflow-printing .overflow-auto,
+    body.design-workflow-printing .overflow-y-auto,
+    body.design-workflow-printing .overflow-x-hidden {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}
+
+@media print {
+    body.tender-csa-review-printing,
+    body.tender-csa-verification-printing,
+    body.tender-mep-review-printing,
+    body.tender-mep-verification-printing,
+    body.tender-csa-review-printing app-root,
+    body.tender-csa-verification-printing app-root,
+    body.tender-mep-review-printing app-root,
+    body.tender-mep-verification-printing app-root,
+    body.tender-csa-review-printing layout,
+    body.tender-csa-verification-printing layout,
+    body.tender-mep-review-printing layout,
+    body.tender-mep-verification-printing layout,
+    body.tender-csa-review-printing fuse-layout,
+    body.tender-csa-verification-printing fuse-layout,
+    body.tender-mep-review-printing fuse-layout,
+    body.tender-mep-verification-printing fuse-layout,
+    body.tender-csa-review-printing .h-screen,
+    body.tender-csa-verification-printing .h-screen,
+    body.tender-mep-review-printing .h-screen,
+    body.tender-mep-verification-printing .h-screen,
+    body.tender-csa-review-printing .h-full,
+    body.tender-csa-verification-printing .h-full,
+    body.tender-mep-review-printing .h-full,
+    body.tender-mep-verification-printing .h-full,
+    body.tender-csa-review-printing .min-h-full,
+    body.tender-csa-verification-printing .min-h-full,
+    body.tender-mep-review-printing .min-h-full,
+    body.tender-mep-verification-printing .min-h-full,
+    body.tender-csa-review-printing .overflow-hidden,
+    body.tender-csa-verification-printing .overflow-hidden,
+    body.tender-mep-review-printing .overflow-hidden,
+    body.tender-mep-verification-printing .overflow-hidden,
+    body.tender-csa-review-printing .overflow-y-auto,
+    body.tender-csa-verification-printing .overflow-y-auto,
+    body.tender-mep-review-printing .overflow-y-auto,
+    body.tender-mep-verification-printing .overflow-y-auto,
+    body.tender-csa-review-printing .overflow-x-hidden,
+    body.tender-csa-verification-printing .overflow-x-hidden,
+    body.tender-mep-review-printing .overflow-x-hidden,
+    body.tender-mep-verification-printing .overflow-x-hidden {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    body.tender-csa-review-printing .screen-view,
+    body.tender-csa-verification-printing .screen-view,
+    body.tender-mep-review-printing .screen-view,
+    body.tender-mep-verification-printing .screen-view {
+        display: none !important;
+    }
+
+    body.tender-csa-review-printing .print-only,
+    body.tender-csa-verification-printing .print-only,
+    body.tender-mep-review-printing .print-only,
+    body.tender-mep-verification-printing .print-only {
+        display: block !important;
+    }
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/*  Settings module shared action styles                                                          */
+/*  Keep admin/master-data pages visually consistent without affecting document workflow pages.    */
+/* --------------------------------------------------------------------------------------------- */
+
+:is(
+    app-user-settings-list,
+    app-user-settings-form,
+    app-user-settings-view,
+    app-permission-settings-list,
+    app-permission-settings-form,
+    app-sub-consultant-settings-list,
+    app-sub-consultant-settings-form,
+    app-sub-consultant-type-settings-list,
+    app-sub-consultant-type-settings-form,
+    app-committee-settings-list,
+    app-committee-settings-form,
+    app-supplier-settings-list,
+    app-supplier-settings-form,
+    app-supplier-type-settings-list,
+    app-supplier-type-settings-form,
+    app-main-menu-settings-list,
+    app-main-menu-settings-detail,
+    app-main-menu-create-dialog,
+    app-main-menu-add-menus-dialog,
+    app-manual-management,
+    app-project-type-settings-list,
+    app-project-type-settings-form,
+    app-discipline-settings-list,
+    app-discipline-settings-form,
+    app-project-detail-settings-list,
+    app-project-detail-settings-form,
+    app-signature-settings-list,
+    app-signature-settings-form
+) {
+    .mat-mdc-unelevated-button:not(.mat-warn),
+    button[mat-flat-button]:not(.mat-warn) {
+        min-height: 44px;
+        border: 1px solid #1d4ed8 !important;
+        border-radius: 8px;
+        background-color: #2563eb !important;
+        padding: 0 20px;
+        color: #ffffff !important;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0;
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
+    }
+
+    .mat-mdc-unelevated-button:not(.mat-warn):not(.mat-mdc-button-disabled):hover,
+    button[mat-flat-button]:not(.mat-warn):not(.mat-mdc-button-disabled):hover {
+        border-color: #1e40af !important;
+        background-color: #1d4ed8 !important;
+    }
+
+    .mat-mdc-outlined-button.mat-primary {
+        min-height: 44px;
+        border-radius: 8px;
+        border-color: #bfdbfe !important;
+        padding: 0 18px;
+        color: #1d4ed8 !important;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0;
+        background-color: #ffffff;
+    }
+
+    .mat-mdc-outlined-button.mat-primary:hover {
+        border-color: #93c5fd !important;
+        background-color: #eff6ff;
+    }
+
+    .mat-mdc-unelevated-button:not(.mat-warn) .mat-icon,
+    .mat-mdc-outlined-button.mat-primary .mat-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        font-size: 20px;
+    }
+
+    .mat-mdc-unelevated-button:not(.mat-warn) .mdc-button__label,
+    .mat-mdc-unelevated-button:not(.mat-warn) .mat-icon,
+    button[mat-flat-button]:not(.mat-warn) .mdc-button__label,
+    button[mat-flat-button]:not(.mat-warn) .mat-icon {
+        color: #ffffff !important;
+    }
+
+    .mat-mdc-icon-button {
+        width: 38px;
+        height: 38px;
+        padding: 7px;
+        border-radius: 8px;
+    }
+
+    .mat-mdc-icon-button .mat-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+    }
+
+    .mat-mdc-icon-button.mat-primary,
+    .mat-mdc-icon-button:not(.mat-warn) {
+        color: #2563eb;
+    }
+
+    .mat-mdc-icon-button.mat-warn {
+        color: #dc2626;
+    }
+
+    .mat-mdc-icon-button:hover {
+        background-color: #eff6ff;
+    }
+
+    .mat-mdc-icon-button.mat-warn:hover {
+        background-color: #fef2f2;
+    }
+
+    .mat-mdc-button-disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+        box-shadow: none !important;
+    }
+
+    .mat-mdc-unelevated-button.mat-mdc-button-disabled:not(.mat-warn),
+    button[mat-flat-button].mat-mdc-button-disabled:not(.mat-warn) {
+        border-color: #bfdbfe !important;
+        background-color: #dbeafe !important;
+        color: #1e40af !important;
+        opacity: 0.85;
+    }
+
+    .mat-mdc-unelevated-button.mat-mdc-button-disabled:not(.mat-warn) .mdc-button__label,
+    .mat-mdc-unelevated-button.mat-mdc-button-disabled:not(.mat-warn) .mat-icon,
+    button[mat-flat-button].mat-mdc-button-disabled:not(.mat-warn) .mdc-button__label,
+    button[mat-flat-button].mat-mdc-button-disabled:not(.mat-warn) .mat-icon {
+        color: #1e40af !important;
+    }
+}

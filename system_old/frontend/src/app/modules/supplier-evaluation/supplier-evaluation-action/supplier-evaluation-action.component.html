@@ -1,0 +1,300 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ getActionTitle() }}
+          </h1>
+          <p class="text-base text-gray-600 mt-1">
+            {{ getActionDescription() }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/supplier-evaluation'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !evaluation" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="evaluation" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Evaluation Details -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Evaluation Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Supplier Name</label>
+              <p class="text-gray-900">{{ evaluation.supplierName }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Project Name</label>
+              <p class="text-gray-900">{{ evaluation.projectName || '-' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Project No.</label>
+              <p class="text-gray-900">{{ evaluation.projectNo || '-' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Department / Purchased Value / Duration</label>
+              <p class="text-gray-900">{{ evaluation.departmentValueDuration || '-' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Evaluated Date</label>
+              <p class="text-gray-900">{{ formatDate(evaluation.evaluatedDate) }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Average Rating</label>
+              <p class="text-gray-900 text-lg font-semibold">{{ evaluation.averageRating || 0 }}/5.0</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Decision</label>
+              <p class="text-gray-900">
+                <span *ngIf="evaluation.decision === 'maintain'">Maintain in approved lists</span>
+                <span *ngIf="evaluation.decision === 'remove'">Remove from approved lists</span>
+                <span *ngIf="!evaluation.decision">-</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Anti-Corruption -->
+        <div *ngIf="evaluation.antiCorruptionFlag !== undefined" class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Anti-Corruption Compliance</h3>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-sm text-yellow-900">
+              <strong>Result:</strong>
+              <span *ngIf="evaluation.antiCorruptionFlag"> Yes - remove from approved list</span>
+              <span *ngIf="!evaluation.antiCorruptionFlag"> No - proceed below</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Evaluation Items -->
+        <div *ngIf="evaluation.items && evaluation.items.length > 0" class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Evaluation Items</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-gray-200 rounded-lg">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">Item</th>
+                  <th class="px-4 py-3 text-center text-xs font-medium text-gray-500">Rating</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of evaluation.items" class="border-t border-gray-200">
+                  <td class="px-4 py-3 text-gray-900">{{ item.item_name }}</td>
+                  <td class="px-4 py-3 text-center text-gray-900">{{ item.rating || 0 }}</td>
+                  <td class="px-4 py-3 text-gray-900">{{ item.comment || '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Attached Documents -->
+        <div *ngIf="evaluation.attachments && evaluation.attachments.length > 0" class="bg-white shadow-sm rounded-xl p-6 mt-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Attached Documents</h3>
+          <div class="space-y-2">
+            <div *ngFor="let file of evaluation.attachments"
+                 class="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-50">
+              <div class="flex items-center space-x-3">
+                <mat-icon class="text-gray-400">description</mat-icon>
+                <span class="text-sm text-gray-900">{{ file.split('/').pop() || file }}</span>
+              </div>
+              <a [href]="getAttachmentUrl(file)" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">
+                <mat-icon class="text-base">open_in_new</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- Action Form -->
+        <section class="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-md ring-1 ring-slate-100 dark:border-gray-700 dark:bg-gray-800 dark:ring-gray-700">
+          <div class="border-b border-slate-200 bg-slate-50 px-5 py-4 dark:border-gray-700 dark:bg-gray-800/60">
+            <div class="min-w-0">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ getActionTitle() }}</h3>
+              <p class="mt-1 text-sm text-slate-500 dark:text-gray-400">You are updating the status for this request</p>
+            </div>
+          </div>
+
+          <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-5 p-5">
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900/30">
+              <div class="mb-3">
+                <h4 class="text-sm font-semibold text-slate-900 dark:text-white">Status Decision</h4>
+              </div>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div
+              *ngIf="shouldShowSupplierInactiveWarning()"
+              class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 dark:border-amber-700/60 dark:bg-amber-900/20 dark:text-amber-100"
+            >
+              <div class="flex gap-3">
+                <mat-icon class="mt-0.5 text-amber-600 dark:text-amber-300">warning</mat-icon>
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold">Supplier will be inactive</p>
+                  <p class="text-sm leading-5">{{ getSupplierInactiveWarningText() }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Display current "by" field -->
+            <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 shadow-sm dark:border-blue-700/60 dark:bg-blue-900/20">
+              <div class="mb-3 text-blue-900 dark:text-blue-200">
+                <p class="text-sm font-semibold">
+                  {{ actionType === 'evaluated_by_status' ? 'Evaluated By' :
+                      actionType === 'acknowledged_by_status' ? 'Acknowledged By' :
+                      actionType === 'approved_by_status' ? 'Approved By' : 'By' }}
+                </p>
+              </div>
+              <p class="text-base font-semibold text-blue-950 dark:text-blue-100">
+                {{ evaluation && actionType === 'evaluated_by_status' ? getEmployeeLabel(evaluation.evaluatedBy) :
+                   evaluation && actionType === 'acknowledged_by_status' ? getEmployeeLabel(evaluation.acknowledgedBy) :
+                   evaluation && actionType === 'approved_by_status' ? getEmployeeLabel(evaluation.approvedBy) : 'N/A' }}
+              </p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end space-x-4 border-t border-slate-200 pt-5 dark:border-gray-700">
+              <button
+                type="button"
+                (click)="router.navigate(['/supplier-evaluation'])"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                [disabled]="actionForm.invalid || loading"
+                class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span *ngIf="!loading">Update Status</span>
+                <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+
+
+        <!-- Workflow Status -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Workflow Status</h3>
+          <div class="space-y-2">
+            <!-- Evaluated By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-100">
+                  <mat-icon class="text-base text-green-600">check</mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Evaluate by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(evaluation.evaluatedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(evaluation.evaluatedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(evaluation.evaluatedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(evaluation.evaluatedByDate) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(evaluation.approvedByStatus)">
+                  <mat-icon [class]="getByStatusColor(evaluation.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(evaluation.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-base">
+                    {{ evaluation.approvedByStatus === 'approve' || evaluation.approvedByStatus === 'approved' ? 'check' : evaluation.approvedByStatus === 'reject' || evaluation.approvedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by (MD/DI/TL):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(evaluation.approvedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(evaluation.approvedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(evaluation.approvedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(evaluation.approvedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(evaluation.approvedByStatus)">
+                    {{ getByStatusText(evaluation.approvedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(evaluation.acknowledgedByStatus)">
+                  <mat-icon [class]="getByStatusColor(evaluation.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(evaluation.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-base">
+                    {{ evaluation.acknowledgedByStatus === 'approve' || evaluation.acknowledgedByStatus === 'approved' ? 'check' : evaluation.acknowledgedByStatus === 'reject' || evaluation.acknowledgedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge by (IMR):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(evaluation.acknowledgedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(evaluation.acknowledgedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(evaluation.acknowledgedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(evaluation.acknowledgedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(evaluation.acknowledgedByStatus)">
+                    {{ getByStatusText(evaluation.acknowledgedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

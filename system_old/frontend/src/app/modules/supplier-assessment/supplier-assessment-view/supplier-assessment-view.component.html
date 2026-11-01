@@ -1,0 +1,644 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+
+    <div class="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 uppercase">
+          SUPPLIER ASSESSMENT FORM
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Meinhardt (Thailand) Ltd.
+        </p>
+      </div>
+    <!-- Standardized Actions -->
+    <app-view-actions
+      [backPath]="'/supplier-assessment'"
+      [navId]="'supplier-assessment'"
+      (print)="onPrint()"
+      (edit)="onEdit()"
+    ></app-view-actions>
+    </div>
+
+    <!-- Alert -->
+    <fuse-alert
+      class="mb-6"
+      *ngIf="alert"
+      [appearance]="'outline'"
+      [type]="alert.type"
+      [showIcon]="'true'"
+      [dismissible]="'true'"
+      (dismissed)="alert = null"
+    >
+      {{ alert.message }}
+    </fuse-alert>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <!-- Document content -->
+    <div *ngIf="!isLoading && assessment" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Left Column: Details -->
+        <div class="lg:col-span-2 space-y-6">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
+      >
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+            <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+            Assessment Details
+          </h2>
+          <div class="flex flex-col items-end">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mb-1"
+              [class]="getStatusBadgeClass(assessment.status)">
+              {{ getStatusLabel(assessment.status) }}
+            </span>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Supplier: {{ assessment.supplierName }} · Date: {{ formatDate(assessment.assessmentDate) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <div class="space-y-6">
+          <!-- 1. Assessment Details -->
+          <section>
+
+            <!-- Item(s) supplied -->
+            <div class="mb-6">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Item(s) supplied:
+              </label>
+              <div
+                class="border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white"
+              >
+                {{ assessment.itemsSupplied }}
+              </div>
+            </div>
+
+            <!-- Information used for Assessment -->
+            <div>
+              <p
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              >
+                Information used for Assessment:
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                  <!-- left column -->
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.infoCompanyProfile"
+                        class="w-2.5 h-2.5 bg-blue-600 rounded-sm"
+                      ></span>
+                    </span>
+                    <span
+                      class="text-sm text-gray-800 dark:text-gray-100"
+                    >
+                      Company Profile / Biodata
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.infoProjectReference"
+                        class="w-2.5 h-2.5 bg-blue-600 rounded-sm"
+                      ></span>
+                    </span>
+                    <span
+                      class="text-sm text-gray-800 dark:text-gray-100"
+                    >
+                      Project Reference / Certificates
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.infoSiteVisit"
+                        class="w-2.5 h-2.5 bg-blue-600 rounded-sm"
+                      ></span>
+                    </span>
+                    <span
+                      class="text-sm text-gray-800 dark:text-gray-100"
+                    >
+                      Site Visit
+                    </span>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <!-- right column -->
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.infoPreviousAssessmentRecord"
+                        class="w-2.5 h-2.5 bg-blue-600 rounded-sm"
+                      ></span>
+                    </span>
+                    <span
+                      class="text-sm text-gray-800 dark:text-gray-100"
+                    >
+                      Previous Assessment Record
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.infoPreviousEvaluationRecord"
+                        class="w-2.5 h-2.5 bg-blue-600 rounded-sm"
+                      ></span>
+                    </span>
+                    <span
+                      class="text-sm text-gray-800 dark:text-gray-100"
+                    >
+                      Previous Evaluation Record
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="w-4 h-4 border border-gray-400 rounded-sm flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.infoIsoCertificates"
+                        class="w-2.5 h-2.5 bg-blue-600 rounded-sm"
+                      ></span>
+                    </span>
+                    <span
+                      class="text-sm text-gray-800 dark:text-gray-100"
+                    >
+                      ISO Certificates
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <mat-divider></mat-divider>
+
+          <!-- 1.2 Assessment Areas table -->
+          <section>
+            <h3
+              class="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4"
+            >
+              Assessment
+            </h3>
+
+            <div class="overflow-x-auto">
+              <table
+                class="w-full border border-gray-200 dark:border-gray-700 rounded-lg"
+              >
+                <thead
+                  class="bg-gray-50 dark:bg-gray-800"
+                >
+                  <tr>
+                    <th
+                      class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      Assessment Areas
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 w-28 align-middle leading-tight"
+                    >
+                      Score<br><span class="text-sm font-normal text-gray-500">(1-10)</span>
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      Poor
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      Fair
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      Good
+                    </th>
+                    <th
+                      class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b align-middle"
+                    >
+                      Excellent
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let row of assessment.assessmentAreas"
+                    class="border-b border-gray-200 dark:border-gray-700"
+                  >
+                    <td
+                      class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      {{ row.area }}
+                    </td>
+                    <td
+                      class="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      <span
+                        class="inline-flex min-w-[56px] justify-center rounded-md bg-blue-50 px-3 py-1 text-lg font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
+                      >
+                        {{ row.score }}
+                      </span>
+                    </td>
+                    <td
+                      class="px-4 py-3 text-center text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      {{ row.criteriaPoor }}
+                    </td>
+                    <td
+                      class="px-4 py-3 text-center text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      {{ row.criteriaFair }}
+                    </td>
+                    <td
+                      class="px-4 py-3 text-center text-sm text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 align-middle"
+                    >
+                      {{ row.criteriaGood }}
+                    </td>
+                    <td
+                      class="px-4 py-3 text-center text-sm text-gray-700 dark:text-gray-300 align-middle"
+                    >
+                      {{ row.criteriaExcellent }}
+                    </td>
+                  </tr>
+                  <tr class="bg-gray-50 dark:bg-gray-800/60 font-semibold">
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 align-middle">
+                      Total Score
+                    </td>
+                    <td class="px-4 py-3 text-center text-lg text-blue-600 dark:text-blue-400 border-r border-gray-200 dark:border-gray-700 align-middle">
+                      {{ assessment.totalScore }}
+                    </td>
+                    <td colspan="4" class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 align-middle italic">
+                      (Score in this section should exceed 15)
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <mat-divider></mat-divider>
+
+          <!-- 2. References -->
+          <section>
+            <h3
+              class="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-2"
+            >
+              2. References
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Contact at least one external reference and record name and
+              opinion.
+            </p>
+
+            <div class="space-y-6">
+              <div
+                *ngFor="let ref of assessment.references; let i = index"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
+                    {{ i === 0 ? 'a)' : 'b)' }} Name:
+                  </label>
+                  <div
+                    class="border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white"
+                  >
+                    {{ ref.name }}
+                  </div>
+                </div>
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
+                    Opinion:
+                  </label>
+                  <div
+                    class="border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white"
+                  >
+                    {{ ref.opinion }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <mat-divider></mat-divider>
+
+          <!-- 3. Recommendation -->
+          <section>
+            <h3
+              class="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4"
+            >
+              Recommendation
+            </h3>
+
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="w-4 h-4 border border-gray-500 rounded-full flex items-center justify-center"
+                  >
+                    <span
+                      *ngIf="assessment.recommendation === 'accept'"
+                      class="w-2 h-2 bg-blue-600 rounded-full"
+                    ></span>
+                  </span>
+                  <p
+                    class="text-sm text-gray-800 dark:text-gray-100 leading-snug"
+                  >
+                    Accept (total score in item 1 is above the minimum and at
+                    least one positive external reference is obtained).
+                  </p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span
+                    class="w-4 h-4 border border-gray-500 rounded-full flex items-center justify-center"
+                  >
+                    <span
+                      *ngIf="assessment.recommendation === 'not_accept'"
+                      class="w-2 h-2 bg-blue-600 rounded-full"
+                    ></span>
+                  </span>
+                  <p
+                    class="text-sm text-gray-800 dark:text-gray-100 leading-snug"
+                  >
+                    Not accept.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Reason:
+                </label>
+                <div
+                  class="min-h-[80px] border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white whitespace-pre-wrap"
+                >
+                  {{ assessment.recommendationReason }}
+                </div>
+              </div>
+
+
+
+              <!-- Approved Supplier List -->
+              <div class="mt-6 space-y-2">
+                <p
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Is the above Supplier approved to go on the Approved Supplier
+                  List?
+                </p>
+                <div class="flex flex-wrap gap-6 mt-1">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 border border-gray-500 rounded-full flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.approvedForList === 'yes'"
+                        class="w-2 h-2 bg-blue-600 rounded-full"
+                      ></span>
+                    </span>
+                    <span class="text-sm text-gray-800 dark:text-gray-100"
+                      >Yes</span
+                    >
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-4 h-4 border border-gray-500 rounded-full flex items-center justify-center"
+                    >
+                      <span
+                        *ngIf="assessment.approvedForList === 'no'"
+                        class="w-2 h-2 bg-blue-600 rounded-full"
+                      ></span>
+                    </span>
+                    <span class="text-sm text-gray-800 dark:text-gray-100"
+                      >No</span
+                    >
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >Remark:</label
+                  >
+                  <div
+                    class="min-h-[80px] border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white whitespace-pre-wrap"
+                  >
+                    {{ assessment.approvedForListRemark }}
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </section>
+
+
+
+          <mat-divider></mat-divider>
+
+
+          </div>
+        </div>
+      </div>
+
+        </div> <!-- Left Column -->
+
+        <!-- Right Column: Status -->
+        <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+            <!-- Approval Workflow Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8 mt-8">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+            Approval Workflow
+        </h2>
+
+        <div class="space-y-4">
+            <!-- Assessed By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                        <mat-icon class="text-sm">person</mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Assessed by (DI/TL): <strong>{{ getEmployeeLabel(assessment.assessedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(assessment.assessedByDate) }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(assessment.approvedByStatus)">
+                        <mat-icon [class]="getByStatusColor(assessment.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(assessment.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-sm">
+                            {{ (assessment.approvedByStatus || '').toLowerCase() === 'approve' || (assessment.approvedByStatus || '').toLowerCase() === 'approved' ? 'check' : (assessment.approvedByStatus || '').toLowerCase() === 'reject' || (assessment.approvedByStatus || '').toLowerCase() === 'rejected' ? 'close' : 'schedule' }}
+                        </mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Approved by (MD/DI): <strong>{{ getEmployeeLabel(assessment.approvedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(assessment.approvedByDate) }}
+                    </p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Status:
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                              [class]="getByStatusColor(assessment.approvedByStatus)">
+                            {{ getByStatusText(assessment.approvedByStatus) }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                         [class]="getByStatusColor(assessment.acknowledgedByStatus)">
+                        <mat-icon [class]="getByStatusColor(assessment.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(assessment.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-sm">
+                            {{ (assessment.acknowledgedByStatus || '').toLowerCase() === 'approve' || (assessment.acknowledgedByStatus || '').toLowerCase() === 'approved' ? 'check' : (assessment.acknowledgedByStatus || '').toLowerCase() === 'reject' || (assessment.acknowledgedByStatus || '').toLowerCase() === 'rejected' ? 'close' : 'schedule' }}
+                        </mat-icon>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        Acknowledged by (IMR): <strong>{{ getEmployeeLabel(assessment.acknowledgedBy) }}</strong>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Date: {{ formatDateTime(assessment.acknowledgedByDate) }}
+                    </p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Status:
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                              [class]="getByStatusColor(assessment.acknowledgedByStatus)">
+                            {{ getByStatusText(assessment.acknowledgedByStatus) }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Attached Documents Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+            Attached Documents
+        </h2>
+
+        <div *ngIf="assessment.attachments?.length; else noDocs" class="space-y-4">
+          <div
+            *ngFor="let doc of assessment.attachments"
+            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700"
+          >
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                  <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                </div>
+              </div>
+              <div class="flex-1">
+                <a
+                  *ngIf="doc.url"
+                  [href]="doc.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  {{ doc.name }}
+                </a>
+                <div
+                  *ngIf="!doc.url"
+                  class="text-sm font-medium text-gray-800 dark:text-gray-200"
+                >
+                  {{ doc.name }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400" *ngIf="doc.type || doc.sizeKB">
+                  {{ doc.type || 'File' }}<span *ngIf="doc.sizeKB"> · {{ doc.sizeKB | number: '1.0-1' }} KB</span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="doc.url" class="ml-4">
+              <a
+                mat-stroked-button
+                color="primary"
+                [href]="doc.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                class="text-xs"
+              >
+                <mat-icon class="mr-1 text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                Download
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noDocs>
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+            No documents attached.
+          </div>
+        </ng-template>
+      </div>
+
+      </div> <!-- Right Column -->
+    </div>
+
+    <!-- Not Found -->
+    <div *ngIf="!isLoading && !assessment" class="text-center py-12">
+      <mat-icon
+        class="text-6xl text-gray-400 mb-4"
+        [svgIcon]="'heroicons_outline:clipboard-document-list'"
+      ></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Assessment not found
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">
+        The assessment you're looking for doesn't exist or has been deleted.
+      </p>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="onBack()"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        <mat-icon
+          class="mr-2"
+          [svgIcon]="'heroicons_outline:arrow-left'"
+        ></mat-icon>
+        Back to List
+      </button>
+    </div>
+  </div>
+</div>

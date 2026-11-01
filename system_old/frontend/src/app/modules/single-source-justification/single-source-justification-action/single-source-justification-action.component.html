@@ -1,0 +1,378 @@
+<div class="h-full bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="w-full px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ getActionTitle() }}
+          </h1>
+          <p class="text-base text-gray-600 mt-1">
+            {{ getActionDescription() }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="router.navigate(['/single-source-justification'])"
+          class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <mat-icon class="mr-2">arrow_back</mat-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full h-full px-6 py-6">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !justification" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="justification" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Justification Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-blue-600 dark:text-blue-400" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Justification Form</h2>
+            </div>
+            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              Created {{ formatDate(justification.created_at) }} - {{ getEmployeeLabel(justification.create_by) }}
+            </span>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sub-Consultant / Supplier Name (ADM / Purchase)</label>
+              <p class="text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                {{ justification.sub_consultant_supplier_name || '-' }}
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item(s) Supplied (ADM / Purchase)</label>
+              <p class="text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                {{ getItemSuppliedLabel(justification.items_supplied) || '-' }}
+              </p>
+            </div>
+
+            <div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Justification Type (ADM / Purchase)</label>
+              <div class="flex flex-wrap gap-x-8 gap-y-2 mt-1">
+                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-gray-400 bg-white text-sm font-bold text-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400">
+                    {{ isSingleSourceType(justification.justification_type) ? '✓' : '' }}
+                  </span>
+                  <span class="text-sm">Single Source Justification</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-gray-400 bg-white text-sm font-bold text-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400">
+                    {{ isPriceJustificationType(justification.justification_type) ? '✓' : '' }}
+                  </span>
+                  <span class="text-sm">Price Justification</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Circumstances leading to the selection ... (ADM / Purchase):</label>
+              <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                {{ justification.circumstances_selection || '-' }}
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Any alternatives considered? (ADM / Purchase)</label>
+              <div class="flex items-center gap-6 mt-1">
+                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-gray-400 bg-white text-sm font-bold text-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400">
+                    {{ hasAlternativesConsidered() ? '✓' : '' }}
+                  </span>
+                  <span class="text-sm">Yes</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-gray-400 bg-white text-sm font-bold text-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400">
+                    {{ hasNoAlternativesConsidered() ? '✓' : '' }}
+                  </span>
+                  <span class="text-sm">No</span>
+                </div>
+              </div>
+
+              <div *ngIf="hasNoAlternativesConsidered()" class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for no alternatives (ADM / Purchase)</label>
+                <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                  {{ justification.reason_no_alternatives || '-' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comments (ADM / Purchase)</label>
+              <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                {{ justification.comments || '-' }}
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rationale for selecting the Sub-Consultant / Supplier (ADM / Purchase)</label>
+              <p class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                {{ justification.rationale_selection || '-' }}
+              </p>
+            </div>
+
+            <div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Corresponding PO# if approved (ADM / Purchase)</label>
+              <p class="text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700/50 min-h-[2.5rem]">
+                {{ justification.corresponding_po_no || '-' }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Action Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden mt-6">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-indigo-600 dark:text-indigo-400">rule</mat-icon>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ getActionTitle() }}</h2>
+            </div>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">You are updating the status for this request</p>
+          </div>
+
+          <form [formGroup]="actionForm" (ngSubmit)="onSubmit()">
+            <div class="p-6 space-y-6">
+              <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-4 space-y-5">
+                <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Decision</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Select the workflow status and add comments if needed.</p>
+                  </div>
+                  <span
+                    class="inline-flex w-fit items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                    [class]="getByStatusColor(actionForm.get('status')?.value)"
+                  >
+                    {{ getByStatusText(actionForm.get('status')?.value) }}
+                  </span>
+                </div>
+
+                <!-- Status -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Comments (Optional) -->
+              <mat-form-field *ngIf="actionType === 'verify_by_status' || actionType === 'approved_by_status' || actionType === 'acknowledged_by_status'" appearance="outline" class="w-full">
+                <mat-label>Comments (Optional)</mat-label>
+                <textarea matInput formControlName="comments" rows="4"
+                  placeholder="Enter your comments..."></textarea>
+              </mat-form-field>
+
+              <!-- Corresponding PO# (สำหรับ Assessed by / Approved by) -->
+              <mat-form-field *ngIf="actionType === 'assessed_by_status' || actionType === 'approved_by_status'" appearance="outline" class="w-full">
+                <mat-label>Corresponding PO# if approved</mat-label>
+                <input matInput formControlName="correspondingPO" placeholder="Enter PO#" />
+              </mat-form-field>
+              </div>
+
+              <!-- Display current "by" field -->
+              <div class="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 p-4">
+                <div class="flex items-start gap-3">
+                  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/60">
+                    <mat-icon class="text-blue-700 dark:text-blue-300">person</mat-icon>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                      {{ actionType === 'assessed_by_status' ? 'Assessed By' :
+                         actionType === 'verify_by_status' ? 'Verified By' :
+                         actionType === 'approved_by_status' ? 'Approved By' :
+                         actionType === 'acknowledged_by_status' ? 'Acknowledged By' : 'By' }}
+                    </p>
+                    <p class="mt-1 text-base font-semibold text-blue-950 dark:text-blue-100">
+                      {{ justification && actionType === 'assessed_by_status' ? getEmployeeLabel(justification.assessed_by) :
+                         justification && actionType === 'verify_by_status' ? getEmployeeLabel(justification.verify_by) :
+                         justification && actionType === 'approved_by_status' ? getEmployeeLabel(justification.approved_by) :
+                         justification && actionType === 'acknowledged_by_status' ? getEmployeeLabel(justification.acknowledged_by) : 'N/A' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex flex-col-reverse gap-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 px-6 py-4 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                (click)="router.navigate(['/single-source-justification'])"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                [disabled]="actionForm.invalid || loading"
+                class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span *ngIf="!loading">Update Status</span>
+                <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+
+
+        <!-- Workflow Status -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Workflow Status</h3>
+          <div class="space-y-2">
+            <!-- Assessed By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-100">
+                  <mat-icon class="text-base text-green-600">check</mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Assess by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(justification.assessed_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(justification.assessed_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(justification.assessed_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(justification.assessed_by_date) }}
+                </p>
+                <p *ngIf="justification.corresponding_po_no" class="text-xs text-gray-600 mt-1">
+                  Corresponding PO#: <strong>{{ justification.corresponding_po_no }}</strong>
+                </p>
+              </div>
+            </div>
+
+            <!-- Verified By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(justification.verify_by_status)">
+                  <mat-icon [class]="getByStatusColor(justification.verify_by_status).includes('green') ? 'text-green-600' : getByStatusColor(justification.verify_by_status).includes('red') ? 'text-red-600' : 'text-amber-600'" class="text-base">
+                    {{ justification.verify_by_status === 'approve' || justification.verify_by_status === 'approved' ? 'check' : justification.verify_by_status === 'reject' || justification.verify_by_status === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Verify by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(justification.verify_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(justification.verify_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(justification.verify_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(justification.verify_by_date) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(justification.verify_by_status)">
+                    {{ getByStatusText(justification.verify_by_status) }}
+                  </span>
+                </div>
+                <div *ngIf="justification.verify_by_comment" class="mt-2 p-2 bg-white rounded border border-gray-100 text-xs text-gray-600">
+                  Comments: {{ justification.verify_by_comment }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Approved By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(justification.approved_by_status)">
+                  <mat-icon [class]="getByStatusColor(justification.approved_by_status).includes('green') ? 'text-green-600' : getByStatusColor(justification.approved_by_status).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-base">
+                    {{ justification.approved_by_status === 'approve' || justification.approved_by_status === 'approved' ? 'check' : justification.approved_by_status === 'reject' || justification.approved_by_status === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(justification.approved_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(justification.approved_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(justification.approved_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(justification.approved_by_date) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(justification.approved_by_status)">
+                    {{ getByStatusText(justification.approved_by_status) }}
+                  </span>
+                </div>
+                <div *ngIf="justification.approved_by_comments" class="mt-2 p-2 bg-white rounded border border-gray-100 text-xs text-gray-600">
+                  Comments: {{ justification.approved_by_comments }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledged By -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(justification.acknowledged_by_status)">
+                  <mat-icon [class]="getByStatusColor(justification.acknowledged_by_status).includes('green') ? 'text-green-600' : getByStatusColor(justification.acknowledged_by_status).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-base">
+                    {{ justification.acknowledged_by_status === 'approve' || justification.acknowledged_by_status === 'approved' ? 'check' : justification.acknowledged_by_status === 'reject' || justification.acknowledged_by_status === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge by:</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(justification.acknowledged_by).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(justification.acknowledged_by).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(justification.acknowledged_by).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(justification.acknowledged_by_date) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(justification.acknowledged_by_status)">
+                    {{ getByStatusText(justification.acknowledged_by_status) }}
+                  </span>
+                </div>
+                <div *ngIf="justification.acknowledged_by_comments" class="mt-2 p-2 bg-white rounded border border-gray-100 text-xs text-gray-600">
+                  Comments: {{ justification.acknowledged_by_comments }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

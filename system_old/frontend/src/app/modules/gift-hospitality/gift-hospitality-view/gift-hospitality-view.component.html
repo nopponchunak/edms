@@ -1,0 +1,300 @@
+<div class="ims-view-page">
+    <div class="ims-view-shell">
+        <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">
+                    Gift / Hospitality Form
+                </h1>
+                <p class="text-sm text-gray-600">
+                    FORM ACGH - 01 | REQUEST FOR RECEIVING GIFT / HOSPITALITY
+                </p>
+            </div>
+            <app-view-actions
+                [backPath]="'/gift-hospitality'"
+                [navId]="'request-for-receiving-of-gift-hospitality'"
+                (edit)="onEdit()"
+                (print)="printRequest()"
+            ></app-view-actions>
+        </div>
+        <!-- Loading Spinner -->
+        <div *ngIf="loading" class="flex justify-center items-center py-12">
+            <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <div *ngIf="!loading && giftHospitality" class="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <!-- Left Column: Details -->
+            <div class="lg:col-span-2 space-y-6">
+                <mat-card class="ims-card document-card mb-6">
+                    <div class="ims-card-body space-y-8">
+                        <section>
+                            <div class="flex items-start justify-between gap-4 mb-6">
+                                <div>
+                                    <h2 class="text-xl font-semibold text-slate-900">Form Details</h2>
+                                    <p class="text-sm text-slate-500 mt-1">Request ID: {{ giftHospitality.id }}</p>
+                                </div>
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-base font-semibold"
+                                      [ngClass]="getStatusColor(getDisplayStatus())">
+                                    {{ getStatusText(getDisplayStatus()) }}
+                                </span>
+                            </div>
+
+                            <h3 class="document-subtitle">Request Type</h3>
+                            <div class="flex gap-8">
+                                <div *ngFor="let type of requestTypes" class="document-check-row">
+                                    <span class="document-check-circle">{{ isRequestTypeSelected(type.value) ? '●' : '' }}</span>
+                                    <span class="text-sm font-medium text-slate-700">{{ type.label }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section class="space-y-6">
+                            <h3 class="document-subtitle">Request Details</h3>
+
+                            <div class="grid grid-cols-1 gap-6">
+                                <div class="document-field">
+                                    <label>Description of Gift/Hospitality</label>
+                                    <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ giftHospitality.description || '-' }}</div>
+                                </div>
+
+                                <div class="document-field">
+                                    <label>Purpose of the Gift/Hospitality receiving</label>
+                                    <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ giftHospitality.purpose || '-' }}</div>
+                                </div>
+
+                                <div class="document-field">
+                                    <label>Value of Gift/Hospitality (Including VAT)</label>
+                                    <div class="ims-field-box text-lg font-semibold">{{ formatCurrency(giftHospitality.value) }}</div>
+                                </div>
+
+                                <div class="w-full mt-2">
+                                    <h4 class="text-base font-semibold text-gray-800 mb-2 flex items-center">
+                                        <mat-icon class="mr-1 text-base" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                                        Approval Matrix
+                                    </h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full border border-black border-collapse">
+                                            <thead class="bg-gray-100">
+                                                <tr>
+                                                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Amount</th>
+                                                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Prepared by</th>
+                                                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Verified by</th>
+                                                    <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Approved by</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="border border-black px-4 py-2 text-sm text-gray-800">More than 3,000</td>
+                                                    <td class="border border-black px-4 py-2 text-sm text-gray-800">Staff</td>
+                                                    <td class="border border-black px-4 py-2 text-sm text-gray-800">ACSC</td>
+                                                    <td class="border border-black px-4 py-2 text-sm text-gray-800">TL / DI / MD</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section>
+                            <h3 class="document-subtitle">Company and Date Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="document-field">
+                                    <label>Company of Giver</label>
+                                    <div class="ims-field-box">{{ giftHospitality.companyOfGiver || '-' }}</div>
+                                </div>
+
+                                <div class="document-field">
+                                    <label>Proposed Date</label>
+                                    <div class="ims-field-box">{{ formatDate(giftHospitality.proposedDate) || '-' }}</div>
+                                </div>
+
+                                <div class="document-field md:col-span-2">
+                                    <label>MTL's Receiving Staff By</label>
+                                    <div class="ims-field-box">{{ getEmployeeLabel(giftHospitality.mtlReceivingStaffBy) || '-' }}</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <mat-divider></mat-divider>
+
+                        <section *ngIf="false" class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Approvers</h3>
+                            <div class="flex flex-col gap-4">
+                                <div class="document-field max-w-[32rem]">
+                                    <label>Verified By (ACSC)</label>
+                                    <div class="ims-field-box">{{ getEmployeeLabel(giftHospitality.verifiedBy) || '-' }}</div>
+                                </div>
+
+                                <div class="document-field max-w-[32rem]">
+                                    <label>Acknowledge 1 (ACSL)</label>
+                                    <div class="ims-field-box">{{ getEmployeeLabel(giftHospitality.imsAcknowledgedBy) || '-' }}</div>
+                                </div>
+
+                                <div class="document-field max-w-[32rem]">
+                                    <label>Approved By (TL/DI/MD)</label>
+                                    <div class="ims-field-box">{{ getEmployeeLabel(giftHospitality.approvedBy) || '-' }}</div>
+                                </div>
+
+                                <div class="document-field max-w-[32rem]">
+                                    <label>Acknowledge 2 By Accounts (CA)</label>
+                                    <div class="ims-field-box">{{ getEmployeeLabel(giftHospitality.acknowledgedBy) || '-' }}</div>
+                                </div>
+                            </div>
+                        </section>
+
+
+                    </div>
+                </mat-card>
+
+            <!-- Approval Form -->
+            <mat-card *ngIf="showApprovalForm" class="ims-card mb-6 border-2 border-blue-200">
+                <mat-card-header>
+                    <mat-card-title class="text-lg font-medium text-gray-900 mb-2">Action Required</mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="pt-4">
+                    <!-- Verify Button -->
+                    <div *ngIf="getCurrentAction() === 'verify'" class="space-y-4">
+                        <p class="text-sm text-gray-600">This request is pending your verification as ACSC.</p>
+                        <button
+                            (click)="verify()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <mat-icon class="mr-2">check</mat-icon>
+                            Verify Request
+                        </button>
+                    </div>
+
+                    <!-- Acknowledge 1 (ACSL) Button -->
+                    <div *ngIf="getCurrentAction() === 'ims'" class="space-y-4">
+                        <p class="text-sm text-gray-600">This request is pending your acknowledgment as ACSL.</p>
+                        <button
+                            (click)="acknowledge1()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <mat-icon class="mr-2">check</mat-icon>
+                            Acknowledge 1 Request
+                        </button>
+                    </div>
+
+                    <!-- Acknowledge Button -->
+                    <div *ngIf="getCurrentAction() === 'acknowledge'" class="space-y-4">
+                        <p class="text-sm text-gray-600">This request is pending your Acknowledge 2 action as Accounts (CA).</p>
+                        <button
+                            (click)="acknowledge()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        >
+                            <mat-icon class="mr-2">check</mat-icon>
+                            Acknowledge 2 Request
+                        </button>
+                    </div>
+
+                    <!-- Approve/Reject Form -->
+                    <div *ngIf="getCurrentAction() === 'approve'" class="space-y-4">
+                        <p class="text-sm text-gray-600">This request is pending your approval as TL/DI/MD.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Decision</label>
+                                <mat-radio-group [(ngModel)]="approvalDecision" class="flex space-x-6">
+                                    <mat-radio-button [value]="true" class="text-green-700">
+                                        <span class="ml-2">Approve</span>
+                                    </mat-radio-button>
+                                    <mat-radio-button [value]="false" class="text-red-700">
+                                        <span class="ml-2">Reject</span>
+                                    </mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+                                <textarea
+                                    [(ngModel)]="approvalComments"
+                                    rows="3"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Enter your comments..."
+                                ></textarea>
+                            </div>
+                            
+                            <div class="flex space-x-3">
+                                <button
+                                    (click)="approve()"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                >
+                                    <mat-icon class="mr-2">{{ approvalDecision ? 'check' : 'close' }}</mat-icon>
+                                    {{ approvalDecision ? 'Approve' : 'Reject' }} Request
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+                </div> <!-- Left Column -->
+
+                <!-- Right Column: Status Status -->
+                <div class="lg:col-span-1 space-y-6 sticky top-6 self-start relative z-20">
+                    <app-approval-workflow
+                        [steps]="workflowSteps"
+                        (actionClick)="onWorkflowAction($event)"
+                    ></app-approval-workflow>
+
+                    <!-- Attached Documents Card -->
+                    <div class="relative z-50 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 mt-6 pointer-events-auto">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                            Attached Documents
+                        </h2>
+
+                        <div *ngIf="attachments?.length; else noDocs" class="space-y-3">
+                            <div *ngFor="let doc of attachments"
+                                class="relative z-50 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700 pointer-events-auto">
+                                <div class="flex items-center space-x-3 overflow-hidden">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                            <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <a *ngIf="doc.url" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                                            class="relative z-[60] pointer-events-auto text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 truncate block">
+                                            {{ doc.name }}
+                                        </a>
+                                        <div *ngIf="!doc.url" class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate block">
+                                            {{ doc.name }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="doc.url" class="ml-2 flex-shrink-0">
+                                    <a mat-icon-button [href]="doc.url" target="_blank" rel="noopener noreferrer" download
+                                        class="relative z-[60] pointer-events-auto"
+                                        matTooltip="Download">
+                                        <mat-icon class="text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ng-template #noDocs>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                No documents attached.
+                            </div>
+                        </ng-template>
+                    </div>
+            </div> <!-- Closes Right Column -->
+        </div>
+
+        <!-- Metadata Footer -->
+        <div *ngIf="false" class="mt-6 rounded-xl border border-gray-200 bg-slate-50 p-4 text-xs text-gray-500 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p><strong>Created at:</strong> {{ formatDateTime(giftHospitality?.createdAt) }}</p>
+                <p><strong>Version:</strong> {{ giftHospitality?.version }}</p>
+            </div>
+            <div>
+                <p><strong>Last Updated:</strong> {{ formatDateTime(giftHospitality?.updatedAt) }}</p>
+            </div>
+        </div>
+    </div>

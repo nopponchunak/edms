@@ -1,0 +1,395 @@
+<div class="h-full bg-gray-50 overflow-y-auto">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div *ngIf="!isView">
+            <button
+              type="button"
+              (click)="goBack()"
+              class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <mat-icon class="mr-2">arrow_back</mat-icon>
+              Back to List
+            </button>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+              {{ isEdit ? 'Edit' : isView ? 'View' : 'New' }} Conceptual Peer Review
+            </h1>
+            <p class="text-sm text-gray-600">MTDD-01 - Conceptual Peer Review Checklist/Action Sheet</p>
+          </div>
+        </div>
+
+        <!-- Standardized Actions for View Mode -->
+        <app-view-actions *ngIf="isView"
+            [backPath]="'/conceptual-peer-review'"
+            [navId]="'conceptual-peer-review'"
+            (edit)="onEdit()"
+        ></app-view-actions>
+
+        <div *ngIf="!isView" class="flex items-center space-x-3">
+          <button
+            type="button"
+            mat-stroked-button
+            (click)="goBack()"
+            class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+            Cancel
+          </button>
+          <button
+            type="button"
+            mat-flat-button
+            color="primary"
+            (click)="saveForm()"
+            [disabled]="loading"
+            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+            <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+            <mat-icon *ngIf="!loading" class="mr-2" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+            Save
+          </button>
+          <button
+            type="button"
+            mat-flat-button
+            color="accent"
+            (click)="submitForm()"
+            [disabled]="loading"
+            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+            <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+            <mat-icon *ngIf="!loading" class="mr-2" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="p-6">
+    <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-8">
+      
+      <!-- Project Information -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Project Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Project Name</mat-label>
+            <mat-select formControlName="projectId" placeholder="Select Project" (selectionChange)="onProjectSelectedById($event.value)" *ngIf="!isView; else viewProjectName">
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="projectSearchCtrl"
+                  placeholderLabel="Search Project..."
+                  noEntriesFoundLabel="No projects found">
+                </ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="let project of filteredProjectOptions" [value]="project.id">
+                {{ project.name }} ({{ project.code }})
+              </mat-option>
+            </mat-select>
+            <ng-template #viewProjectName>
+              <input matInput formControlName="projectName" readonly>
+            </ng-template>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Project Number</mat-label>
+            <input matInput formControlName="projectNumber" placeholder="Enter project number" readonly>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Prepared By</mat-label>
+            <input matInput formControlName="preparedBy" placeholder="Enter prepared by" [readonly]="isView">
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Present</mat-label>
+            <input matInput formControlName="present" placeholder="Enter present" [readonly]="isView">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Discipline Selection -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Discipline</h3>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-4">Select Disciplines:</label>
+          <div formArrayName="disciplines" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <mat-checkbox 
+              *ngFor="let discipline of disciplines; let i = index" 
+              [formControlName]="i"
+              [value]="discipline"
+              (change)="onDisciplineChange()"
+              class="text-gray-700 h-[40px] flex items-center">
+              {{ discipline }}
+            </mat-checkbox>
+          </div>
+          <mat-form-field *ngIf="getSelectedDisciplines().includes('Other')" appearance="outline" class="w-full mt-4">
+            <mat-label>Specify Other Discipline</mat-label>
+            <input matInput formControlName="disciplineOther" placeholder="Enter other discipline">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Documentation -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Documentation</h3>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-4">Select Documentation Types:</label>
+          <div formArrayName="documentations" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <mat-checkbox 
+              *ngFor="let docType of documentationTypes; let i = index" 
+              [formControlName]="i"
+              [value]="docType"
+              (change)="onDocumentationChange()"
+              class="text-gray-700 h-[40px] flex items-center">
+              {{ docType }}
+            </mat-checkbox>
+          </div>
+          <mat-form-field *ngIf="getSelectedDocumentations().includes('Other')" appearance="outline" class="w-full mt-4">
+            <mat-label>Specify Other Documentation Type</mat-label>
+            <input matInput formControlName="documentationOther" placeholder="Enter other documentation type">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Record of Review -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Record of Review</h3>
+        
+        <div formArrayName="checklistResponses" class="space-y-6">
+          <div *ngFor="let item of mtddChecklist; let i = index" class="border border-gray-200 rounded-lg p-4">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 mb-2">{{ i + 1 }}. {{ item.question }}</p>
+              </div>
+            </div>
+            
+            <div class="flex space-x-6">
+              <mat-radio-group 
+                [formControlName]="i"
+                class="flex space-x-4">
+                <mat-radio-button value="yes" class="text-gray-700">Yes</mat-radio-button>
+                <mat-radio-button value="no" class="text-gray-700">No</mat-radio-button>
+                <mat-radio-button value="na" class="text-gray-700">N/A</mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Comments</h3>
+        
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Comments</mat-label>
+          <textarea matInput formControlName="comments" rows="4" placeholder="Enter comments"></textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Review and Response -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Review and Response</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Reviewed by (DI/TL/DL/VVE)</mat-label>
+            <mat-select formControlName="reviewedBy">
+              <mat-option *ngFor="let reviewer of mockReviewers" [value]="reviewer.id">
+                {{ reviewer.name }} ({{ reviewer.role }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="reviewedByPicker" formControlName="reviewedByDate">
+            <mat-datepicker-toggle matSuffix [for]="reviewedByPicker"></mat-datepicker-toggle>
+            <mat-datepicker #reviewedByPicker></mat-datepicker>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Responded by (PE/TE)</mat-label>
+            <mat-select formControlName="respondedBy">
+              <mat-option *ngFor="let reviewer of mockReviewers" [value]="reviewer.id">
+                {{ reviewer.name }} ({{ reviewer.role }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="respondedByPicker" formControlName="respondedByDate">
+            <mat-datepicker-toggle matSuffix [for]="respondedByPicker"></mat-datepicker-toggle>
+            <mat-datepicker #respondedByPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Recommended Action -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Recommended Action</h3>
+        
+        <div class="space-y-6">
+          <div class="flex items-center space-x-4">
+            <mat-checkbox formControlName="recommendedActionsSatisfactorilyTaken" (change)="onRecommendedActionsSatisfactorilyTakenChange()" class="text-gray-700">
+              Recommended action(s) have been satisfactorily taken
+            </mat-checkbox>
+          </div>
+          
+          <mat-form-field *ngIf="!form.get('recommendedActionsSatisfactorilyTaken')?.value" appearance="outline" class="w-full">
+            <mat-label>Note</mat-label>
+            <textarea matInput formControlName="note" rows="3" placeholder="Enter note"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Signatures -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Signatures</h3>
+        
+        <div class="space-y-6">
+          <!-- Signed by VVE -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Signed by (VVE)</mat-label>
+              <mat-select formControlName="signedByVVE">
+                <mat-option *ngFor="let reviewer of mockReviewers" [value]="reviewer.id">
+                  {{ reviewer.name }} ({{ reviewer.role }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="signedByVVEPicker" formControlName="signedByVVEDate">
+              <mat-datepicker-toggle matSuffix [for]="signedByVVEPicker"></mat-datepicker-toggle>
+              <mat-datepicker #signedByVVEPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <!-- Signed by TL -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Signed by (TL)</mat-label>
+              <mat-select formControlName="signedByTL">
+                <mat-option *ngFor="let reviewer of mockReviewers" [value]="reviewer.id">
+                  {{ reviewer.name }} ({{ reviewer.role }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="signedByTLPicker" formControlName="signedByTLDate">
+              <mat-datepicker-toggle matSuffix [for]="signedByTLPicker"></mat-datepicker-toggle>
+              <mat-datepicker #signedByTLPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <!-- Acknowledged by DI -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Acknowledged by (DI)</mat-label>
+              <mat-select formControlName="acknowledgedBy">
+                <mat-option *ngFor="let reviewer of mockReviewers" [value]="reviewer.id">
+                  {{ reviewer.name }} ({{ reviewer.role }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="acknowledgedByPicker" formControlName="acknowledgedByDate">
+              <mat-datepicker-toggle matSuffix [for]="acknowledgedByPicker"></mat-datepicker-toggle>
+              <mat-datepicker #acknowledgedByPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Items -->
+      <div class="bg-white shadow-sm rounded-xl p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6">Task Items</h3>
+        <p class="text-sm text-gray-600 mb-6">รายละเอียดงานที่เชื่อมต่อกับ project management</p>
+        
+        <div formArrayName="taskItems" class="space-y-4">
+          <div *ngFor="let task of taskItems.controls; let i = index" [formGroupName]="i" class="border border-gray-200 rounded-lg p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Item</mat-label>
+                <input matInput formControlName="item" placeholder="Enter item description">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Comment</mat-label>
+                <input matInput formControlName="comment" placeholder="Enter comment">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Response/Action</mat-label>
+                <input matInput formControlName="responseAction" placeholder="Enter response/action">
+              </mat-form-field>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+              <button
+                type="button"
+                (click)="removeTaskItem(i)"
+                class="text-red-600 hover:text-red-900"
+                [disabled]="taskItems.length <= 1">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <button
+            type="button"
+            (click)="addTaskItem()"
+            mat-raised-button
+            color="accent"
+            class="inline-flex items-center">
+            <mat-icon class="mr-2 text-white">add</mat-icon>
+            Add Task Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end space-x-4 pt-6">
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="goBack()"
+          class="px-6 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border-gray-300 dark:border-gray-600">
+          Cancel
+        </button>
+        <button
+          type="button"
+          mat-flat-button
+          color="primary"
+          (click)="saveForm()"
+          [disabled]="loading"
+          class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+          <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+          <mat-icon *ngIf="!loading" class="mr-2" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+          Save
+        </button>
+        <button
+          type="submit"
+          mat-flat-button
+          color="accent"
+          [disabled]="loading || isView"
+          class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+          <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+          <mat-icon *ngIf="!loading" class="mr-2" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,460 @@
+<ng-container *ngIf="isPrintDocumentMode">
+  <div
+    id="frontend-print-ready"
+    [attr.data-ready]="printDocumentReady ? 'true' : 'false'"
+    style="display: none;"
+  ></div>
+  <div *ngIf="isLoading" class="p-6 text-sm text-gray-500">Loading allowance print document...</div>
+</ng-container>
+
+<div *ngIf="!isPrintDocumentMode" class="screen-view h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+          ALLOWANCE FOR WORKING AFTER 10.00 PM FORM
+        </h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          GENERAL FORM 302 | View allowance form information
+        </p>
+      </div>
+
+      <app-view-actions
+        [backPath]="'/allowance-after-10pm/list'"
+        [navId]="'allowance-after-10pm'"
+        [showEdit]="false"
+        printLabel="Print Document"
+        [showSecondaryPrint]="true"
+        secondaryPrintLabel="Preview"
+        (print)="onPrint()"
+        (secondaryPrint)="onOpenCombinedPdf()"
+      ></app-view-actions>
+    </div>
+
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading && allowance" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="document-card bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div class="space-y-1">
+                <div class="text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 uppercase">
+                  Meinhardt (Thailand) Ltd.
+                </div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Allowance for Working After 10.00 PM
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  Detail view in document format
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3 self-start">
+                <div class="text-right text-sm text-gray-500 dark:text-gray-400">
+                  <div>GENERAL FORM 302</div>
+                  <div *ngIf="allowance.voucher_no" class="font-bold text-blue-600">Voucher # {{ allowance.voucher_no }}</div>
+                  <div>Form # {{ allowance.id || '-' }}</div>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                  [class]="getOverallStatusBadgeClass()">
+                  {{ getOverallStatusLabel() }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-8">
+            <section>
+              <h3 class="section-title">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                Form Details
+              </h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="document-field">
+                  <label>Voucher #</label>
+                  <div class="document-value font-semibold text-blue-700">{{ allowance.voucher_no || '-' }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Date</label>
+                  <div class="document-value">{{ formatDate(allowance.request_date) }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Discipline</label>
+                  <div class="document-value">{{ formatDiscipline(allowance.discipline) }}</div>
+                </div>
+                <div class="document-field">
+                  <label>Name</label>
+                  <div class="document-value">{{ getEmployeeLabelWithoutTitle(allowance.claimant_name) }}</div>
+                </div>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                <h3 class="section-title mb-0">
+                  <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:table-cells'"></mat-icon>
+                  Work Items
+                </h3>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  {{ itemCount }} item(s)
+                </span>
+              </div>
+
+              <ng-container *ngIf="allowance.items && allowance.items.length > 0; else emptyItems">
+                <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-slate-50 dark:bg-gray-900/40">
+                      <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 w-32">Date</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 w-48">Project</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Description</th>
+                        <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 w-24">From</th>
+                        <th class="px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 w-24">To</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300 w-32">Baht</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                      <tr *ngFor="let item of allowance.items" class="odd:bg-white even:bg-slate-50/60 dark:odd:bg-gray-800 dark:even:bg-gray-900/30">
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {{ formatDate(item.work_date) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
+                          {{ formatProject(item) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
+                          {{ item.description || '-' }}
+                        </td>
+                        <td class="px-4 py-3 text-center text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {{ formatTime(item.time_from) }}
+                        </td>
+                        <td class="px-4 py-3 text-center text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {{ formatTime(item.time_to) }}
+                        </td>
+                        <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                          {{ formatAmount(item.baht) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                  <div class="lg:col-span-7 text-xs text-gray-500 dark:text-gray-400">
+                    Amounts are shown in Thai Baht.
+                  </div>
+
+                  <div class="lg:col-span-5">
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-xl bg-slate-50 dark:bg-gray-900/30 p-4">
+                      <div class="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-400">
+                        <span>Summary</span>
+                        <span class="tabular-nums">{{ itemCount }} item(s)</span>
+                      </div>
+                      <div class="pt-3 mt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <span class="text-gray-900 dark:text-white font-semibold">Total</span>
+                        <span class="text-gray-900 dark:text-white font-semibold tabular-nums">
+                          {{ formatAmount(allowance.total_baht) }} THB
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-template #emptyItems>
+                <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 px-6 py-8 text-center">
+                  <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-gray-400 text-3xl"></mat-icon>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No work items in this form</p>
+                </div>
+              </ng-template>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+            <mat-icon class="mr-2 text-emerald-600" [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
+            Approval Workflow
+          </h2>
+
+          <div class="space-y-4">
+            <div class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(allowance.tl_by_status)">
+                <mat-icon class="text-sm">verified</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Verified by: <strong>{{ getEmployeeLabelWithoutTitle(allowance.tl_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(allowance.tl_by_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(allowance.tl_by_status)">
+                    {{ getStatusText(allowance.tl_by_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(allowance.di_by_status)">
+                <mat-icon class="text-sm">approval</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Approved by: <strong>{{ getEmployeeLabelWithoutTitle(allowance.di_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(allowance.di_by_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(allowance.di_by_status)">
+                    {{ getStatusText(allowance.di_by_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div *ngIf="false" class="workflow-row">
+              <div class="workflow-icon" [class]="getStatusBadgeClass(allowance.notified_user_status)">
+                <mat-icon class="text-sm">notifications</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  Notify User: <strong>{{ getEmployeeLabelWithoutTitle(allowance.notified_user || allowance.create_by) }}</strong>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Date: {{ formatDateTime(allowance.notified_user_date) }}
+                </p>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  Status:
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-1"
+                    [class]="getStatusBadgeClass(allowance.notified_user_status)">
+                    {{ getStatusText(allowance.notified_user_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="my-6"></mat-divider>
+
+          <section>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center mb-0">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_outline:paper-clip'"></mat-icon>
+                Attachments
+              </h3>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                {{ attachmentItems.length }} file(s)
+              </span>
+            </div>
+
+            <ng-container *ngIf="attachmentItems.length; else emptyAttachments">
+              <div class="space-y-3">
+                <a *ngFor="let attachment of attachmentItems"
+                  [href]="attachment.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-start gap-3 rounded-lg border border-gray-200 px-4 py-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/40">
+                  <mat-icon class="mt-0.5 text-gray-400" [svgIcon]="attachment.type === 'link' ? 'heroicons_outline:link' : 'heroicons_outline:document-text'"></mat-icon>
+                  <span class="min-w-0">
+                    <span class="block truncate text-sm font-medium text-gray-900 dark:text-white">{{ attachment.fileName }}</span>
+                    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                      {{ attachment.type === 'link' ? 'Shared link' : (attachment.fileSize || 'Uploaded file') }}
+                    </span>
+                  </span>
+                </a>
+              </div>
+            </ng-container>
+
+            <ng-template #emptyAttachments>
+              <div class="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 px-6 py-8 text-center">
+                <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-gray-400 text-3xl"></mat-icon>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No uploaded files in this form</p>
+              </div>
+            </ng-template>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && !allowance" class="text-center py-12">
+      <mat-icon class="text-6xl text-gray-400 mb-4" [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Allowance form not found</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">The allowance form you're looking for doesn't exist or has been deleted.</p>
+      <button mat-flat-button color="primary" (click)="onBack()" class="px-6 py-2">
+        <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        Back to List
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="allowance" class="allowance-row-measurement" aria-hidden="true">
+    <table>
+      <colgroup>
+        <col class="date-col">
+        <col class="project-col">
+        <col class="description-col">
+        <col class="time-col">
+        <col class="time-col">
+        <col class="baht-col">
+        <col class="requested-col">
+        <col class="approved-col">
+      </colgroup>
+      <tbody>
+        <tr class="print-row-height-probe"><td colspan="8">&nbsp;</td></tr>
+        <tr *ngFor="let item of allowance.items; let itemIndex = index" [attr.data-print-row-index]="itemIndex">
+          <td class="date-cell">{{ formatPrintDate(item.work_date) }}</td>
+          <td>{{ formatPrintProject(item) }}</td>
+          <td>{{ item.description || '' }}</td>
+          <td class="center">{{ formatTime(item.time_from) }}</td>
+          <td class="center">{{ formatTime(item.time_to) }}</td>
+          <td class="right">{{ formatAmount(item.baht) }}</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+
+<div
+  *ngIf="allowance"
+  class="allowance-after-10pm-print-root"
+  [class.print-only]="!isPrintDocumentMode"
+  [class.print-document-render]="isPrintDocumentMode">
+  <ng-container *ngFor="let printPage of printableAllowancePages; let pageIndex = index; let isLast = last">
+    <div
+      class="print-document"
+      [class.print-document--continuation]="pageIndex > 0"
+      [class.print-document--last]="isLast">
+      <img
+        class="print-template-image"
+        src="/images/forms/general-form-302-template.svg"
+        alt=""
+        aria-hidden="true">
+
+      <div class="print-box print-box--data-overlay">
+        <div class="print-name-value">
+          {{ getEmployeeLabelWithoutTitle(allowance.claimant_name) }}
+        </div>
+
+        <div class="print-discipline-marks" aria-label="Discipline">
+          <span *ngFor="let option of disciplineOptions" class="print-checkbox-mark">
+            <svg *ngIf="isDisciplineSelected(option)" viewBox="0 0 16 15" aria-hidden="true">
+              <path d="M3 7.8 6.1 11 13 3.2"></path>
+            </svg>
+          </span>
+        </div>
+
+        <table class="print-table print-table--data-overlay">
+          <colgroup>
+            <col class="date-col">
+            <col class="project-col">
+            <col class="description-col">
+            <col class="time-col">
+            <col class="time-col">
+            <col class="baht-col">
+            <col class="requested-col">
+            <col class="approved-col">
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2" class="date-col"><span class="header-content">Date</span></th>
+              <th rowspan="2" class="project-col"><span class="header-content">Project<br>No. /<br>Name</span></th>
+              <th rowspan="2"><span class="header-content">Description of Work</span></th>
+              <th colspan="2" class="time-col"><span class="header-content">Time</span></th>
+              <th rowspan="2" class="baht-col"><span class="header-content">Baht</span></th>
+              <th rowspan="2" class="requested-col"><span class="header-content">Requested<br>By (EE/TL)</span></th>
+              <th rowspan="2" class="approved-col"><span class="header-content">Approved by<br><span class="approved-detail">(TL/Div. Head/DI)</span></span></th>
+            </tr>
+            <tr>
+              <th class="time-col"><span class="header-content">From</span></th>
+              <th class="time-col"><span class="header-content">To</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of printPage.items" class="print-data-row" [style.height.mm]="getPrintRowHeightMm(item)">
+              <td class="date-cell"><span class="print-cell-content print-cell-content--single-line">{{ formatPrintDate(item.work_date) }}</span></td>
+              <td><span class="print-cell-content">{{ formatPrintProject(item) }}</span></td>
+              <td><span class="print-cell-content">{{ item.description || '' }}</span></td>
+              <td class="center"><span class="print-cell-content print-cell-content--single-line">{{ formatTime(item.time_from) }}</span></td>
+              <td class="center"><span class="print-cell-content print-cell-content--single-line">{{ formatTime(item.time_to) }}</span></td>
+              <td class="right"><span class="print-cell-content print-cell-content--single-line">{{ formatAmount(item.baht) }}</span></td>
+              <td class="center signature-cell"><div class="signature-cell-content" [innerHTML]="getVerifiedSignature()"></div></td>
+              <td class="center signature-cell"><div class="signature-cell-content" [innerHTML]="getApprovedSignature()"></div></td>
+            </tr>
+            <tr *ngFor="let row of printPage.blankRows" class="print-blank-row">
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="total-label">&nbsp;</td>
+              <td class="right total-value"><span class="print-cell-content print-cell-content--single-line">{{ formatAmount(printPage.totalBaht) }}</span></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="print-received-value">{{ getPrintReceivedBy() }}</div>
+      </div>
+    </div>
+    <div *ngIf="!isLast" class="print-page-break" aria-hidden="true"></div>
+  </ng-container>
+
+  <div *ngIf="!isPrintDocumentMode && printableAttachmentItems.length" class="print-attachments">
+    <section *ngFor="let attachment of printableAttachmentItems; let i = index" class="print-attachment-page">
+      <div class="print-attachment-header">
+        <div>
+          <h2>Attachment {{ i + 1 }}</h2>
+          <div>{{ attachment.fileName }}</div>
+        </div>
+        <div class="print-attachment-meta">
+          <div>GENERAL FORM 302</div>
+          <div>Form # {{ allowance.id || '-' }}</div>
+        </div>
+      </div>
+
+      <div class="print-attachment-body">
+        <img *ngIf="attachment.isImage"
+          class="print-attachment-image"
+          [src]="attachment.href"
+          [alt]="attachment.fileName">
+
+        <iframe *ngIf="attachment.isPdf"
+          class="print-attachment-frame print-attachment-pdf"
+          [src]="attachment.resourceUrl"
+          title="Attachment PDF">
+        </iframe>
+
+        <div *ngIf="!attachment.isImage && !attachment.isPdf" class="print-attachment-fallback">
+          <div class="fallback-file-icon">FILE</div>
+          <h3>{{ attachment.fileName }}</h3>
+          <p>{{ attachment.fileSize || 'Attached file' }}</p>
+          <p class="fallback-path">{{ attachment.filePath }}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,3654 @@
+{
+  "source_file": "Menu.xlsx",
+  "sheet": "EDMS.meinhardt.net (update)",
+  "roles": [
+    "IT",
+    "Satff",
+    "Secretary 1",
+    "Secretary 2",
+    "Purchase",
+    "Account",
+    "IMS",
+    "AD-TL",
+    "DI-MD"
+  ],
+  "actions": [
+    "create",
+    "view_own",
+    "edit_own",
+    "delete_own",
+    "view_all",
+    "edit_all",
+    "delete_all"
+  ],
+  "main_menus": [
+    {
+      "name": "Projects",
+      "sort_order": 1,
+      "excel_row": 12,
+      "menus": [
+        {
+          "name": "Initiation",
+          "key": "mm1.initiation",
+          "path": null,
+          "sort_order": 1,
+          "excel_row": 13,
+          "children": [
+            {
+              "name": "Proposal & Contact Review",
+              "key": "mm1.initiation.proposal_contract_review",
+              "path": "/proposal-contract-review",
+              "sort_order": 1,
+              "excel_row": 14,
+              "children": []
+            },
+            {
+              "name": "Project Quality Assurance Plan",
+              "key": "mm1.initiation.project_quality_assurance_plan",
+              "path": "/project-quality-assurance-plan",
+              "sort_order": 2,
+              "excel_row": 15,
+              "children": []
+            },
+            {
+              "name": "Fee Sheet",
+              "key": "mm1.initiation.fee_sheet",
+              "path": null,
+              "sort_order": 3,
+              "excel_row": 16,
+              "children": [
+                {
+                  "name": "C&S-M&E Project Fee Sheet",
+                  "key": "mm1.initiation.fee_sheet.project_fee_sheet",
+                  "path": "/project-fee-sheet",
+                  "sort_order": 1,
+                  "excel_row": 17,
+                  "children": []
+                },
+                {
+                  "name": "Façade Project Fee Sheet",
+                  "key": "mm1.initiation.fee_sheet.facade_project_fee_sheet",
+                  "path": "/project-facade-fee-sheet",
+                  "sort_order": 2,
+                  "excel_row": 18,
+                  "children": []
+                },
+                {
+                  "name": "Transportation Project Fee Seet",
+                  "key": "mm1.initiation.fee_sheet.transportation_project_fee_sheet",
+                  "path": "/project-transportation-fee-sheet",
+                  "sort_order": 3,
+                  "excel_row": 19,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Design Review",
+          "key": "mm1.design_review",
+          "path": null,
+          "sort_order": 2,
+          "excel_row": 20,
+          "children": [
+            {
+              "name": "Concept Design Review",
+              "key": "mm1.design_review.concept_design_review",
+              "path": "/concept-design-review",
+              "sort_order": 1,
+              "excel_row": 21,
+              "children": []
+            },
+            {
+              "name": "Schematic Design Review",
+              "key": "mm1.design_review.schematic_design_review",
+              "path": "/schematic-design-review",
+              "sort_order": 2,
+              "excel_row": 22,
+              "children": []
+            },
+            {
+              "name": "Submission Review",
+              "key": "mm1.design_review.submission_review",
+              "path": "/submission-review",
+              "sort_order": 3,
+              "excel_row": 23,
+              "children": []
+            },
+            {
+              "name": "Tender Review",
+              "key": "mm1.design_review.tender_review",
+              "path": "/tender-review",
+              "sort_order": 4,
+              "excel_row": 24,
+              "children": [
+                {
+                  "name": "Tender CSA",
+                  "key": "mm1.design_review.tender_csa",
+                  "path": null,
+                  "sort_order": 1,
+                  "excel_row": 24,
+                  "children": [
+                    {
+                      "name": "Tender CSA Review",
+                      "key": "mm1.design_review.tender_csa_review",
+                      "path": "/tender/csa/review",
+                      "sort_order": 1,
+                      "excel_row": 24,
+                      "children": []
+                    },
+                    {
+                      "name": "Tender CSA Verification",
+                      "key": "mm1.design_review.tender_csa_verification",
+                      "path": "/tender/csa/verification",
+                      "sort_order": 2,
+                      "excel_row": 24,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "Tender MEP",
+                  "key": "mm1.design_review.tender_mep",
+                  "path": null,
+                  "sort_order": 2,
+                  "excel_row": 24,
+                  "children": [
+                    {
+                      "name": "Tender MEP Review",
+                      "key": "mm1.design_review.tender_mep_review",
+                      "path": "/tender/mep/review",
+                      "sort_order": 1,
+                      "excel_row": 24,
+                      "children": []
+                    },
+                    {
+                      "name": "Tender MEP Verification",
+                      "key": "mm1.design_review.tender_mep_verification",
+                      "path": "/tender/mep/verification",
+                      "sort_order": 2,
+                      "excel_row": 24,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Construction Validation",
+              "key": "mm1.design_review.construction_validation",
+              "path": "/construction-validation",
+              "sort_order": 5,
+              "excel_row": 25,
+              "children": []
+            },
+            {
+              "name": "Design Workflow",
+              "key": "mm1.design_review.design_workflow",
+              "path": "/design-workflow",
+              "sort_order": 6,
+              "excel_row": 26,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "Engineering Audit/Study Review",
+          "key": "mm1.engineering_audit_study_review",
+          "path": "/engineering-audit-review",
+          "sort_order": 3,
+          "excel_row": 27,
+          "children": []
+        },
+        {
+          "name": "Value Engineering",
+          "key": "mm1.value_engineering",
+          "path": "/value-engineering",
+          "sort_order": 4,
+          "excel_row": 28,
+          "children": []
+        },
+        {
+          "name": "LEED Review",
+          "key": "mm1.leed_review",
+          "path": "/leed-review",
+          "sort_order": 5,
+          "excel_row": 29,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "General Forms",
+      "sort_order": 2,
+      "excel_row": 30,
+      "menus": [
+        {
+          "name": "Allowance for Working after 10 PM",
+          "key": "mm2.allowance_after_10pm",
+          "path": "/allowance-after-10pm",
+          "sort_order": 1,
+          "excel_row": 31,
+          "children": []
+        },
+        {
+          "name": "Expenses Claim",
+          "key": "mm2.expenses_claim",
+          "path": "/expenses-claim",
+          "sort_order": 2,
+          "excel_row": 32,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Forms",
+      "sort_order": 3,
+      "excel_row": 34,
+      "menus": [
+        {
+          "name": "Sub-Consultant Assessment",
+          "key": "mm3.sub_consultant_assessment",
+          "path": "/sub-consultant-assessment",
+          "sort_order": 1,
+          "excel_row": 35,
+          "children": []
+        },
+        {
+          "name": "Sub-Consultant Evaluation",
+          "key": "mm3.sub_consultant_evaluation",
+          "path": "/sub-consultant-evaluation",
+          "sort_order": 2,
+          "excel_row": 36,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Purchase Forms",
+      "sort_order": 4,
+      "excel_row": 38,
+      "menus": [
+        {
+          "name": "Purchase Requisitions (PR)",
+          "key": "mm4.purchase_requisitions",
+          "path": "/purchase-requisition",
+          "sort_order": 1,
+          "excel_row": 39,
+          "children": []
+        },
+        {
+          "name": "Purchase Orders (PO)",
+          "key": "mm4.purchase_orders",
+          "path": "/purchase-order",
+          "sort_order": 2,
+          "excel_row": 40,
+          "children": []
+        },
+        {
+          "name": "Single Source / Price Justification",
+          "key": "mm4.single_source_price_justification",
+          "path": "/single-source-justification",
+          "sort_order": 3,
+          "excel_row": 41,
+          "children": []
+        },
+        {
+          "name": "Supplier Assessment",
+          "key": "mm4.supplier_assessment",
+          "path": "/supplier-assessment",
+          "sort_order": 4,
+          "excel_row": 42,
+          "children": []
+        },
+        {
+          "name": "Supplier Evaluation",
+          "key": "mm4.supplier_evaluation",
+          "path": "/supplier-evaluation",
+          "sort_order": 5,
+          "excel_row": 43,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "IMS Forms",
+      "sort_order": 5,
+      "excel_row": 45,
+      "menus": [
+        {
+          "name": "Controlled Document Request / Change",
+          "key": "mm5.controlled_document_request_change",
+          "path": "/controlled-document-request",
+          "sort_order": 1,
+          "excel_row": 47,
+          "children": []
+        },
+        {
+          "name": "Corrective Action Request (CAR)",
+          "key": "mm5.car_corrective_action_request",
+          "path": "/cars",
+          "sort_order": 2,
+          "excel_row": 48,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Anti-Corruption Forms",
+      "sort_order": 6,
+      "excel_row": 51,
+      "menus": [
+        {
+          "name": "Charitable Contribution Requests",
+          "key": "mm5.charitable_contribution_requests",
+          "path": "/charitable-contributions",
+          "sort_order": 1,
+          "excel_row": 46,
+          "children": []
+        },
+        {
+          "name": "Gift/Hospitality Offering Requests",
+          "key": "mm5.gift_hospitality_offering_requests",
+          "path": "/gift-hospitality-offering",
+          "sort_order": 2,
+          "excel_row": 49,
+          "children": []
+        },
+        {
+          "name": "Gift/Hospitality Requests",
+          "key": "mm5.gift_hospitality_requests",
+          "path": "/gift-hospitality",
+          "sort_order": 3,
+          "excel_row": 50,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Setting",
+      "sort_order": 7,
+      "excel_row": 52,
+      "menus": [
+        {
+          "name": "User Setting",
+          "key": "mm6.user_settings",
+          "path": "/settings/users",
+          "sort_order": 1,
+          "excel_row": 53,
+          "children": []
+        },
+        {
+          "name": "Permission",
+          "key": "mm6.permission_settings",
+          "path": "/settings/permissions",
+          "sort_order": 2,
+          "excel_row": 54,
+          "children": []
+        },
+        {
+          "name": "Master Data",
+          "key": "mm6.master_data",
+          "path": null,
+          "sort_order": 3,
+          "excel_row": 55,
+          "children": [
+            {
+              "name": "Sub-Consultant List",
+              "key": "mm6.sub_consultant_settings",
+              "path": "/settings/sub-consultants",
+              "sort_order": 1,
+              "excel_row": 56,
+              "children": []
+            },
+            {
+              "name": "Sub-Consultant Type",
+              "key": "mm6.sub_consultant_type_settings",
+              "path": "/settings/sub-consultant-types",
+              "sort_order": 2,
+              "excel_row": 57,
+              "children": []
+            },
+            {
+              "name": "Committee Setting",
+              "key": "mm6.committee_settings",
+              "path": "/settings/committees",
+              "sort_order": 3,
+              "excel_row": 58,
+              "children": []
+            },
+            {
+              "name": "Supplier List",
+              "key": "mm6.supplier_settings",
+              "path": "/settings/suppliers",
+              "sort_order": 4,
+              "excel_row": 59,
+              "children": []
+            },
+            {
+              "name": "Supplier Type",
+              "key": "mm6.supplier_type_settings",
+              "path": "/settings/supplier-types",
+              "sort_order": 5,
+              "excel_row": 60,
+              "children": []
+            },
+            {
+              "name": "Project Type",
+              "key": "mm6.project_type_settings",
+              "path": "/settings/project-types",
+              "sort_order": 6,
+              "excel_row": 61,
+              "children": []
+            },
+            {
+              "name": "Discipline",
+              "key": "mm6.discipline_settings",
+              "path": "/settings/disciplines",
+              "sort_order": 7,
+              "excel_row": 62,
+              "children": []
+            },
+            {
+              "name": "Project Detail",
+              "key": "mm6.project_detail_settings",
+              "path": "/settings/project-details",
+              "sort_order": 8,
+              "excel_row": 63,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "Main Menu",
+          "key": "mm6.main_menu",
+          "path": "/settings/main-menus",
+          "sort_order": 4,
+          "excel_row": 64,
+          "children": []
+        },
+        {
+          "name": "Manual Management",
+          "key": "mm6.manual_management",
+          "path": "/settings/manual-management",
+          "sort_order": 5,
+          "excel_row": 65,
+          "children": []
+        },
+        {
+          "name": "Audit Log",
+          "key": "mm6.audit_log_settings",
+          "path": "/settings/audit-logs",
+          "sort_order": 6,
+          "excel_row": 66,
+          "children": []
+        },
+        {
+          "name": "Signature Setting",
+          "key": "mm6.signature_settings",
+          "path": "/settings/signatures",
+          "sort_order": 7,
+          "excel_row": 67,
+          "children": []
+        }
+      ]
+    }
+  ],
+  "permissions": {
+    "Proposal & Contact Review": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Secretary 2": {
+        "create": true,
+        "view_own": false,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Project Quality Assurance Plan": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Secretary 2": {
+        "create": true,
+        "view_own": false,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "C&S-M&E Project Fee Sheet": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Façade Project Fee Sheet": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Transportation Project Fee Seet": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Concept Design Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Schematic Design Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Submission Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Tender Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Tender CSA Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Tender CSA Verification": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Tender MEP Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Tender MEP Verification": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Construction Validation": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Design Workflow": {
+      "IT": {
+        "create": false,
+        "view_own": true,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": true,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Engineering Audit/Study Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Value Engineering": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "LEED Review": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Allowance for Working after 10 PM": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Expenses Claim": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Sub-Consultant Assessment": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Sub-Consultant Evaluation": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Purchase Requisitions (PR)": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Account": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Purchase Orders (PO)": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Single Source / Price Justification": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Supplier Assessment": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Supplier Evaluation": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Charitable Contribution Requests": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Controlled Document Request / Change": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Corrective Action Request (CAR)": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Gift/Hospitality Offering Requests": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Gift/Hospitality Requests": {
+      "IT": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "User Setting": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Permission": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Sub-Consultant List": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Committee Setting": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Supplier List": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    },
+    "Main Menu": {
+      "IT": {
+        "create": true,
+        "view_own": true,
+        "edit_own": true,
+        "delete_own": true,
+        "view_all": true,
+        "edit_all": true,
+        "delete_all": true
+      },
+      "Satff": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 1": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Secretary 2": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Purchase": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "Account": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "IMS": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "AD-TL": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      },
+      "DI-MD": {
+        "create": false,
+        "view_own": false,
+        "edit_own": false,
+        "delete_own": false,
+        "view_all": false,
+        "edit_all": false,
+        "delete_all": false
+      }
+    }
+  }
+}

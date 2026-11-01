@@ -1,0 +1,745 @@
+<div class="h-full bg-gray-50">
+  <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900">
+    <div class="mb-8">
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2 uppercase">
+          {{ isStage2Mode ? 'STAGE 2 - CONTRACT REVIEW SETUP' : 'PROPOSAL & CONTRACT REVIEW FORM' }}
+        </h1>
+        <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          Form MTPR-01
+        </span>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        {{ isStage2Mode ? 'Select Lead TL, Contract Signed reviewers, and Contract Agreed to Proceed' : (isEditMode ? 'Update review information' : 'Meinhardt (Thailand) Ltd.') }}
+      </p>
+    </div>
+
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <mat-spinner [diameter]="40"></mat-spinner>
+    </div>
+
+    <form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col gap-6">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+                Review Details
+              </h2>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">18 - FORM MTPR-01</p>
+            </div>
+
+            <div class="document-meta-grid">
+              <div class="document-field compact">
+                <label>Proposal Number</label>
+                <mat-form-field class="w-full dense-field proposal-number-field" subscriptSizing="dynamic">
+                  <input matInput class="proposal-number-input" formControlName="proposalNumber" placeholder="Auto generated after save" readonly>
+                  <mat-error *ngIf="isFieldInvalid('proposalNumber')">{{ getErrorMessage('proposalNumber') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field compact">
+                <label>Proposal Number Type</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="proposalNumberType" placeholder="Select type">
+                    <mat-option *ngFor="let type of proposalNumberTypeOptions" [value]="type.value">
+                      {{ type.label }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="isFieldInvalid('proposalNumberType')">{{ getErrorMessage('proposalNumberType') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field compact" *ngIf="isEditMode">
+                <label>Project Number</label>
+                <mat-form-field class="w-full dense-field readonly-field" subscriptSizing="dynamic">
+                  <input
+                    matInput
+                    class="readonly-input"
+                    formControlName="projectNo"
+                    placeholder="Auto generated / Not required"
+                    readonly
+                    aria-readonly="true">
+                  <mat-error *ngIf="isFieldInvalid('projectNo')">{{ getErrorMessage('projectNo') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field compact">
+                <label>Proposal Attached</label>
+                <mat-radio-group formControlName="proposalAttached" class="document-radio-row">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </div>
+
+            <!-- Attached Documents Section for Proposal (Matches CDR standard) -->
+            <div class="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800" *ngIf="form.get('proposalAttached')?.value === true">
+                <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center">
+                        <mat-icon class="mr-1.5 text-blue-600 !w-4 !h-4 !text-base" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        Proposal Attachment <span class="ml-1 text-red-500">*</span>
+                    </h2>
+                </div>
+
+                <div class="p-3">
+                    <button
+                        type="button"
+                        mat-stroked-button
+                        (click)="openUploadDialog('proposal')"
+                        class="mb-2 rounded-full border-gray-300 dark:border-gray-600">
+                        <mat-icon class="mr-1.5" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                        Upload File
+                    </button>
+
+                    <div *ngIf="proposalAttachments?.length" class="mt-2 space-y-1.5">
+                        <div
+                            *ngFor="let att of proposalAttachments.controls; index as i"
+                            class="flex items-center justify-between border border-gray-100 dark:border-gray-700 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-800/50">
+                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                <mat-icon
+                                    class="text-gray-400 !w-4 !h-4 !text-base"
+                                    [svgIcon]="'heroicons_outline:document-text'">
+                                </mat-icon>
+                                <div class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+                                    {{ att.get('file_name')?.value || 'No file name' }}
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                mat-icon-button
+                                color="warn"
+                                (click)="removeAttachment(proposalAttachments, i)"
+                                class="scale-75">
+                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="document-field mt-6">
+            <label>Project Name</label>
+            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+              <input matInput formControlName="projectName" placeholder="Enter project name">
+              <mat-error *ngIf="isFieldInvalid('projectName')">{{ getErrorMessage('projectName') }}</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">1</span>
+              Location
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="document-field">
+                <label>City</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="locationCity" placeholder="Enter city">
+                  <mat-error *ngIf="isFieldInvalid('locationCity')">{{ getErrorMessage('locationCity') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Country</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="locationCountry" placeholder="Enter country">
+                  <mat-error *ngIf="isFieldInvalid('locationCountry')">{{ getErrorMessage('locationCountry') }}</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">2</span>
+              Client
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="document-field">
+                <label>Client</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="client" placeholder="Enter client">
+                  <mat-error *ngIf="isFieldInvalid('client')">{{ getErrorMessage('client') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Contact Name</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="clientContactName" placeholder="Enter contact name">
+                  <mat-error *ngIf="isFieldInvalid('clientContactName')">{{ getErrorMessage('clientContactName') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field md:col-span-2">
+                <label>Address</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <textarea matInput formControlName="clientAddress" rows="2" placeholder="Enter address"></textarea>
+                  <mat-error *ngIf="isFieldInvalid('clientAddress')">{{ getErrorMessage('clientAddress') }}</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Tel. No.</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="clientTel" placeholder="Enter telephone number">
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Fax No.</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="clientFax" placeholder="Enter fax number">
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">3</span>
+              Architect
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="document-field">
+                <label>Architect</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="architect" placeholder="Enter architect">
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Contact Name</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="architectContactName" placeholder="Enter contact name">
+                </mat-form-field>
+              </div>
+              <div class="document-field md:col-span-2">
+                <label>Address</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <textarea matInput formControlName="architectAddress" rows="2" placeholder="Enter address"></textarea>
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Tel. No.</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="architectTel" placeholder="Enter telephone number">
+                </mat-form-field>
+              </div>
+              <div class="document-field">
+                <label>Fax No.</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <input matInput formControlName="architectFax" placeholder="Enter fax number">
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">4</span>
+              Enquiry From
+            </h3>
+            <mat-radio-group formControlName="enquiryFrom" class="document-radio-row">
+              <mat-radio-button [value]="true">Attached / Yes</mat-radio-button>
+              <mat-radio-button [value]="false">No</mat-radio-button>
+            </mat-radio-group>
+
+            <!-- Attached Documents Section (Matches CDR standard) -->
+            <div class="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800" *ngIf="form.get('enquiryFrom')?.value === true">
+                <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center">
+                        <mat-icon class="mr-1.5 text-blue-600 !w-4 !h-4 !text-base" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        Enquiry Documents <span class="ml-1 text-red-500">*</span>
+                    </h2>
+                </div>
+
+                <div class="p-3">
+                    <button
+                        type="button"
+                        mat-stroked-button
+                        (click)="openUploadDialog('enquiry')"
+                        class="mb-2 rounded-full border-gray-300 dark:border-gray-600">
+                        <mat-icon class="mr-1.5" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                        Upload File
+                    </button>
+
+                    <div *ngIf="enquiryAttachments?.length" class="mt-2 space-y-1.5">
+                        <div
+                            *ngFor="let att of enquiryAttachments.controls; index as i"
+                            class="flex items-center justify-between border border-gray-100 dark:border-gray-700 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-800/50">
+                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                <mat-icon
+                                    class="text-gray-400 !w-4 !h-4 !text-base"
+                                    [svgIcon]="'heroicons_outline:document-text'">
+                                </mat-icon>
+                                <div class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+                                    {{ att.get('file_name')?.value || 'No file name' }}
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                mat-icon-button
+                                color="warn"
+                                (click)="removeAttachment(enquiryAttachments, i)"
+                                class="scale-75">
+                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!enquiryAttachments?.length" class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        No documents attached yet
+                    </div>
+                </div>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">5</span>
+              Project Details
+            </h3>
+            <div class="document-check-grid">
+              <mat-checkbox *ngFor="let option of projectDetailsOptions; let i = index" [formControl]="projectDetailsArray.at(i)">
+                {{ option }}
+              </mat-checkbox>
+            </div>
+            <mat-form-field class="w-full dense-field mt-4" *ngIf="projectDetailsArray.at(5)?.value" subscriptSizing="dynamic">
+              <mat-label>Others</mat-label>
+              <input matInput formControlName="projectDetailsOthers" placeholder="Please specify">
+            </mat-form-field>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">6</span>
+              Discipline
+            </h3>
+            <div class="document-check-grid">
+              <mat-checkbox *ngFor="let option of disciplineOptions; let i = index" [formControl]="disciplinesArray.at(i)">
+                {{ option }}
+              </mat-checkbox>
+            </div>
+            <mat-form-field class="w-full dense-field mt-4" *ngIf="disciplinesArray.at(5)?.value" subscriptSizing="dynamic">
+              <mat-label>Others</mat-label>
+              <input matInput formControlName="disciplinesOthers" placeholder="Please specify">
+            </mat-form-field>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">7</span>
+              Project Type
+            </h3>
+            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+              <mat-select formControlName="projectType" placeholder="Select project type">
+                <mat-option *ngFor="let type of projectTypes" [value]="type.code || type.name || type.id">
+                  {{ type.code }} - {{ type.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="isFieldInvalid('projectType')">{{ getErrorMessage('projectType') }}</mat-error>
+            </mat-form-field>
+            <p class="document-help">Select the fixed project type code.</p>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">8</span>
+              Fee Calculation
+            </h3>
+            <mat-radio-group formControlName="feeCalculationAttached" class="document-radio-row">
+              <mat-radio-button [value]="true">Attached / Yes</mat-radio-button>
+              <mat-radio-button [value]="false">No</mat-radio-button>
+            </mat-radio-group>
+
+            <!-- Attached Documents Section for Fee Calculation (Matches CDR standard) -->
+            <div class="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800" *ngIf="form.get('feeCalculationAttached')?.value === true">
+                <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center">
+                        <mat-icon class="mr-1.5 text-blue-600 !w-4 !h-4 !text-base" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        Fee Calculation Documents <span class="ml-1 text-red-500">*</span>
+                    </h2>
+                </div>
+
+                <div class="p-3">
+                    <button
+                        type="button"
+                        mat-stroked-button
+                        (click)="openUploadDialog('fee')"
+                        class="mb-2 rounded-full border-gray-300 dark:border-gray-600">
+                        <mat-icon class="mr-1.5" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                        Upload File
+                    </button>
+
+                    <div *ngIf="feeAttachments?.length" class="mt-2 space-y-1.5">
+                        <div
+                            *ngFor="let att of feeAttachments.controls; index as i"
+                            class="flex items-center justify-between border border-gray-100 dark:border-gray-700 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-800/50">
+                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                <mat-icon
+                                    class="text-gray-400 !w-4 !h-4 !text-base"
+                                    [svgIcon]="'heroicons_outline:document-text'">
+                                </mat-icon>
+                                <div class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+                                    {{ att.get('file_name')?.value || 'No file name' }}
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                mat-icon-button
+                                color="warn"
+                                (click)="removeAttachment(feeAttachments, i)"
+                                class="scale-75">
+                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!feeAttachments?.length" class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        No documents attached yet
+                    </div>
+                    <div *ngIf="form.get('feeCalculationAttached')?.value === true && !hasFeeCalculationAttachment()" class="text-xs text-red-600 dark:text-red-400 mt-2">
+                        Fee Calculation file is required when Attached / Yes is selected.
+                    </div>
+                </div>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">9</span>
+              Estimated Value of Total Fees
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-[1fr_130px] gap-4">
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <input matInput type="number" formControlName="estimatedValue" placeholder="Enter value" min="1000" step="1">
+                <mat-error *ngIf="isFieldInvalid('estimatedValue')">{{ getErrorMessage('estimatedValue') }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <mat-select formControlName="currency">
+                  <mat-option value="THB">THB</mat-option>
+                  <mat-option value="USD">USD</mat-option>
+                </mat-select>
+                <mat-error *ngIf="isFieldInvalid('currency')">{{ getErrorMessage('currency') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">10-13</span>
+              Scope and Resources
+            </h3>
+            <div class="question-list">
+              <div class="question-row document-question-row">
+                <div class="document-question-text">10. Is scope of work clearly defined?</div>
+                <mat-radio-group formControlName="scopeClearlyDefined" class="document-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field class="w-full dense-field document-question-detail" subscriptSizing="dynamic">
+                  <input matInput formControlName="scopeDetails" placeholder="Details">
+                </mat-form-field>
+              </div>
+              <div class="question-row document-question-row">
+                <div class="document-question-text">11. Are adequate staff and other resources available?</div>
+                <mat-radio-group formControlName="adequateResources" class="document-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field class="w-full dense-field document-question-detail" subscriptSizing="dynamic">
+                  <input matInput formControlName="resourcesDetails" placeholder="Details">
+                </mat-form-field>
+              </div>
+              <div class="question-row document-question-row">
+                <div class="document-question-text">12. Is help from any other Meinhardt's offices required?</div>
+                <mat-radio-group formControlName="helpFromOtherOffices" class="document-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field class="w-full dense-field document-question-detail" subscriptSizing="dynamic">
+                  <input matInput formControlName="helpDetails" placeholder="Details">
+                </mat-form-field>
+              </div>
+              <div class="question-row document-question-row">
+                <div class="document-question-text">13. Sub-consultants / Sub-contractors required?</div>
+                <mat-radio-group formControlName="subConsultantsRequired" class="document-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field class="w-full dense-field document-question-detail" subscriptSizing="dynamic">
+                  <input matInput formControlName="subConsultantsDetails" placeholder="Details">
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">14</span>
+              Special Quality Assurance Requirement
+            </h3>
+            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+              <textarea matInput formControlName="specialQARequirements" rows="3" placeholder="e.g. Project Quality Plan Format"></textarea>
+            </mat-form-field>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">15</span>
+              Special Considerations
+            </h3>
+            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+              <textarea matInput formControlName="specialConsiderations" rows="3" placeholder="e.g. Health & Safety, Environment Consideration"></textarea>
+            </mat-form-field>
+          </section>
+
+          <section class="document-section">
+            <h3 class="document-section-title">
+              <span class="section-number">16</span>
+              Comments
+            </h3>
+            <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+              <textarea matInput formControlName="comments" rows="4" placeholder="Clearly describe client's requirements, expectations and approach."></textarea>
+            </mat-form-field>
+          </section>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+        <div class="p-6 space-y-6">
+          <section class="document-section borderless compact-document-section">
+            <div class="classification-row">
+              <div class="classification-item">
+                <span class="classification-label">Government Project</span>
+                <mat-radio-group formControlName="governmentProject" class="inline-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+              </div>
+              <div class="classification-item">
+                <span class="classification-label">MMCL Project</span>
+                <mat-radio-group formControlName="mmclProject" class="inline-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+              </div>
+              <div class="classification-item">
+                <span class="classification-label">MTL</span>
+                <mat-radio-group formControlName="mtl" class="inline-yes-no">
+                  <mat-radio-button [value]="true">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false">No</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section borderless compact-document-section">
+            <div class="filled-row">
+              <div class="filled-field">
+                <label class="filled-label">Filled in by</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-select formControlName="filledInBy" placeholder="Select person">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="filledInBySearchCtrl"
+                        placeholderLabel="Search person"
+                        noEntriesFoundLabel="No results">
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option [value]="''">-</mat-option>
+                    <mat-option *ngFor="let p of filteredPeopleFilledInBy" [value]="p.code">
+                      {{ p.display }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="filled-field filled-date-field">
+                <label class="filled-label">Date:</label>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <input matInput [matDatepicker]="filledInDatePicker" formControlName="filledInDate">
+                <mat-datepicker-toggle matSuffix [for]="filledInDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #filledInDatePicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section borderless conclusion-section">
+            <h3 class="document-section-title">
+              <mat-icon class="mr-2 text-green-600" [svgIcon]="'heroicons_solid:document-check'"></mat-icon>
+              Conclusion of Proposal Review
+            </h3>
+            <div class="proposal-conclusion-row" *ngIf="isEditMode">
+              <div class="document-check-grid">
+                <mat-checkbox formControlName="proposalToBeSubmitted">Proposal to be submitted</mat-checkbox>
+                <mat-checkbox formControlName="proposalDecline">Decline</mat-checkbox>
+              </div>
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <mat-label>% Win probability</mat-label>
+                <input matInput type="number" formControlName="winProbability" min="0" max="100" step="1">
+                <mat-error *ngIf="isFieldInvalid('winProbability')">{{ getErrorMessage('winProbability') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="reviewer-grid mt-5">
+              <div *ngFor="let reviewer of proposalReviewersArray.controls; let i = index" class="reviewer-row">
+                <div class="reviewer-label">
+                  <span>Signed {{ i + 1 }}</span>
+                  <span class="reviewer-role">{{ i === 0 ? '(MD / DI)' : '(DI)' }}</span>
+                </div>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-label>Reviewer</mat-label>
+                  <mat-select [formControl]="reviewer.get('reviewer')">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="proposalSearchCtrls[i]"
+                        placeholderLabel="Search person"
+                        noEntriesFoundLabel="No results">
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option [value]="''">-</mat-option>
+                    <mat-option *ngFor="let p of filteredPeopleProposal[i]" [value]="p.code">
+                      {{ p.display }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+
+          <section class="document-section borderless conclusion-section" *ngIf="isEditMode">
+            <h3 class="document-section-title">
+              <mat-icon class="mr-2 text-purple-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+              Conclusion of Contract Review
+            </h3>
+            <div class="document-check-grid">
+              <mat-checkbox formControlName="contractAgreedToProceed">Contract Agreed to Proceed</mat-checkbox>
+              <mat-checkbox formControlName="contractDecline">Decline</mat-checkbox>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <mat-label>Lead TL</mat-label>
+                <mat-select formControlName="leadTL" placeholder="Select Lead TL">
+                  <mat-option>
+                    <ngx-mat-select-search
+                      [formControl]="leadTLSearchCtrl"
+                      placeholderLabel="Search person"
+                      noEntriesFoundLabel="No results">
+                    </ngx-mat-select-search>
+                  </mat-option>
+                  <mat-option [value]="''">-</mat-option>
+                  <mat-option *ngFor="let p of filteredPeopleLeadTL" [value]="p.code">
+                    {{ p.display }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                <mat-label>TL</mat-label>
+                <input matInput formControlName="tl" placeholder="Enter TL">
+              </mat-form-field>
+            </div>
+
+            <div class="mt-4">
+            <div class="mt-4 flex items-center gap-4">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Need to proceed a project Quality Plan (PQP):</span>
+              <mat-radio-group formControlName="needPQP" class="document-radio-row">
+                <mat-radio-button [value]="true">Yes</mat-radio-button>
+                <mat-radio-button [value]="false">No</mat-radio-button>
+              </mat-radio-group>
+            </div>
+            </div>
+
+            <div class="reviewer-grid mt-5">
+              <div *ngFor="let reviewer of contractReviewersArray.controls; let i = index" class="reviewer-row">
+                <div class="reviewer-label">
+                  <span>Signed {{ i + 1 }}</span>
+                  <span class="reviewer-role">{{ i === 0 ? '(MD / DI)' : '(DI)' }}</span>
+                </div>
+                <mat-form-field class="w-full dense-field" subscriptSizing="dynamic">
+                  <mat-label>Reviewer</mat-label>
+                  <mat-select [formControl]="reviewer.get('reviewer')">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [formControl]="contractSearchCtrls[i]"
+                        placeholderLabel="Search person"
+                        noEntriesFoundLabel="No results">
+                      </ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option [value]="''">-</mat-option>
+                    <mat-option *ngFor="let p of filteredPeopleContract[i]" [value]="p.code">
+                      {{ p.display }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </section>
+        </div>
+
+      </div> <!-- End of Main Form Card -->
+
+      <!-- Attachments Section (Standalone Card matching CDR standard) -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mb-6 overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <mat-icon class="mr-2 text-blue-600" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                  Attached Documents
+              </h2>
+          </div>
+
+          <div class="p-6">
+              <h3 class="text-base font-medium text-gray-900 dark:text-white mb-3">Please attach documents</h3>
+              <button
+                  type="button"
+                  mat-stroked-button
+                  (click)="openUploadDialog('general')"
+                  class="mb-4 rounded-full border-gray-300 dark:border-gray-600 transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <mat-icon class="mr-2" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                  Upload Document
+              </button>
+
+              <div *ngIf="generalAttachments?.length" class="space-y-2">
+                  <div
+                      *ngFor="let att of generalAttachments.controls; index as i"
+                      class="flex items-center justify-between border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                      <div class="flex items-center space-x-3 flex-1 min-w-0">
+                          <mat-icon
+                              class="text-gray-400 dark:text-gray-500 flex-shrink-0 self-center"
+                              [svgIcon]="'heroicons_outline:document-text'">
+                          </mat-icon>
+                          <div class="flex-1 min-w-0">
+                              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+                                  {{ att.get('file_name')?.value || 'No file name' }}
+                              </div>
+                              <div *ngIf="att.get('file_size')?.value" class="text-xs text-gray-500 dark:text-gray-400">
+                                  {{ (att.get('file_size')?.value / 1024).toFixed(2) }} KB
+                              </div>
+                          </div>
+                      </div>
+                      <button
+                          type="button"
+                          mat-icon-button
+                          color="warn"
+                          (click)="removeAttachment(generalAttachments, i)"
+                          aria-label="Remove document">
+                          <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                      </button>
+                  </div>
+              </div>
+
+              <div *ngIf="!generalAttachments?.length" class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl bg-gray-50/30 dark:bg-gray-800/20">
+                  <mat-icon class="text-gray-400 mb-2 scale-125" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">No documents attached yet</p>
+              </div>
+          </div>
+      </div>
+
+      <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600">
+        <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" class="bg-primary text-on-primary" [disabled]="isSubmitting">
+          <mat-spinner *ngIf="isSubmitting" diameter="20" class="mr-2"></mat-spinner>
+          {{ isSubmitting ? 'Submitting...' : (isEditMode ? 'Update Review' : 'Submit Review') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

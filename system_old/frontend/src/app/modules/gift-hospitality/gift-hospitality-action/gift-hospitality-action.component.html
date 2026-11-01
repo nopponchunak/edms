@@ -1,0 +1,374 @@
+<div class="ims-view-page">
+  <div class="ims-view-shell">
+    <div class="ims-view-header flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-blue-600 mb-2 uppercase">
+          Gift / Hospitality Form
+        </h1>
+        <p class="text-sm text-gray-600">
+          FORM ACGH - 01 | REQUEST FOR RECEIVING GIFT / HOSPITALITY
+        </p>
+      </div>
+      <button
+        mat-button
+        type="button"
+        (click)="router.navigate(['/gift-hospitality'])"
+        class="flex items-center text-gray-600 hover:text-gray-900 px-0 -ml-2"
+      >
+        <mat-icon class="icon-size-5 mr-1" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        <span class="font-medium text-md">Back to List</span>
+      </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading && !giftHospitality" class="flex flex-col items-center justify-center py-12">
+      <div class="text-center">
+        <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+        <p class="text-gray-500 text-lg">Loading request...</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="giftHospitality" class="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Left Column: Details (2/3) -->
+      <div class="lg:col-span-2 space-y-6">
+        <mat-card class="ims-card document-card mb-6">
+          <div class="ims-card-body space-y-8">
+            <section>
+              <div class="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <h2 class="text-xl font-semibold text-slate-900">Form Details</h2>
+                  <p class="text-sm text-slate-500 mt-1">Request ID: {{ giftHospitality.id }}</p>
+                </div>
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-base font-semibold"
+                      [ngClass]="getStatusColor(giftHospitality.status)">
+                  {{ getStatusText(giftHospitality.status) }}
+                </span>
+              </div>
+
+              <h3 class="document-subtitle">Request Type</h3>
+              <div class="flex gap-8">
+                <div *ngFor="let type of requestTypes" class="document-check-row">
+                  <span class="document-check-circle">{{ isRequestTypeSelected(type.value) ? '●' : '' }}</span>
+                  <span class="text-sm font-medium text-slate-700">{{ type.label }}</span>
+                </div>
+              </div>
+            </section>
+
+            <div class="border-t border-gray-200"></div>
+
+            <section class="space-y-6">
+              <h3 class="document-subtitle">Request Details</h3>
+
+              <div class="grid grid-cols-1 gap-6">
+                <div class="document-field">
+                  <label>Description of Gift/Hospitality</label>
+                  <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ giftHospitality.description || '-' }}</div>
+                </div>
+
+                <div class="document-field">
+                  <label>Purpose of the Gift/Hospitality receiving</label>
+                  <div class="ims-field-box min-h-[88px] whitespace-pre-wrap">{{ giftHospitality.purpose || '-' }}</div>
+                </div>
+
+                <div class="document-field">
+                  <label>Value of Gift/Hospitality</label>
+                  <div class="ims-field-box text-lg font-semibold">{{ formatCurrency(giftHospitality.value) }}</div>
+                </div>
+
+                <div class="w-full mt-2">
+                  <h4 class="text-base font-semibold text-gray-800 mb-2 flex items-center">
+                    <mat-icon class="mr-1 text-base" [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                    Approval Matrix
+                  </h4>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full border border-black border-collapse">
+                      <thead class="bg-gray-100">
+                        <tr>
+                          <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Amount</th>
+                          <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Prepared by</th>
+                          <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Verified by</th>
+                          <th class="border border-black px-4 py-2 text-left text-sm font-medium text-gray-700">Approved by</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="border border-black px-4 py-2 text-sm text-gray-800">More than 3,000</td>
+                          <td class="border border-black px-4 py-2 text-sm text-gray-800">Staff</td>
+                          <td class="border border-black px-4 py-2 text-sm text-gray-800">ACSC</td>
+                          <td class="border border-black px-4 py-2 text-sm text-gray-800">TL / DI / MD</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="border-t border-gray-200"></div>
+
+            <section>
+              <h3 class="document-subtitle">Company and Date Information</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="document-field">
+                  <label>Company of Giver</label>
+                  <div class="ims-field-box">{{ giftHospitality.companyOfGiver || '-' }}</div>
+                </div>
+
+                <div class="document-field">
+                  <label>Proposed Date</label>
+                  <div class="ims-field-box">{{ formatDate(giftHospitality.proposedDate) || '-' }}</div>
+                </div>
+
+                <div class="document-field md:col-span-2">
+                  <label>MTL's Receiving Staff By</label>
+                  <div class="ims-field-box">{{ getEmployeeLabel(giftHospitality.mtlReceivingStaffBy) || '-' }}</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </mat-card>
+        <!-- Action Form -->
+        <mat-card class="shadow-sm rounded-xl mt-6">
+          <mat-card-header>
+            <mat-card-title class="text-lg font-medium text-gray-900">{{ getActionTitle() }}</mat-card-title>
+            <mat-card-subtitle class="text-sm text-gray-500">You are updating the status for this request</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="pt-4">
+            <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Status -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="actionForm.get('status')?.invalid && actionForm.get('status')?.touched">
+                  Status is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Display current "by" field -->
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-sm text-blue-800 mb-2">
+                  <strong>{{ actionType === 'verified_by_status' ? 'Verified By' : 
+                              actionType === 'acknowledged_by_status' ? 'Acknowledge 2 By (CA)' :
+                              actionType === 'ims_acknowledged_by_status' ? 'Acknowledge 1 By (ACSL)' :
+                              actionType === 'approved_by_status' ? 'Approved By' : 'By' }}:</strong>
+                </p>
+                <p class="text-base font-semibold text-blue-900">
+                  {{ giftHospitality && actionType === 'verified_by_status' ? getEmployeeLabel(giftHospitality.verifiedBy) :
+                     giftHospitality && actionType === 'acknowledged_by_status' ? getEmployeeLabel(giftHospitality.acknowledgedBy) :
+                     giftHospitality && actionType === 'ims_acknowledged_by_status' ? getEmployeeLabel(giftHospitality.imsAcknowledgedBy) :
+                     giftHospitality && actionType === 'approved_by_status' ? getEmployeeLabel(giftHospitality.approvedBy) : 'N/A' }}
+                </p>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  (click)="router.navigate(['/gift-hospitality'])"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="actionForm.invalid || loading"
+                  class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span *ngIf="!loading">Update Status</span>
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Actions & Status (1/3) -->
+      <div class="lg:col-span-1 space-y-6 sticky top-6 self-start">
+
+
+        <!-- Workflow Status -->
+        <div class="bg-white shadow-sm rounded-xl p-4">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Workflow Status</h3>
+          <div class="space-y-2">
+            <!-- Verified By (ACSC) -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(giftHospitality.verifiedByStatus)">
+                  <mat-icon [class]="getByStatusColor(giftHospitality.verifiedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(giftHospitality.verifiedByStatus).includes('red') ? 'text-red-600' : 'text-blue-600'" class="text-base">
+                    {{ giftHospitality.verifiedByStatus === 'approve' || giftHospitality.verifiedByStatus === 'approved' ? 'check' : giftHospitality.verifiedByStatus === 'reject' || giftHospitality.verifiedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Verify by (ACSC):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(giftHospitality.verifiedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(giftHospitality.verifiedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(giftHospitality.verifiedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(giftHospitality.verifiedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(giftHospitality.verifiedByStatus)">
+                    {{ getByStatusText(giftHospitality.verifiedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledge 1 (ACSL) -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(giftHospitality.imsAcknowledgedByStatus)">
+                  <mat-icon [class]="getByStatusColor(giftHospitality.imsAcknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(giftHospitality.imsAcknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-blue-600'" class="text-base">
+                    {{ giftHospitality.imsAcknowledgedByStatus === 'approve' || giftHospitality.imsAcknowledgedByStatus === 'approved' ? 'check' : giftHospitality.imsAcknowledgedByStatus === 'reject' || giftHospitality.imsAcknowledgedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge 1 (ACSL):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(giftHospitality.imsAcknowledgedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(giftHospitality.imsAcknowledgedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(giftHospitality.imsAcknowledgedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(giftHospitality.imsAcknowledgedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(giftHospitality.imsAcknowledgedByStatus)">
+                    {{ getByStatusText(giftHospitality.imsAcknowledgedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Approved By (TL/DI/MD) -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(giftHospitality.approvedByStatus)">
+                  <mat-icon [class]="getByStatusColor(giftHospitality.approvedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(giftHospitality.approvedByStatus).includes('red') ? 'text-red-600' : 'text-gray-600'" class="text-base">
+                    {{ giftHospitality.approvedByStatus === 'approve' || giftHospitality.approvedByStatus === 'approved' ? 'check' : giftHospitality.approvedByStatus === 'reject' || giftHospitality.approvedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Approve by (TL/DI/MD):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(giftHospitality.approvedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(giftHospitality.approvedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(giftHospitality.approvedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(giftHospitality.approvedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(giftHospitality.approvedByStatus)">
+                    {{ getByStatusText(giftHospitality.approvedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acknowledged By Accounts (CA) -->
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                     [class]="getByStatusColor(giftHospitality.acknowledgedByStatus)">
+                  <mat-icon [class]="getByStatusColor(giftHospitality.acknowledgedByStatus).includes('green') ? 'text-green-600' : getByStatusColor(giftHospitality.acknowledgedByStatus).includes('red') ? 'text-red-600' : 'text-purple-600'" class="text-base">
+                    {{ giftHospitality.acknowledgedByStatus === 'approve' || giftHospitality.acknowledgedByStatus === 'approved' ? 'check' : giftHospitality.acknowledgedByStatus === 'reject' || giftHospitality.acknowledgedByStatus === 'rejected' ? 'close' : 'schedule' }}
+                  </mat-icon>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900">
+                  <span class="block text-xs font-normal text-gray-500">Acknowledge 2 by Accounts (CA):</span>
+                  <span class="block mt-0.5">{{ getEmployeeLabelWithTitle(giftHospitality.acknowledgedBy).split('|')[0] }}</span>
+                  <span *ngIf="getEmployeeLabelWithTitle(giftHospitality.acknowledgedBy).includes('|')" class="block text-xs font-normal text-gray-400 mt-0.5">
+                    {{ getEmployeeLabelWithTitle(giftHospitality.acknowledgedBy).split('|')[1] }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  Date: {{ formatDateTime(giftHospitality.acknowledgedByDate) }}
+                </p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        [class]="getByStatusColor(giftHospitality.acknowledgedByStatus)">
+                    {{ getByStatusText(giftHospitality.acknowledgedByStatus) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attached Documents Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 mt-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <mat-icon class="mr-2 text-teal-600" [svgIcon]="'heroicons_solid:paper-clip'"></mat-icon>
+                Attached Documents
+            </h2>
+
+            <div *ngIf="attachments?.length; else noDocs" class="space-y-3">
+                <div *ngFor="let doc of attachments"
+                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <a *ngIf="doc?.url; else docNameOnly" [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                        class="flex items-center space-x-3 overflow-hidden flex-1 group cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-200">
+                                <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium truncate block">
+                                {{ doc?.name }}
+                            </span>
+                        </div>
+                    </a>
+                    <ng-template #docNameOnly>
+                        <div class="flex items-center space-x-3 overflow-hidden flex-1 text-gray-800 dark:text-gray-200">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+                                    <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 text-sm font-medium truncate block">
+                                {{ doc?.name }}
+                            </div>
+                        </div>
+                    </ng-template>
+                    <div *ngIf="doc?.url" class="ml-2 flex-shrink-0">
+                    <a mat-icon-button [href]="doc.url" target="_blank" rel="noopener noreferrer"
+                        matTooltip="Open file">
+                        <mat-icon class="text-blue-600" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                    </a>
+                </div>
+            </div>
+            </div>
+
+            <ng-template #noDocs>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    No documents attached.
+                </div>
+            </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

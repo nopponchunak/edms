@@ -1,0 +1,95 @@
+/* Global layout/background fixes.
+   Keep this file narrow so Angular Material controls keep their own theme styles. */
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.app-root,
+.layout,
+.router-outlet,
+.main-content-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.app-root {
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+router-outlet + * {
+    width: 100%;
+    min-width: 0;
+}
+
+router-outlet + * > .h-full,
+router-outlet + * > .min-h-screen {
+    width: 100%;
+    max-width: 100%;
+}
+
+body > * {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Solid overlay surfaces only. Do not target form controls/buttons globally. */
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel,
+.mat-mdc-menu-panel,
+.mat-datepicker-content,
+.mat-mdc-datepicker-content,
+.mat-mdc-datepicker-popup,
+.mat-mdc-dialog-container .mdc-dialog__surface,
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: var(--fuse-bg-card, #ffffff) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-table,
+.mat-mdc-header-row,
+.mat-mdc-row {
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-calendar,
+.mat-calendar,
+.mat-mdc-calendar-table,
+.mat-calendar-table,
+.mat-mdc-calendar-header,
+.mat-calendar-header,
+.mat-calendar-controls,
+.mat-mdc-calendar-body,
+.mat-calendar-body {
+    background-color: var(--fuse-bg-card, #ffffff) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+}
+
+.mat-mdc-calendar-body-selected,
+.mat-calendar-body-selected,
+.mat-calendar-body-cell-content.mat-mdc-calendar-body-selected,
+.mat-calendar-body-cell-content.mat-calendar-body-selected {
+    background-color: var(
+        --mat-datepicker-calendar-date-selected-state-background-color,
+        var(--fuse-primary, #2563eb)
+    ) !important;
+    color: var(
+        --mat-datepicker-calendar-date-selected-state-text-color,
+        #ffffff
+    ) !important;
+}
+
+.mat-mdc-calendar-body-selected:not(.mat-calendar-body-today),
+.mat-calendar-body-selected:not(.mat-calendar-body-today) {
+    box-shadow: none !important;
+}

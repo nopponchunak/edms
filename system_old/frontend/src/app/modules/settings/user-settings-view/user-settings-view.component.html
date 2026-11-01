@@ -1,0 +1,120 @@
+<div class="h-full bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto p-6 bg-white dark:bg-gray-900">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    User Details
+                </h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400" *ngIf="user">
+                    Username: <span class="font-semibold">{{ user.username }}</span>
+                </p>
+            </div>
+
+            <a mat-flat-button color="primary" [routerLink]="['/settings/users']"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2">
+                <mat-icon class="text-white">arrow_back</mat-icon>
+                Back to User List
+            </a>
+        </div>
+
+        <!-- Alert -->
+        <fuse-alert *ngIf="alert" [appearance]="'outline'" [type]="alert.type" [showIcon]="'true'"
+            [dismissible]="'true'" (dismissed)="alert = null" class="mb-4">
+            {{ alert.message }}
+        </fuse-alert>
+
+        <!-- Loading -->
+        <div class="flex items-center justify-center py-12" *ngIf="isLoading">
+            <mat-progress-spinner mode="indeterminate" [diameter]="40"></mat-progress-spinner>
+        </div>
+
+        <!-- Content -->
+        <div *ngIf="!isLoading && user" class="space-y-6">
+            <mat-card class="shadow-lg border border-gray-200 dark:border-gray-700">
+                <mat-card-content class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Username</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.username }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Full Name</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.name || '-' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Email</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.email || '-' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Phone</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.phone || '-' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Permission</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ getPermissionName() }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Status</div>
+                            <div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                    [ngClass]="getStatusBadgeClass(user.status)">
+                                    {{ getStatusLabel(user.status) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Created By</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.create_by || '-' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Created At</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.created_at || '-' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Last Updated By</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.update_by || '-' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Last Updated At</div>
+                            <div class="font-medium text-gray-900 dark:text-white">
+                                {{ user.updated_at || '-' }}
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- No data -->
+        <div *ngIf="!isLoading && !user && !alert" class="text-center py-12 text-gray-500">
+            User data not found
+        </div>
+    </div>
+</div>

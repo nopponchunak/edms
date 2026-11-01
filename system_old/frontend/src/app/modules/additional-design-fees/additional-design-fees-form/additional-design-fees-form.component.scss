@@ -1,0 +1,253 @@
+// MTDC-03 Request for Additional Design Fees Form Styles
+
+.form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.form-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+  }
+  
+  .form-number {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  
+  .header-info {
+    text-align: right;
+    
+    p {
+      font-size: 14px;
+      color: #6b7280;
+      margin: 0;
+    }
+  }
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+.subsection-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+// Form grid layouts
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+// Table styles
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  th {
+    background-color: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  td {
+    font-size: 14px;
+    color: #111827;
+  }
+}
+
+// Checkbox groups
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Total section
+.total-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  
+  .total-label {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+  }
+  
+  .total-input {
+    width: 128px;
+  }
+}
+
+// Rate table
+.rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  th {
+    background-color: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  td {
+    font-size: 14px;
+    color: #111827;
+  }
+}
+
+// Form actions
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
+  
+  .form-section {
+    padding: 16px;
+  }
+  
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-header {
+    flex-direction: column;
+    gap: 16px;
+    
+    .header-info {
+      text-align: left;
+    }
+  }
+  
+  .details-table {
+    font-size: 12px;
+    
+    th, td {
+      padding: 8px 12px;
+    }
+  }
+  
+  .total-section {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// Material form field overrides
+.mat-mdc-form-field {
+  width: 100%;
+  
+  &.mat-form-field-appearance-outline {
+    .mat-mdc-form-field-outline {
+      color: #d1d5db;
+    }
+    
+    &.mat-focused .mat-mdc-form-field-outline-thick {
+      color: #3b82f6;
+    }
+  }
+}
+
+// Button styles
+.mat-mdc-raised-button {
+  &.mat-primary {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  &.mat-accent {
+    background-color: #f59e0b;
+    color: white;
+  }
+}
+
+// Loading spinner
+.mat-mdc-progress-spinner {
+  margin-right: 8px;
+}
+
+// Alert styles
+fuse-alert {
+  margin-bottom: 24px;
+}

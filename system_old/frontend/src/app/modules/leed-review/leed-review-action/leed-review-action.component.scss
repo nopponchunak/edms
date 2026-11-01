@@ -1,0 +1,132 @@
+.ims-card {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+
+  .ims-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+  }
+
+  .ims-card-body {
+    padding: 24px;
+  }
+}
+
+.section-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.75rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.view-field-box {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #111827;
+  line-height: 1.5;
+}
+
+.document-field {
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+  }
+}
+
+.locked-card {
+  opacity: 0.78;
+}
+
+.checklist-table {
+  min-width: 860px;
+  overflow: hidden;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  th {
+    background: #f8fafc;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  thead th:first-child {
+    border-top-left-radius: 12px;
+  }
+
+  thead th:last-child {
+    border-top-right-radius: 12px;
+  }
+
+  tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+  }
+
+  tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+  }
+}
+
+.action-footer-card {
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.1),
+    0 2px 4px -1px rgba(15, 23, 42, 0.06);
+}
+
+.verified-by-container {
+  padding: 20px 24px;
+  border: 1px solid #cce3ff;
+  border-radius: 12px;
+  background-color: #f0f7ff;
+
+  .verified-by-label {
+    margin: 0 0 8px;
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .verified-by-name {
+    margin: 0;
+    color: #1e3a8a;
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
+:host {
+  ::ng-deep {
+    .action-footer-card {
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+
+      .mat-mdc-text-field-wrapper {
+        background-color: #fff !important;
+      }
+    }
+  }
+}
