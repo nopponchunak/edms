@@ -1,0 +1,302 @@
+<div class="page-header">
+  <div>
+    <a class="back-link" routerLink="/procurement/requisitions">← Purchase Requisitions</a>
+    <h1 class="page-title">{{ isEdit() ? 'Edit Purchase Requisition' : 'New Purchase Requisition' }}</h1>
+  </div>
+  <nav class="layout-switch" aria-label="Form layout">
+    <button type="button" [class.active]="layout() === 'standard'" (click)="setLayout('standard')">Standard</button>
+    <button type="button" [class.active]="layout() === 'envelope'" (click)="setLayout('envelope')">Envelope</button>
+  </nav>
+</div>
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else {
+  @if (errors().length) {
+    <div class="alert-error">
+      <ul class="field-error-list">@for (message of errors(); track $index) { <li>{{ message }}</li> }</ul>
+    </div>
+  }
+
+  @if (rejection(); as rej) {
+    <div class="reject-banner" role="alert">
+      <strong>Rejected ({{ rej.label }}) — {{ rej.by }}</strong>
+      <span>{{ rej.comment || 'No comment was left.' }}</span>
+      <small>Fix the request and submit it again to restart the approval flow.</small>
+    </div>
+  }
+
+  @if (layout() === 'standard') {
+    <div class="form-layout">
+      <div class="main-col">
+        <section class="panel">
+          <h2 class="section-title">Request Details</h2>
+          <div class="grid grid-subject">
+            <div class="form-field">
+              <label class="field-label">Subject <span class="req">*</span></label>
+              <input class="field-input" type="text" [ngModel]="subject()" (ngModelChange)="subject.set($event)" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">Date <span class="req">*</span></label>
+              <input class="field-input" type="date" [ngModel]="requestDate()" (ngModelChange)="requestDate.set($event)" />
+            </div>
+          </div>
+          <div class="grid grid-3">
+            <div class="form-field">
+              <label class="field-label">Requested By <span class="req">*</span></label>
+              <app-searchable-select [options]="userOptions()" [value]="requestedBy()" (valueChange)="onRequesterChange($event)" placeholder="— Select person —" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">To <small>(follows Approved By)</small></label>
+              <input class="field-input" type="text" [ngModel]="toName()" (ngModelChange)="toName.set($event)" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">Recommended By <small>(if any)</small></label>
+              <input class="field-input" type="text" [ngModel]="recommendedBy()" (ngModelChange)="recommendedBy.set($event)" />
+            </div>
+          </div>
+          <div class="grid grid-2">
+            <div class="form-field">
+              <label class="field-label">Deadline <small>(if any)</small></label>
+              <input class="field-input" type="date" [ngModel]="deadline()" (ngModelChange)="deadline.set($event)" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">Received From <small>(if any)</small></label>
+              <input class="field-input" type="text" [ngModel]="receivedFrom()" (ngModelChange)="receivedFrom.set($event)" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Reasons for Purchase <span class="req">*</span></label>
+            <textarea class="field-area" rows="3" placeholder="Please provide detailed reasons for this purchase request" [ngModel]="reasons()" (ngModelChange)="reasons.set($event)"></textarea>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2 class="section-title">Items</h2>
+            <div class="panel-tools">
+              <label class="cur">Currency
+                <select class="field-input cur-select" aria-label="Currency" [ngModel]="currency()" (ngModelChange)="currency.set($event)">
+                  @for (c of currencies; track c) { <option [value]="c">{{ c }}</option> }
+                </select>
+              </label>
+              <button class="add-btn" type="button" (click)="addRow()">+ Add item</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="doc-table items">
+              <thead><tr><th class="c-item">Item(s)</th><th>Description <span class="req">*</span></th><th class="c-qty">Quantity</th><th class="c-money">Unit Price ({{ currency() }})</th><th class="c-money">Amount ({{ currency() }})</th><th class="c-x"></th></tr></thead>
+              <tbody>
+                @for (row of rows(); track $index) {
+                  <tr>
+                    <td><input class="cell" type="text" aria-label="Item" [ngModel]="row.item" (ngModelChange)="patchRow($index, { item: $event })" /></td>
+                    <td><textarea class="cell" rows="1" aria-label="Description" [ngModel]="row.description" (ngModelChange)="patchRow($index, { description: $event })"></textarea></td>
+                    <td><input class="cell num" type="number" min="0" step="1" aria-label="Quantity" [ngModel]="row.quantity" (ngModelChange)="patchRow($index, { quantity: $event === '' ? null : +$event })" /></td>
+                    <td><input class="cell num" type="number" min="0" step="0.01" aria-label="Unit price" [ngModel]="row.unitPrice" (ngModelChange)="patchRow($index, { unitPrice: $event === '' ? null : +$event })" /></td>
+                    <td class="num amount">{{ formatAmount(amounts()[$index]) }}</td>
+                    <td><button class="x-btn" type="button" aria-label="Remove item" (click)="removeRow($index)">✕</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="totals">
+            <div><span>Discount</span><input class="cell num boxed" type="number" min="0" step="0.01" aria-label="Discount" [ngModel]="discount()" (ngModelChange)="discount.set($event === '' ? null : +$event)" /></div>
+            <div><span>Sub Total</span><b class="amount">{{ formatAmount(subTotal()) }}</b></div>
+            <div><label><input type="checkbox" [ngModel]="vat()" (ngModelChange)="vat.set($event)" /> VAT 7%</label><b class="amount">{{ formatAmount(vatValue()) }}</b></div>
+            <div class="grand"><span>Grand Total ({{ currency() }})</span><b class="amount">{{ formatAmount(grandTotal()) }}</b></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2 class="section-title">Notes and Terms</h2>
+          <p class="note"><u>Note:</u> In case of purchasing software and/or IT equipment, this request must be verified by IT department to confirm our existing hardware is adequate and doesn't need any further upgrading.</p>
+          <div class="form-field">
+            <label class="field-label">Payment Term</label>
+            <textarea class="field-area" rows="2" [ngModel]="paymentTerm()" (ngModelChange)="paymentTerm.set($event)"></textarea>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Other conditions <small>(if any)</small></label>
+            <input class="field-input" type="text" [ngModel]="otherConditions()" (ngModelChange)="otherConditions.set($event)" />
+          </div>
+          <label class="check"><input type="checkbox" [ngModel]="quotationAttached()" (ngModelChange)="quotationAttached.set($event)" /> Quotation attached</label>
+          <div class="form-field">
+            <label class="field-label">Attachments <small>(PDF)</small></label>
+            <app-file-attach [attachments]="attachments()" (attachmentsChange)="attachments.set($event)" />
+          </div>
+        </section>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h2 class="section-title">Approval Flow</h2>
+          <div class="flow">
+            <div class="form-field">
+              <label class="field-label">Verified By (IS) <small>IT Manager</small></label>
+              <app-searchable-select [options]="verifyIsOptions()" [value]="verifyIsBy()" (valueChange)="verifyIsBy.set($event)" [placeholder]="notItEquipment() ? 'Not needed' : '— Select IT Manager —'" />
+              <label class="check small"><input type="checkbox" [ngModel]="notItEquipment()" (ngModelChange)="notItEquipment.set($event)" /> No IT equipment / software (skip)</label>
+            </div>
+            <div class="form-field">
+              <label class="field-label">Verified By (MD/DI/AD/TL) <span class="req">*</span></label>
+              <app-searchable-select [options]="verifyOptions()" [value]="verifyBy()" (valueChange)="verifyBy.set($event)" placeholder="— Select MD/DI/AD/TL —" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">Approved By (MD/DI) <span class="req">*</span></label>
+              <app-searchable-select [options]="approverOptions()" [value]="approverBy()" (valueChange)="onApproverChange($event)" placeholder="— Select MD or DI —" />
+            </div>
+            @if (needsApprover2()) {
+              <div class="form-field">
+                <label class="field-label">Approved By 2 (MD/DI) <span class="req">*</span></label>
+                <app-searchable-select [options]="approver2Options()" [value]="approver2By()" (valueChange)="approver2By.set($event)" placeholder="— Select MD or DI —" />
+                <p class="hint">Required: grand total is over {{ secondAbove | number }}.</p>
+              </div>
+            }
+            <div class="form-field">
+              <label class="field-label">Acknowledged (CA) <span class="req">*</span></label>
+              <app-searchable-select [options]="ackOptions()" [value]="ackBy()" (valueChange)="ackBy.set($event)" placeholder="— Select CA —" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">Action By (ADM) <span class="req">*</span></label>
+              <app-searchable-select [options]="actionOptions()" [value]="actionBy()" (valueChange)="actionBy.set($event)" placeholder="— Select ADM —" />
+            </div>
+          </div>
+          <p class="hint">The requester cannot approve their own request. CA answers the asset code question when acknowledging.</p>
+        </section>
+      </aside>
+    </div>
+  } @else {
+  <!-- The sheet is laid out like the printed form. -->
+  <section class="sheet" aria-label="Purchase requisition form">
+    <header class="sheet-head">
+      <div class="company">Meinhardt (Thailand) Ltd.</div>
+      <h1 class="sheet-title">PURCHASE REQUISITION FORM</h1>
+      <label class="cur">Currency
+        <select class="line-input" aria-label="Currency" [ngModel]="currency()" (ngModelChange)="currency.set($event)">
+          @for (c of currencies; track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </label>
+    </header>
+
+    <div class="row">
+      <label class="lbl">To:</label>
+      <input class="line-input grow" type="text" aria-label="To" placeholder="Select Approved By to fill" [ngModel]="toName()" (ngModelChange)="toName.set($event)" />
+      <label class="lbl">Date: <span class="req">*</span></label>
+      <input class="line-input date" type="date" aria-label="Date" [ngModel]="requestDate()" (ngModelChange)="requestDate.set($event)" />
+    </div>
+    <div class="row">
+      <label class="lbl">Subject: <span class="req">*</span></label>
+      <input class="line-input grow" type="text" aria-label="Subject" [ngModel]="subject()" (ngModelChange)="subject.set($event)" />
+    </div>
+    <div class="row">
+      <label class="lbl">Requested By: <span class="req">*</span></label>
+      <div class="grow"><app-searchable-select [options]="userOptions()" [value]="requestedBy()" (valueChange)="onRequesterChange($event)" placeholder="— Select person —" /></div>
+      <label class="lbl">Recommended By: <small>(if any)</small></label>
+      <input class="line-input grow" type="text" aria-label="Recommended By" [ngModel]="recommendedBy()" (ngModelChange)="recommendedBy.set($event)" />
+    </div>
+    <div class="row">
+      <label class="lbl">Deadline: <small>(if any)</small></label>
+      <input class="line-input date" type="date" aria-label="Deadline" [ngModel]="deadline()" (ngModelChange)="deadline.set($event)" />
+      <label class="lbl">Received From: <small>(if any)</small></label>
+      <input class="line-input grow" type="text" aria-label="Received From" [ngModel]="receivedFrom()" (ngModelChange)="receivedFrom.set($event)" />
+    </div>
+    <div class="row top">
+      <label class="lbl">Reasons for Purchase: <span class="req">*</span></label>
+      <textarea class="line-area grow" rows="3" aria-label="Reasons for Purchase" [ngModel]="reasons()" (ngModelChange)="reasons.set($event)"></textarea>
+    </div>
+
+    <div class="table-wrap">
+      <table class="doc-table">
+        <thead>
+          <tr><th class="c-item">Item(s)</th><th>Description <span class="req">*</span></th><th class="c-qty">Quantity</th><th class="c-money">*Unit Price ({{ currency() }})</th><th class="c-money">*Amount ({{ currency() }})</th><th class="c-x"></th></tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track $index) {
+            <tr>
+              <td><input class="cell" type="text" aria-label="Item" [ngModel]="row.item" (ngModelChange)="patchRow($index, { item: $event })" /></td>
+              <td><textarea class="cell" rows="1" aria-label="Description" [ngModel]="row.description" (ngModelChange)="patchRow($index, { description: $event })"></textarea></td>
+              <td><input class="cell num" type="number" min="0" step="1" aria-label="Quantity" [ngModel]="row.quantity" (ngModelChange)="patchRow($index, { quantity: $event === '' ? null : +$event })" /></td>
+              <td><input class="cell num" type="number" min="0" step="0.01" aria-label="Unit price" [ngModel]="row.unitPrice" (ngModelChange)="patchRow($index, { unitPrice: $event === '' ? null : +$event })" /></td>
+              <td class="num amount">{{ formatAmount(amounts()[$index]) }}</td>
+              <td><button class="x-btn" type="button" aria-label="Remove item" (click)="removeRow($index)">✕</button></td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr><td colspan="3" class="add-cell"><button class="add-btn" type="button" (click)="addRow()">+ Add item</button></td><td class="tot-label">Discount</td><td><input class="cell num" type="number" min="0" step="0.01" aria-label="Discount" [ngModel]="discount()" (ngModelChange)="discount.set($event === '' ? null : +$event)" /></td><td></td></tr>
+          <tr><td colspan="3"></td><td class="tot-label">Sub Total</td><td class="num amount">{{ formatAmount(subTotal()) }}</td><td></td></tr>
+          <tr><td colspan="3"></td><td class="tot-label"><label><input type="checkbox" [ngModel]="vat()" (ngModelChange)="vat.set($event)" /> VAT 7%</label></td><td class="num amount">{{ formatAmount(vatValue()) }}</td><td></td></tr>
+          <tr class="grand"><td colspan="3"></td><td class="tot-label">Grand Total</td><td class="num amount">{{ formatAmount(grandTotal()) }}</td><td></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="note"><u>Note:</u> In case of purchasing software and/or IT equipment, this request must be verified by IT department to confirm our existing hardware is adequate and doesn't need any further upgrading.</p>
+    <div class="row top">
+      <label class="lbl">Payment Term:</label>
+      <textarea class="line-area grow" rows="2" aria-label="Payment Term" [ngModel]="paymentTerm()" (ngModelChange)="paymentTerm.set($event)"></textarea>
+    </div>
+    <div class="row">
+      <label class="lbl">Other conditions <small>(if any)</small>:</label>
+      <input class="line-input grow" type="text" aria-label="Other conditions" [ngModel]="otherConditions()" (ngModelChange)="otherConditions.set($event)" />
+    </div>
+    <div class="row">
+      <label class="check"><input type="checkbox" [ngModel]="quotationAttached()" (ngModelChange)="quotationAttached.set($event)" /> Quotation attached</label>
+    </div>
+    <p class="quote-note">*Please fill in the price and attach quotation (if any)</p>
+    <div class="row top">
+      <label class="lbl">Attachments <small>(PDF)</small>:</label>
+      <div class="grow"><app-file-attach [attachments]="attachments()" (attachmentsChange)="attachments.set($event)" /></div>
+    </div>
+
+    <!-- Signature block: one person per line, in the order the approval runs. -->
+    <div class="signs">
+      <div class="sign">
+        <span class="sign-label">Requested By:</span>
+        <span class="sign-who fixed">{{ requestedBy() || '—' }}</span>
+        <span class="sign-role"></span>
+      </div>
+      <div class="sign">
+        <span class="sign-label">Verified By:</span>
+        <div class="sign-who"><app-searchable-select [options]="verifyIsOptions()" [value]="verifyIsBy()" (valueChange)="verifyIsBy.set($event)" [placeholder]="notItEquipment() ? 'Not needed' : '— Select IT Manager —'" /></div>
+        <span class="sign-role">(IS for all IT equipment only.)</span>
+      </div>
+      <label class="check indent"><input type="checkbox" [ngModel]="notItEquipment()" (ngModelChange)="notItEquipment.set($event)" /> No IT equipment / software (skip the IS verification)</label>
+      <div class="sign">
+        <span class="sign-label">Verified By: <span class="req">*</span></span>
+        <div class="sign-who"><app-searchable-select [options]="verifyOptions()" [value]="verifyBy()" (valueChange)="verifyBy.set($event)" placeholder="— Select MD/DI/AD/TL —" /></div>
+        <span class="sign-role">(MD/DI/AD/TL)</span>
+      </div>
+      <div class="sign">
+        <span class="sign-label">Approved By: <span class="req">*</span></span>
+        <div class="sign-who"><app-searchable-select [options]="approverOptions()" [value]="approverBy()" (valueChange)="onApproverChange($event)" placeholder="— Select MD or DI —" /></div>
+        <span class="sign-role">(MD/DI)</span>
+      </div>
+      @if (needsApprover2()) {
+        <div class="sign">
+          <span class="sign-label">Approved By 2: <span class="req">*</span></span>
+          <div class="sign-who"><app-searchable-select [options]="approver2Options()" [value]="approver2By()" (valueChange)="approver2By.set($event)" placeholder="— Select MD or DI —" /></div>
+          <span class="sign-role">(Grand total over {{ secondAbove | number }})</span>
+        </div>
+      }
+      <div class="sign">
+        <span class="sign-label">Acknowledged: <span class="req">*</span></span>
+        <div class="sign-who"><app-searchable-select [options]="ackOptions()" [value]="ackBy()" (valueChange)="ackBy.set($event)" placeholder="— Select CA —" /></div>
+        <span class="sign-role">(CA)</span>
+      </div>
+      <div class="sign">
+        <span class="sign-label">Action by: <span class="req">*</span></span>
+        <div class="sign-who"><app-searchable-select [options]="actionOptions()" [value]="actionBy()" (valueChange)="actionBy.set($event)" placeholder="— Select ADM —" /></div>
+        <span class="sign-role">(ADM)</span>
+      </div>
+      <p class="hint">The requester cannot approve their own request. The "need asset code registration" answers are given by CA when acknowledging.</p>
+    </div>
+  </section>
+
+  }
+
+  <div class="form-actions">
+    <a class="cancel-btn" routerLink="/procurement/requisitions">Cancel</a>
+    <button class="draft-btn" type="button" [disabled]="saving()" (click)="save('draft')">{{ saving() ? 'Saving…' : 'Save Draft' }}</button>
+    <button class="submit-btn" type="button" [disabled]="saving()" (click)="save('submitted')">{{ saving() ? 'Saving…' : 'Submit' }}</button>
+  </div>
+}

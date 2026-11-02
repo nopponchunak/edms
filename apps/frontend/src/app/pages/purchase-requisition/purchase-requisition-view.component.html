@@ -1,0 +1,186 @@
+<div class="view-header">
+  <div class="view-header-left">
+    <h1 class="view-title">PURCHASE REQUISITION</h1>
+    <p class="view-subtitle">MTPC-02&nbsp;|&nbsp;View request information</p>
+  </div>
+  <div class="view-header-actions">
+    <a class="action-btn" routerLink="/procurement/requisitions">← Back to List</a>
+    @if (record()) { <button class="action-btn" type="button" [disabled]="pdfBusy()" (click)="openPdf()">{{ pdfBusy() ? 'Preparing PDF…' : 'Print / PDF' }}</button> }
+    @if (canEdit()) {
+      <a class="action-btn action-btn--primary" [routerLink]="['/procurement/requisitions', record()!.id, 'edit']">Edit</a>
+    }
+    @if (canDelete()) {
+      <button class="action-btn action-btn--danger" type="button" (click)="delete()" [disabled]="deleting()">{{ deleting() ? 'Deleting…' : 'Delete' }}</button>
+    }
+  </div>
+</div>
+
+@if (pdfError()) { <div class="alert-error" style="margin-bottom:12px">{{ pdfError() }}</div> }
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else if (error()) {
+  <div class="alert-error">{{ error() }}</div>
+} @else if (record(); as r) {
+  @if (rejection(); as rej) {
+    <div class="reject-banner" role="alert">
+      <strong>Rejected by {{ nameOf(rej.by) }} ({{ rej.label }})</strong>
+      <span>{{ rej.comment || 'No comment was left.' }}</span>
+      @if (canEdit()) { <small>Edit the request and submit it again to restart the approval flow.</small> }
+    </div>
+  }
+
+  <div class="view-layout">
+    <div class="doc-card">
+      <div class="doc-card-header">
+        <div class="doc-header-left">
+          <div class="doc-company">MEINHARDT (THAILAND) LTD.</div>
+          <h2 class="doc-form-title">Purchase Requisition Form</h2>
+          <p class="doc-form-desc">Detail view in document format</p>
+        </div>
+        <div class="doc-meta-right">
+          <div class="doc-form-no">PR FORM</div>
+          <div class="doc-voucher">PR No. <span class="doc-voucher-no">{{ r.prNo ?? '—' }}</span></div>
+          <span class="status-badge status-{{ r.status }}">{{ statusLabel(r.status) }}</span>
+        </div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-heading"><span>Request Details</span></div>
+        <div class="field-grid">
+          <div class="field-item"><label class="field-label">To</label><div class="field-box">{{ r.toName || '—' }}</div></div>
+          <div class="field-item"><label class="field-label">Date</label><div class="field-box">{{ r.requestDate }}</div></div>
+          <div class="field-item"><label class="field-label">Requested By</label><div class="field-box">{{ r.requestedBy }}</div></div>
+          <div class="field-item"><label class="field-label">Recommended By</label><div class="field-box">{{ r.recommendedBy || '—' }}</div></div>
+          <div class="field-item"><label class="field-label">Deadline</label><div class="field-box">{{ r.deadline || '—' }}</div></div>
+          <div class="field-item"><label class="field-label">Received From</label><div class="field-box">{{ r.receivedFrom || '—' }}</div></div>
+        </div>
+        <div class="text-block field-item"><label class="field-label">Subject</label><div class="field-box">{{ r.subject }}</div></div>
+        <div class="text-block field-item"><label class="field-label">Reasons for Purchase</label><div class="field-box">{{ r.reasonsForPurchase || '—' }}</div></div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-heading"><span>Items</span><span class="item-count">{{ r.items.length }} item(s) · {{ r.currency }}</span></div>
+        <div class="log-wrap">
+          <table class="flow-table">
+            <thead><tr><th>Item(s)</th><th>Description</th><th class="num">Quantity</th><th class="num">Unit Price</th><th class="num">Amount</th>@if (r.needAssetCodeRegistration !== null) { <th>Asset code</th> }</tr></thead>
+            <tbody>
+              @for (row of r.items; track $index) {
+                <tr>
+                  <td>{{ row.item || '—' }}</td><td>{{ row.description }}</td>
+                  <td class="num">{{ row.quantity }}</td><td class="num mono">{{ formatAmount(row.unitPrice) }}</td><td class="num mono">{{ formatAmount(row.amount) }}</td>
+                  @if (r.needAssetCodeRegistration !== null) { <td>{{ row.needAsset ? 'Yes' : 'No' }}</td> }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="totals">
+          @if (+r.discount > 0) { <div><span>Discount</span><b class="mono">{{ formatAmount(r.discount) }}</b></div> }
+          <div><span>Sub Total</span><b class="mono">{{ formatAmount(r.subTotal) }}</b></div>
+          <div><span>VAT 7%</span><b class="mono">{{ formatAmount(r.vatValue) }}</b></div>
+          <div class="grand"><span>Grand Total ({{ r.currency }})</span><b class="mono">{{ formatAmount(r.grandTotal) }}</b></div>
+        </div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-heading"><span>Terms</span></div>
+        <div class="text-block field-item"><label class="field-label">Payment Term</label><div class="field-box">{{ r.paymentTerm || '—' }}</div></div>
+        <div class="text-block field-item"><label class="field-label">Other conditions</label><div class="field-box">{{ r.otherConditions || '—' }}</div></div>
+        <div class="field-grid">
+          <div class="field-item"><label class="field-label">Quotation attached</label><div class="field-box">{{ r.quotationAttached ? 'Yes' : 'No' }}</div></div>
+          <div class="field-item"><label class="field-label">IT equipment / software</label><div class="field-box">{{ r.notItEquipment ? 'No' : 'Yes (verified by IS)' }}</div></div>
+          @if (r.needAssetCodeRegistration !== null) { <div class="field-item"><label class="field-label">Need asset code registration</label><div class="field-box">{{ r.needAssetCodeRegistration ? 'Yes' : 'No' }}</div></div> }
+        </div>
+      </div>
+
+      @if (events().length) {
+        <div class="doc-section">
+          <div class="doc-section-heading"><span>Revision &amp; Comment History</span><span class="item-count">Revision {{ r.version }}</span></div>
+          <div class="log-wrap">
+          <table class="flow-table log-table">
+            <thead><tr><th class="col-rev">Rev.</th><th class="col-action">Action</th><th class="col-by">By</th><th>Comment</th></tr></thead>
+            <tbody>
+              @for (e of events(); track e.id) {
+                <tr>
+                  <td>{{ e.version }}</td>
+                  <td><div class="clamp" [title]="eventTitle(e)">{{ eventTitle(e) }}</div></td>
+                  <td><div class="clamp" [title]="nameOf(e.actor)">{{ nameOf(e.actor) }}</div></td>
+                  <td class="comment-cell"><div class="clamp" [title]="e.comment || ''">{{ e.comment || '—' }}</div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          </div>
+        </div>
+      }
+    </div>
+
+    <aside class="sidebar">
+      @if (myStep(); as step) {
+        <div class="sidebar-card action-card">
+          <div class="action-card-title">Waiting for your {{ step.verb.toLowerCase() }}</div>
+          <p class="action-card-hint">Review the details, then take action.</p>
+          <div class="action-card-buttons">
+            <button class="action-btn action-btn--primary" type="button" (click)="openDecision()">Review &amp; {{ step.verb.toLowerCase() }}…</button>
+          </div>
+        </div>
+      }
+      <app-approval-history [events]="history()" />
+
+      @if (attachments.length > 0) {
+        <div class="sidebar-card">
+          <div class="sidebar-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            <span>Attachments</span>
+            <span class="att-count">{{ attachments.length }} file(s)</span>
+          </div>
+          <ul class="att-list">
+            @for (att of attachments; track att.id) {
+              <li class="att-item">
+                <div class="att-file-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div class="att-info">
+                  <a class="att-name" href="#" (click)="openAttachment(att, $event)">{{ att.originalName }}</a>
+                  <span class="att-size">{{ formatSize(att.size) }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </aside>
+  </div>
+}
+
+@if (deciding() && myStep(); as step) {
+  <div class="dialog-backdrop" (click)="cancelDecision()">
+    <div class="decision-dialog" role="dialog" aria-modal="true" aria-labelledby="decision-title" (click)="$event.stopPropagation()">
+      <h2 id="decision-title">{{ step.verb }} request {{ record()?.prNo }}</h2>
+      <p class="dialog-hint">{{ step.label }}</p>
+      <label class="dialog-field">
+        <span>Comment <small>(required when rejecting)</small></span>
+        <textarea rows="4" maxlength="2000" placeholder="Add a comment…" [ngModel]="comment()" (ngModelChange)="comment.set($event)"></textarea>
+      </label>
+      @if (step.key === 'ack') {
+        <div class="asset-box">
+          <label class="asset-all"><input type="checkbox" [ngModel]="needAsset()" (ngModelChange)="needAsset.set($event)" /> Need asset code registration</label>
+          @for (row of record()!.items; track $index) {
+            <label class="asset-row"><input type="checkbox" [ngModel]="itemFlags()[$index]" (ngModelChange)="toggleFlag($index, $event)" /> {{ row.item || row.description }}</label>
+          }
+        </div>
+      }
+      @if (actionError()) { <div class="alert-error">{{ actionError() }}</div> }
+      <div class="dialog-actions">
+        <button class="action-btn" type="button" [disabled]="acting()" (click)="cancelDecision()">Cancel</button>
+        <button class="action-btn action-btn--danger" type="button" [disabled]="acting()" (click)="act('rejected')">Reject</button>
+        <button class="action-btn action-btn--primary" type="button" [disabled]="acting()" (click)="act('approved')">{{ acting() ? 'Saving…' : step.verb }}</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (pdf(); as p) {
+  <app-pdf-preview-dialog [title]="p.title" [filename]="p.filename" [url]="p.url" [image]="!!p.image" (closed)="closePdf()" />
+}

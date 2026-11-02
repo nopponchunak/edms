@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "apps/web",
-    "apps/api"
+    "apps/frontend",
+    "apps/backend"
   ],
   "scripts": {
-    "dev:web": "npm --prefix apps/web start",
-    "dev:api": "npm --prefix apps/api run start:dev",
+    "dev:web": "npm --prefix apps/frontend start",
+    "dev:api": "npm --prefix apps/backend run start:dev",
     "build": "npm run build:web && npm run build:api",
-    "build:web": "npm --prefix apps/web run build",
-    "build:api": "npm --prefix apps/api run build",
+    "build:web": "npm --prefix apps/frontend run build",
+    "build:api": "npm --prefix apps/backend run build",
     "test": "npm run test:web && npm run test:api",
-    "test:web": "npm --prefix apps/web test -- --watch=false",
-    "test:api": "npm --prefix apps/api test -- --runInBand"
+    "test:web": "npm --prefix apps/frontend test -- --watch=false",
+    "test:api": "npm --prefix apps/backend test -- --runInBand"
   },
   "devDependencies": {
     "@types/multer": "^2.3.0",
