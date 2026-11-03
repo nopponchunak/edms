@@ -16,6 +16,10 @@ import { AllowanceViewComponent } from './pages/allowance-after-10pm/allowance-v
 import { CharitableContributionListComponent } from './pages/charitable-contribution/charitable-contribution-list.component';
 import { CharitableContributionFormComponent } from './pages/charitable-contribution/charitable-contribution-form.component';
 import { CharitableContributionViewComponent } from './pages/charitable-contribution/charitable-contribution-view.component';
+import { DesignReviewFormComponent } from './pages/design-review/design-review-form.component';
+import { DesignReviewListComponent } from './pages/design-review/design-review-list.component';
+import { DesignReviewViewComponent } from './pages/design-review/design-review-view.component';
+import { ProjectsComponent } from './pages/projects/projects.component';
 import { PurchaseRequisitionFormComponent } from './pages/purchase-requisition/purchase-requisition-form.component';
 import { PurchaseRequisitionListComponent } from './pages/purchase-requisition/purchase-requisition-list.component';
 import { PurchaseRequisitionViewComponent } from './pages/purchase-requisition/purchase-requisition-view.component';
@@ -39,6 +43,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', component: DashboardComponent, title: 'Dashboard | Meinhardt EDMS' },
       { path: 'modules', component: ModulesComponent, title: 'Applications | Meinhardt EDMS' },
+      { path: 'master-data/projects', component: ProjectsComponent, canActivate: [permissionGuard('projects.manage')], title: 'Projects | Meinhardt EDMS' },
       { path: 'master-data/committees', component: CommitteesComponent, canActivate: [permissionGuard('committees.manage')], title: 'Committee | Meinhardt EDMS' },
       { path: 'access-management', component: AccessManagementComponent, canActivate: [accessManagementGuard], title: 'User & Access Management | Meinhardt EDMS' },
       { path: 'role-permissions', component: RolePermissionsComponent, canActivate: [accessManagementGuard], title: 'Role Permissions | Meinhardt EDMS' },
@@ -80,6 +85,16 @@ export const routes: Routes = [
           { path: 'new', component: GiftOfferingFormComponent, canActivate: [permissionGuard('gift-hospitality-offering.create')], title: 'New Gift/Hospitality Offering Request | Meinhardt EDMS' },
           { path: ':id', component: GiftOfferingViewComponent, title: 'Gift/Hospitality Offering Request | Meinhardt EDMS' },
           { path: ':id/edit', component: GiftOfferingFormComponent, canActivate: [permissionGuard('gift-hospitality-offering.create')], title: 'Edit Gift/Hospitality Offering Request | Meinhardt EDMS' },
+        ],
+      },
+      {
+        path: 'design-review/concept',
+        canActivate: [permissionGuard('design-review.view')],
+        children: [
+          { path: '', component: DesignReviewListComponent, title: 'Concept Design Review | Meinhardt EDMS' },
+          { path: 'new', component: DesignReviewFormComponent, canActivate: [permissionGuard('design-review.create')], title: 'New Concept Design Review | Meinhardt EDMS' },
+          { path: ':id', component: DesignReviewViewComponent, title: 'Concept Design Review | Meinhardt EDMS' },
+          { path: ':id/edit', component: DesignReviewFormComponent, canActivate: [permissionGuard('design-review.create')], title: 'Edit Concept Design Review | Meinhardt EDMS' },
         ],
       },
       {

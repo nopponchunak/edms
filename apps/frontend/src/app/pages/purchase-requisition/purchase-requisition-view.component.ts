@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, firstValueFrom } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
+import { ReassignApproverComponent } from '../../shared/reassign-approver/reassign-approver.component';
 import { ApprovalHistoryComponent, HistoryEvent } from '../../shared/approval-history/approval-history.component';
 import { ApprovalsService } from '../../shared/approvals/approvals.service';
 import { DirectoryService } from '../../shared/directory/directory.service';
@@ -16,10 +17,13 @@ import { buildPurchaseRequisitionPdf } from './purchase-requisition-pdf';
 import { PurchaseRequisition, PurchaseRequisitionService, PurchaseRequisitionEvent } from './purchase-requisition.service';
 import { currentPrStep, isPrTurnOf, PR_STEPS } from './purchase-requisition-steps';
 
+/** Each form version keeps its own PDF builder, so finished documents print exactly as they were completed. */
+const PDF_BUILDERS: Record<number, typeof buildPurchaseRequisitionPdf> = { 1: buildPurchaseRequisitionPdf };
+
 @Component({
   selector: 'app-purchase-requisition-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ApprovalHistoryComponent, PdfPreviewDialogComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ApprovalHistoryComponent, PdfPreviewDialogComponent, ReassignApproverComponent],
   templateUrl: './purchase-requisition-view.component.html',
   styleUrl: './purchase-requisition-view.component.scss',
 })
@@ -44,9 +48,31 @@ export class PurchaseRequisitionViewComponent implements OnInit, OnDestroy {
   /** The decision dialog (comment + Approve / Reject / Cancel) is open while this is true. */
   readonly deciding = signal(false);
   readonly comment = signal('');
+  /** The revision and comment history is collapsed until opened. */
+  readonly historyOpen = signal(false);
   /** CA records which items need an asset code while acknowledging. */
   readonly needAsset = signal(false);
   readonly itemFlags = signal<boolean[]>([]);
+
+  /** Administrators can hand a waiting step to someone else (e.g. the person has left). */
+  readonly isAdmin = this.auth.isAdministrator();
+  readonly waitingStep = computed(() => {
+    const r = this.record();
+    return r ? currentPrStep(r) : null;
+  });
+  readonly waitingPerson = computed(() => {
+    const r = this.record();
+    const step = this.waitingStep();
+    return r && step ? (r[step.by] as string) : '';
+  });
+
+  onReassigned(record: unknown): void {
+    const r = record as PurchaseRequisition;
+    this.record.set(r);
+    this.loadNames(r);
+    this.loadEvents(r.id);
+    this.approvals.refresh();
+  }
 
   readonly pdfBusy = signal(false);
   readonly pdfError = signal('');
@@ -92,11 +118,11 @@ export class PurchaseRequisitionViewComponent implements OnInit, OnDestroy {
     this.pdfError.set('');
     try {
       const [people, logo, measure] = await Promise.all([
-        firstValueFrom(this.directory.resolvePeople([r.createBy, ...PR_STEPS.map((s) => r[s.by] as string | null)])),
+        firstValueFrom(this.directory.resolvePeople([r.createBy, ...PR_STEPS.map((s) => r[s.by] as string | null)], r.signers)),
         loadLogoPng(),
         createTextMeasure(),
       ]);
-      const form = await createPdfBlob(buildPurchaseRequisitionPdf(r, people, logo, measure));
+      const form = await createPdfBlob((PDF_BUILDERS[r.formVersion] ?? buildPurchaseRequisitionPdf)(r, people, logo, measure));
       // The attached files follow the form, so the printout is the complete document set.
       const files = (await Promise.all(this.attachments.map(async (att) => {
         try { return { blob: await firstValueFrom(this.uploads.fetchBlob(att)), mimeType: att.mimeType }; } catch { return null; }
@@ -133,7 +159,7 @@ export class PurchaseRequisitionViewComponent implements OnInit, OnDestroy {
 
   private loadNames(r: PurchaseRequisition): void {
     const usernames = [r.createBy, ...PR_STEPS.map((s) => r[s.by] as string | null)];
-    this.directory.resolveNames(usernames).subscribe((names) => this.names.set(names));
+    this.directory.resolveNames(usernames, r.signers).subscribe((names) => this.names.set(names));
   }
 
   nameOf(username: string | null): string {

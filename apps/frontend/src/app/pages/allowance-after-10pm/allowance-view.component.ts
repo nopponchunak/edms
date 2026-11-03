@@ -15,6 +15,9 @@ import { finalize } from 'rxjs';
 import { Allowance, AllowanceService } from './allowance.service';
 import { AttachmentInfo } from '../../shared/upload/upload.service';
 
+/** Each form version keeps its own PDF builder, so finished documents print exactly as they were completed. */
+const PDF_BUILDERS: Record<number, typeof buildAllowancePdf> = { 1: buildAllowancePdf };
+
 @Component({
   selector: 'app-allowance-view',
   standalone: true,
@@ -74,11 +77,11 @@ export class AllowanceViewComponent implements OnInit, OnDestroy {
     this.pdfError.set('');
     try {
       const [people, logo, lines] = await Promise.all([
-        firstValueFrom(this.directory.resolvePeople([r.tlBy, r.diBy])),
+        firstValueFrom(this.directory.resolvePeople([r.tlBy, r.diBy], r.signers)),
         loadLogoPng(),
         createLineCounter(),
       ]);
-      const blob = await createPdfBlob(buildAllowancePdf(r, people, logo, lines));
+      const blob = await createPdfBlob((PDF_BUILDERS[r.formVersion] ?? buildAllowancePdf)(r, people, logo, lines));
       this.closePdf();
       this.pdf.set({
         url: URL.createObjectURL(blob),

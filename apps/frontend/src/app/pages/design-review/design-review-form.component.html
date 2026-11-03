@@ -1,0 +1,156 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <a class="back-link" routerLink="/design-review/concept">← Concept Design Review</a>
+    <h1 class="page-title">{{ isEdit() ? 'Edit Review' : 'New Concept Design Review' }}</h1>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="loading">Loading…</div>
+} @else {
+  @if (errors().length) {
+    <div class="alert-error">
+      <ul class="field-error-list">@for (message of errors(); track $index) { <li>{{ message }}</li> }</ul>
+    </div>
+  }
+
+  @if (rejection(); as rej) {
+    <div class="reject-banner" role="alert">
+      <strong>Rejected ({{ rej.label }}) — {{ rej.by }}</strong>
+      <span>{{ rej.comment || 'No comment was left.' }}</span>
+      <small>Fix the review and submit it again to restart the sign-off flow.</small>
+    </div>
+  }
+
+  <div class="form-layout">
+    <div class="main-col">
+      <section class="panel">
+        <h2 class="section-title">Review Details</h2>
+        <div class="grid grid-3">
+          <div class="form-field span-2">
+            <label class="field-label">Project <span class="req">*</span></label>
+            <app-searchable-select [options]="projectOptions()" [value]="projectId() === null ? '' : '' + projectId()" (valueChange)="onProjectChange($event)" placeholder="— Select project —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Project No.</label>
+            <input class="field-input readonly" type="text" readonly [value]="project()?.projectNo ?? ''" placeholder="Filled from the project" />
+          </div>
+        </div>
+        <div class="grid grid-3">
+          <div class="form-field">
+            <label class="field-label">Prepared By <span class="req">*</span></label>
+            <app-searchable-select [options]="userOptions()" [value]="preparedBy()" (valueChange)="preparedBy.set($event)" placeholder="— Select person —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">Discipline <span class="req">*</span></label>
+            <select class="field-input" aria-label="Discipline" [ngModel]="discipline()" (ngModelChange)="discipline.set($event)">
+              <option value="">— Select discipline —</option>
+              @for (d of disciplineOptions(); track d) { <option [value]="d">{{ d }}</option> }
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Detail</label>
+            <input class="field-input" type="text" [ngModel]="stage()" (ngModelChange)="stage.set($event)" />
+          </div>
+        </div>
+        @if (discipline() === 'Other') {
+          <div class="form-field">
+            <label class="field-label">Specify other discipline <span class="req">*</span></label>
+            <input class="field-input" type="text" [ngModel]="disciplineOther()" (ngModelChange)="disciplineOther.set($event)" />
+          </div>
+        }
+        <div class="form-field">
+          <label class="field-label">Document(s) Reviewed <span class="req">*</span></label>
+          <div class="check-row">
+            @for (type of form()?.documentTypes ?? []; track type) {
+              <label class="check"><input type="checkbox" [ngModel]="documentTypes().includes(type)" (ngModelChange)="toggleDocument(type, $event)" /> {{ type }}</label>
+            }
+          </div>
+        </div>
+        @if (documentTypes().includes('Other')) {
+          <div class="form-field">
+            <label class="field-label">Specify other document type <span class="req">*</span></label>
+            <input class="field-input" type="text" [ngModel]="documentTypesOther()" (ngModelChange)="documentTypesOther.set($event)" />
+          </div>
+        }
+        <div class="form-field">
+          <label class="field-label">Document location</label>
+          <input class="field-input" type="text" [ngModel]="documentLocation()" (ngModelChange)="documentLocation.set($event)" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="section-title">Checklist</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th class="c-no">#</th><th>Question <span class="req">*</span></th><th class="c-ans">Yes</th><th class="c-ans">No</th><th class="c-ans">N/A</th></tr></thead>
+            <tbody>
+              @for (item of form()?.checklist ?? []; track item.id) {
+                <tr>
+                  <td class="c-no">{{ item.id }}</td>
+                  <td>{{ item.question }}</td>
+                  <td class="c-ans"><input type="radio" [name]="'q' + item.id" aria-label="Yes" [checked]="answers()[item.id] === 'yes'" (change)="answer(item.id, 'yes')" /></td>
+                  <td class="c-ans"><input type="radio" [name]="'q' + item.id" aria-label="No" [checked]="answers()[item.id] === 'no'" (change)="answer(item.id, 'no')" /></td>
+                  <td class="c-ans"><input type="radio" [name]="'q' + item.id" aria-label="N/A" [checked]="answers()[item.id] === 'na'" (change)="answer(item.id, 'na')" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Comments</label>
+          <textarea class="field-area" rows="3" placeholder="Enter comments" [ngModel]="comments()" (ngModelChange)="comments.set($event)"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Recommended action(s) if any</label>
+          <textarea class="field-area" rows="3" [ngModel]="recommendedActions()" (ngModelChange)="recommendedActions.set($event)"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="check"><input type="checkbox" [ngModel]="actionsTaken() === true" (ngModelChange)="actionsTaken.set($event ? true : null)" /> Recommended action(s) have been satisfactorily taken</label>
+          @if (actionsTaken() === true) {
+            <input class="field-input" type="text" placeholder="Note (required)" [ngModel]="actionNote()" (ngModelChange)="actionNote.set($event)" />
+          }
+        </div>
+        <div class="form-field">
+          <label class="field-label">Attachments <small>(up to 5 files)</small></label>
+          <app-file-attach [attachments]="attachments()" (attachmentsChange)="attachments.set($event)" />
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <section class="panel">
+        <h2 class="section-title">Sign-off Flow</h2>
+        <div class="flow">
+          <div class="form-field">
+            <label class="field-label">1. Reviewed By <small>TL (CSA) / DL (MEP)</small> <span class="req">*</span></label>
+            <app-searchable-select [options]="reviewOptions()" [value]="reviewBy()" (valueChange)="reviewBy.set($event)" placeholder="— Select person —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">2. Responded By <small>(PE)</small> <span class="req">*</span></label>
+            <app-searchable-select [options]="respondOptions()" [value]="respondBy()" (valueChange)="respondBy.set($event)" placeholder="— Select person —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">3. Review Comments And Signatures By <small>TL (CSA) / DL (MEP)</small> <span class="req">*</span></label>
+            <app-searchable-select [options]="tlOptions()" [value]="tlBy()" (valueChange)="tlBy.set($event)" placeholder="— Select person —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">4. Approved By TL <small>(MEP)</small> <span class="req">*</span></label>
+            <app-searchable-select [options]="tl2Options()" [value]="tl2By()" (valueChange)="tl2By.set($event)" placeholder="— Select person —" />
+          </div>
+          <div class="form-field">
+            <label class="field-label">5. Acknowledged By <small>(DI)</small> <span class="req">*</span></label>
+            <app-searchable-select [options]="ackOptions()" [value]="ackBy()" (valueChange)="ackBy.set($event)" placeholder="— Select person —" />
+          </div>
+        </div>
+        <p class="hint">Each person signs in this order. Anyone with access to the form can be picked for now.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="form-actions">
+    <a class="cancel-btn" routerLink="/design-review/concept">Cancel</a>
+    <button class="draft-btn" type="button" [disabled]="saving()" (click)="save('draft')">{{ saving() ? 'Saving…' : 'Save Draft' }}</button>
+    <button class="submit-btn" type="button" [disabled]="saving()" (click)="save('submitted')">{{ saving() ? 'Saving…' : 'Submit' }}</button>
+  </div>
+}

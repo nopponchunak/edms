@@ -3,7 +3,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 export interface PendingItem {
-  form: 'expenses' | 'allowance' | 'charitable' | 'gift-receiving' | 'gift-offering' | 'purchase-requisition';
+  form: 'expenses' | 'allowance' | 'charitable' | 'gift-receiving' | 'gift-offering' | 'purchase-requisition' | 'design-review';
   id: number;
   voucherNo: string | null;
   claimantName: string;
@@ -21,6 +21,7 @@ interface PendingSummary {
   giftReceiving: { count: number; items: PendingItem[] };
   giftOffering: { count: number; items: PendingItem[] };
   purchaseRequisition: { count: number; items: PendingItem[] };
+  designReview: { count: number; items: PendingItem[] };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,10 +36,11 @@ export class ApprovalsService {
   readonly giftReceivingCount = computed(() => this.summary()?.giftReceiving?.count ?? 0);
   readonly giftOfferingCount = computed(() => this.summary()?.giftOffering?.count ?? 0);
   readonly purchaseRequisitionCount = computed(() => this.summary()?.purchaseRequisition?.count ?? 0);
+  readonly designReviewCount = computed(() => this.summary()?.designReview?.count ?? 0);
   readonly items = computed(() => {
     const s = this.summary();
     if (!s) return [];
-    return [...s.expenses.items, ...s.allowances.items, ...(s.charitable?.items ?? []), ...(s.giftReceiving?.items ?? []), ...(s.giftOffering?.items ?? []), ...(s.purchaseRequisition?.items ?? [])]
+    return [...s.expenses.items, ...s.allowances.items, ...(s.charitable?.items ?? []), ...(s.giftReceiving?.items ?? []), ...(s.giftOffering?.items ?? []), ...(s.purchaseRequisition?.items ?? []), ...(s.designReview?.items ?? [])]
       .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt));
   });
 
@@ -54,12 +56,12 @@ export class ApprovalsService {
   }
 
   routeFor(item: PendingItem): string[] {
-    const base = { expenses: '/general/expenses', allowance: '/general/allowances', charitable: '/anti-corruption/charitable-contribution', 'gift-receiving': '/anti-corruption/gift-hospitality-receiving', 'gift-offering': '/anti-corruption/gift-hospitality-offering', 'purchase-requisition': '/procurement/requisitions' }[item.form];
+    const base = { expenses: '/general/expenses', allowance: '/general/allowances', charitable: '/anti-corruption/charitable-contribution', 'gift-receiving': '/anti-corruption/gift-hospitality-receiving', 'gift-offering': '/anti-corruption/gift-hospitality-offering', 'purchase-requisition': '/procurement/requisitions', 'design-review': '/design-review/concept' }[item.form];
     return [base, String(item.id)];
   }
 
   formLabel(item: PendingItem): string {
-    return { expenses: 'Expenses Claim', allowance: 'Allowance After 10 PM', charitable: 'Charitable Contribution', 'gift-receiving': 'Gift/Hospitality Receiving', 'gift-offering': 'Gift/Hospitality Offering', 'purchase-requisition': 'Purchase Requisition' }[item.form];
+    return { expenses: 'Expenses Claim', allowance: 'Allowance After 10 PM', charitable: 'Charitable Contribution', 'gift-receiving': 'Gift/Hospitality Receiving', 'gift-offering': 'Gift/Hospitality Offering', 'purchase-requisition': 'Purchase Requisition', 'design-review': 'Concept Design Review' }[item.form];
   }
 
   stageLabel(item: PendingItem): string {

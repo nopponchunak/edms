@@ -1,0 +1,100 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Projects</h1>
+    <p class="page-subtitle">Master Data&nbsp;|&nbsp;Projects used by the review forms</p>
+  </div>
+  <div class="head-actions">
+    <div class="sync-wrap">
+      <button class="ghost-btn" type="button" [disabled]="sync()?.status === 'running' || sync()?.configured === false" (click)="syncMenu.set(!syncMenu())">
+        {{ sync()?.status === 'running' ? 'Syncing…' : 'Sync from PMTS' }} ▾
+      </button>
+      @if (syncMenu()) {
+        <div class="menu">
+          <button type="button" (click)="startSync('incremental')"><b>Update changes</b><small>{{ sync()?.watermark ? 'Only what changed since the last sync' : 'First run: copies everything' }}</small></button>
+          <button type="button" (click)="startSync('full')"><b>Copy everything</b><small>Also marks projects no longer in PMTS</small></button>
+        </div>
+      }
+    </div>
+    <button class="primary-btn" type="button" (click)="add()">+ New Project</button>
+  </div>
+</div>
+
+@if (sync(); as s) {
+  <div class="sync-card" [class.failed]="s.status === 'failed'">
+    @if (s.configured === false) {
+      <div><b>PMTS is not set up.</b> Add PMTS_API_KEY to the server's .env to turn the sync on.</div>
+    } @else if (s.status === 'running') {
+      <div class="sync-line"><b>Copying from PMTS…</b><span>{{ s.fetched | number }} / {{ s.total || '?' }} projects{{ s.pages ? ' · page ' + s.page + ' of ' + s.pages : '' }}</span></div>
+      <div class="bar"><div class="bar-fill" [style.width.%]="percent()"></div></div>
+      <small>It runs on the server, so you can leave this page. {{ s.mode === 'full' ? 'Copying everything can take several minutes.' : '' }}</small>
+    } @else if (s.status === 'success') {
+      <div class="sync-line"><b>Last sync: {{ s.finishedAt | date:'dd MMM yyyy, hh:mm a' }}</b><span>by {{ s.startedBy }} · {{ s.mode === 'full' ? 'everything' : 'changes only' }}</span></div>
+      <div class="counts">
+        <span><b>{{ s.created }}</b> new</span><span><b>{{ s.updated }}</b> updated</span><span><b>{{ s.unchanged }}</b> unchanged</span>
+        <span><b>{{ s.linked }}</b> linked to ones typed by hand</span><span><b>{{ s.skipped }}</b> skipped</span><span><b>{{ s.deactivated }}</b> no longer in PMTS</span>
+      </div>
+      @if (s.message) { <small>{{ s.message }}</small> }
+    } @else if (s.status === 'failed') {
+      <div class="sync-line"><b>The last sync did not finish</b><span>{{ s.finishedAt | date:'dd MMM yyyy, hh:mm a' }}</span></div>
+      <small>{{ s.message }}</small>
+    } @else {
+      <div class="sync-line"><b>Not synced yet</b><span>Use "Sync from PMTS" to copy the projects.</span></div>
+    }
+  </div>
+}
+@if (syncError()) { <div class="alert-error">{{ syncError() }}</div> }
+
+<div class="toolbar">
+  <input class="search" type="search" placeholder="Search project no. or name" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+  <span class="count">{{ matches().length | number }} project(s){{ matches().length > rowLimit ? ' · showing the first ' + rowLimit + ' (search to narrow down)' : '' }}</span>
+</div>
+
+@if (error() && !editing()) { <div class="alert-error">{{ error() }}</div> }
+
+<div class="table-card">
+  @if (loading()) {
+    <div class="table-loading">Loading…</div>
+  } @else if (matches().length === 0) {
+    <div class="table-empty">No projects found.</div>
+  } @else {
+    <table class="data-table">
+      <thead><tr><th>Project No.</th><th>Name</th><th>In EDMS</th><th>PMTS status</th><th>Source</th><th>Action</th></tr></thead>
+      <tbody>
+        @for (p of filtered(); track p.id) {
+          <tr>
+            <td class="mono">{{ p.projectNo }}</td>
+            <td>{{ p.name }}</td>
+            <td><span class="status-badge" [class.status-approved]="p.status === 'active'" [class.status-draft]="p.status === 'inactive'">{{ p.status === 'active' ? 'Active' : 'Inactive' }}</span></td>
+            <td>{{ externalLabel(p) }}</td>
+            <td>{{ p.source === 'manual' ? 'Manual' : 'PMTS' }}</td>
+            <td class="action-cell"><a class="action-link" href="#" (click)="$event.preventDefault(); edit(p)">Edit</a></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (editing(); as e) {
+  <div class="dialog-backdrop" (click)="close()">
+    <div class="dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <h2>{{ e.id ? 'Edit Project' : 'New Project' }}</h2>
+      <label class="field"><span>Project No. <b class="req">*</b></span><input class="input" type="text" maxlength="100" [disabled]="e.fromPmts" [ngModel]="e.projectNo" (ngModelChange)="patch({ projectNo: $event })" /></label>
+      <label class="field"><span>Name <b class="req">*</b></span><input class="input" type="text" maxlength="500" [disabled]="e.fromPmts" [ngModel]="e.name" (ngModelChange)="patch({ name: $event })" /></label>
+      @if (e.fromPmts) { <p class="note">This project comes from PMTS, so its number and name follow PMTS. You can still switch it on or off here.</p> }
+      @if (e.id) {
+        <label class="field"><span>Status</span>
+          <select class="input" [ngModel]="e.status" (ngModelChange)="patch({ status: $event })">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive (hidden from the forms)</option>
+          </select>
+        </label>
+      }
+      @if (error()) { <div class="alert-error">{{ error() }}</div> }
+      <div class="dialog-actions">
+        <button class="ghost-btn" type="button" [disabled]="saving()" (click)="close()">Cancel</button>
+        <button class="primary-btn" type="button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Saving…' : 'Save' }}</button>
+      </div>
+    </div>
+  </div>
+}

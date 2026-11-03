@@ -60,7 +60,8 @@
 
       @if (events().length) {
         <div class="doc-section">
-          <div class="doc-section-heading"><span>Revision &amp; Comment History</span><span class="item-count">Revision {{ r.version }}</span></div>
+          <button type="button" class="doc-section-heading collapsible" [attr.aria-expanded]="historyOpen()" (click)="historyOpen.set(!historyOpen())"><svg class="chev" [class.open]="historyOpen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>Revision &amp; Comment History</span><span class="item-count">Revision {{ r.version }} · {{ events().length }} entries</span></button>
+          @if (historyOpen()) {
           <div class="log-wrap">
           <table class="flow-table log-table">
             <thead><tr><th class="col-rev">Rev.</th><th class="col-action">Action</th><th class="col-by">By</th><th>Comment</th></tr></thead>
@@ -76,6 +77,7 @@
             </tbody>
           </table>
           </div>
+          }
         </div>
       }
     </div>
@@ -91,6 +93,10 @@
         </div>
       }
       <app-approval-history [events]="history()" />
+      @if (isAdmin && waitingStep(); as step) {
+        <app-reassign-approver path="gift-hospitality-offerings" [id]="r.id" [stepKey]="step.key" [stepLabel]="step.label" [current]="waitingPerson()" [currentName]="nameOf(waitingPerson())" (reassigned)="onReassigned($event)" />
+      }
+
 
       @if (attachments.length > 0) {
         <div class="sidebar-card">

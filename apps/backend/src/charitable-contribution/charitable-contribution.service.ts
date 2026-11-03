@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ReassignDto, assertCanTakeStep } from '../lifecycle/reassign';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { canViewAll, isAdministrator } from '../auth/access-scope';
@@ -165,6 +166,26 @@ export class CharitableContributionService {
        FROM charitable_contribution_events WHERE record_id = $1 ORDER BY created_at ASC, id ASC`,
       [id],
     );
+  }
+
+  /** Administrators only: hand a step that is still waiting (e.g. the person has left) to someone else. */
+  async reassign(id: number, dto: ReassignDto, actor: CharitableActor) {
+    if (!isAdministrator(actor)) throw new ForbiddenException('Only an administrator can reassign an approver');
+    const record = await this.findOne(id);
+    if (record.status !== 'submitted' && record.status !== 'verified') throw new ForbiddenException('This request is not waiting for action');
+    const step = STEPS.find((s) => s.key === dto.step);
+    if (!step || !record[step.by] || record[step.status] !== 'pending') throw new BadRequestException('That step is not waiting for anyone');
+    const next = dto.username.trim();
+    await assertCanTakeStep(this.dataSource, next, 'charitable-contribution.view');
+    if ((step.key === 'approver' || step.key === 'approver2') && (await requesterUsernames(this.dataSource, record)).has(next.toLowerCase())) {
+      throw new BadRequestException('The requester cannot approve their own request');
+    }
+    const previous = record[step.by] as string;
+    record[step.by] = next;
+    record.updateBy = actor.username;
+    await this.records.save(record);
+    await this.logEvent(record, 'reassigned', actor.username, step.key, `${previous} -> ${next}`);
+    return this.findOne(id);
   }
 
   private async logEvent(record: CharitableContributionEntity, action: string, actorUsername: string, step: string | null, comment: string | null) {

@@ -198,3 +198,7 @@
 .dialog-field textarea { padding:8px 10px; border:1px solid var(--mh-border); border-radius:8px; background:var(--mh-surface-muted); color:var(--mh-ink); font:inherit; font-size:13px; resize:vertical; }
 .dialog-field textarea:focus { outline:none; border-color:var(--mh-primary); }
 .dialog-actions { display:flex; justify-content:flex-end; gap:8px; }
+
+.doc-section-heading.collapsible { width:100%; border:0; background:transparent; cursor:pointer; text-align:left; font-family:inherit; padding:0; }
+.doc-section-heading.collapsible .chev { width:16px; height:16px; flex-shrink:0; transition:transform .15s; transform:rotate(-90deg); }
+.doc-section-heading.collapsible .chev.open { transform:none; }

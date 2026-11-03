@@ -4,13 +4,14 @@ import { AllowanceEntity } from '../allowance-after-10pm/entities/allowance.enti
 import { ExpensesClaimEntity } from '../expenses-claim/entities/expenses-claim.entity';
 import { CharitableContributionEntity } from '../charitable-contribution/entities/charitable-contribution.entity';
 import { GiftReceivingEntity } from '../gift-hospitality-receiving/entities/gift-hospitality-receiving.entity';
+import { DesignReviewEntity } from '../design-review/entities/design-review.entity';
 import { PurchaseRequisitionEntity } from '../purchase-requisition/entities/purchase-requisition.entity';
 import { GiftOfferingEntity } from '../gift-hospitality-offering/entities/gift-hospitality-offering.entity';
 import { ApprovalsController } from './approvals.controller';
 import { ApprovalsService } from './approvals.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ExpensesClaimEntity, AllowanceEntity, CharitableContributionEntity, GiftReceivingEntity, GiftOfferingEntity, PurchaseRequisitionEntity])],
+  imports: [TypeOrmModule.forFeature([ExpensesClaimEntity, AllowanceEntity, CharitableContributionEntity, GiftReceivingEntity, GiftOfferingEntity, PurchaseRequisitionEntity, DesignReviewEntity])],
   controllers: [ApprovalsController],
   providers: [ApprovalsService],
   exports: [ApprovalsService],

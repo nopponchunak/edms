@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ReassignDto } from '../lifecycle/reassign';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RbacGuard } from '../auth/rbac.guard';
 import { RequirePermissions } from '../auth/require-permissions.decorator';
@@ -53,6 +54,12 @@ export class CharitableContributionController {
   @ApiOperation({ summary: 'Verify, approve, acknowledge or reject the step assigned to the signed-in user' })
   approve(@Param('id', ParseIntPipe) id: number, @Body() body: ApproveCharitableContributionDto, @Req() req: { user: CharitableActor }) {
     return this.service.approve(id, body, req.user);
+  }
+
+  @Post(':id/reassign')
+  @ApiOperation({ summary: 'Administrators only: give a step that is still waiting to someone else' })
+  reassign(@Param('id', ParseIntPipe) id: number, @Body() body: ReassignDto, @Req() req: { user: CharitableActor }) {
+    return this.service.reassign(id, body, req.user);
   }
 
   @Delete(':id')

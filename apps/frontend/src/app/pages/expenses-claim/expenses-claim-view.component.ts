@@ -15,6 +15,9 @@ import { finalize } from 'rxjs';
 import { ExpensesClaim, ExpensesClaimService } from './expenses-claim.service';
 import { AttachmentInfo } from '../../shared/upload/upload.service';
 
+/** Each form version keeps its own PDF builder, so finished documents print exactly as they were completed. */
+const PDF_BUILDERS: Record<number, typeof buildExpensesClaimPdf> = { 1: buildExpensesClaimPdf };
+
 @Component({
   selector: 'app-expenses-claim-view',
   standalone: true,
@@ -74,11 +77,11 @@ export class ExpensesClaimViewComponent implements OnInit, OnDestroy {
     this.pdfError.set('');
     try {
       const [people, logo, lines] = await Promise.all([
-        firstValueFrom(this.directory.resolvePeople([r.verifiedBy, r.approvedBy])),
+        firstValueFrom(this.directory.resolvePeople([r.verifiedBy, r.approvedBy], r.signers)),
         loadLogoPng(),
         createLineCounter(),
       ]);
-      const blob = await createPdfBlob(buildExpensesClaimPdf(r, people, logo, lines));
+      const blob = await createPdfBlob((PDF_BUILDERS[r.formVersion] ?? buildExpensesClaimPdf)(r, people, logo, lines));
       this.closePdf();
       this.pdf.set({
         url: URL.createObjectURL(blob),

@@ -33,6 +33,11 @@ export class AppShellComponent {
     { path: '/anti-corruption/gift-hospitality-offering', code: '4-ACGH-02', title: 'Gift/Hospitality Offering Requests', icon: 'gift', permission: 'gift-hospitality-offering.view', waiting: () => this.approvals.giftOfferingCount() },
     { path: '/anti-corruption/gift-hospitality-receiving', code: '4-ACGH-01', title: 'Gift/Hospitality Receiving Requests', icon: 'gift', permission: 'gift-hospitality-receiving.view', waiting: () => this.approvals.giftReceivingCount() },
   ].filter((form) => this.auth.hasPermission(form.permission));
+  readonly designReviewOpen = signal(true);
+  readonly designReviewForms = [
+    { path: '/design-review/concept', code: '20 - FORM MTDD-01', title: 'Concept Design Review', permission: 'design-review.view', waiting: () => this.approvals.designReviewCount() },
+  ].filter((form) => this.auth.hasPermission(form.permission));
+  readonly canManageProjects = this.auth.hasPermission('projects.manage');
   readonly procurementOpen = signal(true);
   readonly procurementForms = [
     { path: '/procurement/requisitions', code: 'MTPC-02', title: 'Purchase Requisitions', permission: 'purchase-requisition.view', waiting: () => this.approvals.purchaseRequisitionCount() },

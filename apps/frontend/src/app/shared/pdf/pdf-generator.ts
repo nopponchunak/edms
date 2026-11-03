@@ -8,15 +8,21 @@ interface PdfMakeStatic {
 let pdfMake: Promise<PdfMakeStatic> | null = null;
 
 function loadPdfMake(): Promise<PdfMakeStatic> {
-  pdfMake ??= import('pdfmake/build/pdfmake').then((module) => {
+  pdfMake ??= import('pdfmake/build/pdfmake').then(async (module) => {
     const lib = ((module as { default?: unknown }).default ?? module) as PdfMakeStatic;
     const font = (file: string) => new URL(`fonts/${file}`, document.baseURI).href;
+    // Vladimir Script is a Microsoft font and is not kept in git (see .gitignore): use it when the file has been placed
+    // in public/fonts, otherwise fall back to the bundled Allura. (A missing file can come back as the SPA's HTML page.)
+    const vladimir = await fetch(font('VladimirScript.ttf'), { method: 'HEAD' })
+      .then((r) => r.ok && !(r.headers.get('content-type') ?? '').includes('text/html'))
+      .catch(() => false);
+    const signature = font(vladimir ? 'VladimirScript.ttf' : 'Allura-Regular.ttf');
     lib.addFonts({
       Signature: {
-        normal: font('Allura-Regular.ttf'),
-        bold: font('Allura-Regular.ttf'),
-        italics: font('Allura-Regular.ttf'),
-        bolditalics: font('Allura-Regular.ttf'),
+        normal: signature,
+        bold: signature,
+        italics: signature,
+        bolditalics: signature,
       },
       Sarabun: {
         normal: font('Sarabun-Regular.ttf'),

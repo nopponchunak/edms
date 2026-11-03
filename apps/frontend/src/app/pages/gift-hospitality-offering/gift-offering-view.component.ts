@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, firstValueFrom } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
+import { ReassignApproverComponent } from '../../shared/reassign-approver/reassign-approver.component';
 import { ApprovalHistoryComponent, HistoryEvent } from '../../shared/approval-history/approval-history.component';
 import { ApprovalsService } from '../../shared/approvals/approvals.service';
 import { DirectoryService } from '../../shared/directory/directory.service';
@@ -15,10 +16,13 @@ import { buildGiftOfferingPdf } from './gift-offering-pdf';
 import { GiftOffering, GiftOfferingService, GiftOfferingEvent, OFFERING_TYPE_LABELS } from './gift-offering.service';
 import { currentOfferingStep, isOfferingTurnOf, OFFERING_STEPS } from './gift-offering-steps';
 
+/** Each form version keeps its own PDF builder, so finished documents print exactly as they were completed. */
+const PDF_BUILDERS: Record<number, typeof buildGiftOfferingPdf> = { 1: buildGiftOfferingPdf };
+
 @Component({
   selector: 'app-gift-offering-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ApprovalHistoryComponent, PdfPreviewDialogComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ApprovalHistoryComponent, PdfPreviewDialogComponent, ReassignApproverComponent],
   templateUrl: './gift-offering-view.component.html',
   styleUrl: './gift-offering-view.component.scss',
 })
@@ -43,6 +47,28 @@ export class GiftOfferingViewComponent implements OnInit, OnDestroy {
   /** The decision dialog (comment + Approve / Reject / Cancel) is open while this is true. */
   readonly deciding = signal(false);
   readonly comment = signal('');
+  /** The revision and comment history is collapsed until opened. */
+  readonly historyOpen = signal(false);
+
+  /** Administrators can hand a waiting step to someone else (e.g. the person has left). */
+  readonly isAdmin = this.auth.isAdministrator();
+  readonly waitingStep = computed(() => {
+    const r = this.record();
+    return r ? currentOfferingStep(r) : null;
+  });
+  readonly waitingPerson = computed(() => {
+    const r = this.record();
+    const step = this.waitingStep();
+    return r && step ? (r[step.by] as string) : '';
+  });
+
+  onReassigned(record: unknown): void {
+    const r = record as GiftOffering;
+    this.record.set(r);
+    this.loadNames(r);
+    this.loadEvents(r.id);
+    this.approvals.refresh();
+  }
 
   readonly pdfBusy = signal(false);
   readonly pdfError = signal('');
@@ -88,11 +114,11 @@ export class GiftOfferingViewComponent implements OnInit, OnDestroy {
     this.pdfError.set('');
     try {
       const [people, logo, measure] = await Promise.all([
-        firstValueFrom(this.directory.resolvePeople([r.createBy, ...OFFERING_STEPS.map((s) => r[s.by] as string | null)])),
+        firstValueFrom(this.directory.resolvePeople([r.createBy, ...OFFERING_STEPS.map((s) => r[s.by] as string | null)], r.signers)),
         loadLogoPng(),
         createTextMeasure(),
       ]);
-      const blob = await createPdfBlob(buildGiftOfferingPdf(r, people, logo, measure));
+      const blob = await createPdfBlob((PDF_BUILDERS[r.formVersion] ?? buildGiftOfferingPdf)(r, people, logo, measure));
       this.closePdf();
       this.pdf.set({
         url: URL.createObjectURL(blob),
@@ -124,7 +150,7 @@ export class GiftOfferingViewComponent implements OnInit, OnDestroy {
 
   private loadNames(r: GiftOffering): void {
     const usernames = [r.createBy, ...OFFERING_STEPS.map((s) => r[s.by] as string | null)];
-    this.directory.resolveNames(usernames).subscribe((names) => this.names.set(names));
+    this.directory.resolveNames(usernames, r.signers).subscribe((names) => this.names.set(names));
   }
 
   nameOf(username: string | null): string {

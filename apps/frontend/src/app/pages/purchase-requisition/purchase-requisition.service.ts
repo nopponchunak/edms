@@ -67,6 +67,10 @@ export interface PurchaseRequisition {
   actionComment: string | null;
   version: number;
   status: 'draft' | 'submitted' | 'verified' | 'approved' | 'rejected';
+  /** The layout / flow the document was filed under. */
+  formVersion: number;
+  /** Name and code of each signer as they were when they signed. */
+  signers: Record<string, { name: string; code: string | null }>;
   createBy: string | null;
   createdAt: string;
   updatedAt: string;

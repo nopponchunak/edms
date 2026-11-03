@@ -9,6 +9,8 @@ import { offeringWaitingFor } from '../gift-hospitality-offering/gift-hospitalit
 import { GiftOfferingEntity } from '../gift-hospitality-offering/entities/gift-hospitality-offering.entity';
 import { giftWaitingFor } from '../gift-hospitality-receiving/gift-hospitality-receiving.rules';
 import { GiftReceivingEntity } from '../gift-hospitality-receiving/entities/gift-hospitality-receiving.entity';
+import { DesignReviewEntity } from '../design-review/entities/design-review.entity';
+import { drWaitingFor } from '../design-review/design-review.rules';
 import { PurchaseRequisitionEntity } from '../purchase-requisition/entities/purchase-requisition.entity';
 import { prWaitingFor } from '../purchase-requisition/purchase-requisition.rules';
 import { waitingFor } from './waiting';
@@ -16,7 +18,7 @@ import { waitingFor } from './waiting';
 export type ApprovalStage = 'verify' | 'approve' | 'acknowledge';
 
 export interface PendingItem {
-  form: 'expenses' | 'allowance' | 'charitable' | 'gift-receiving' | 'gift-offering' | 'purchase-requisition';
+  form: 'expenses' | 'allowance' | 'charitable' | 'gift-receiving' | 'gift-offering' | 'purchase-requisition' | 'design-review';
   id: number;
   voucherNo: string | null;
   claimantName: string;
@@ -37,10 +39,11 @@ export class ApprovalsService {
     @InjectRepository(GiftReceivingEntity) private readonly giftReceivings: Repository<GiftReceivingEntity>,
     @InjectRepository(GiftOfferingEntity) private readonly giftOfferings: Repository<GiftOfferingEntity>,
     @InjectRepository(PurchaseRequisitionEntity) private readonly requisitions: Repository<PurchaseRequisitionEntity>,
+    @InjectRepository(DesignReviewEntity) private readonly designReviews: Repository<DesignReviewEntity>,
   ) {}
 
   async pending(username: string) {
-    const [claims, allowances, charitableRecords, giftRecords, offeringRecords, prRecords] = await Promise.all([
+    const [claims, allowances, charitableRecords, giftRecords, offeringRecords, prRecords, drRecords] = await Promise.all([
       this.claims.createQueryBuilder('c')
         .where(waitingFor('c', 'verifiedBy', 'verifiedByStatus', 'approvedBy', 'approvedByStatus'))
         .setParameter('me', username)
@@ -74,6 +77,12 @@ export class ApprovalsService {
         .andWhere(prWaitingFor('p'))
         .setParameter('me', username)
         .orderBy('p.updated_at', 'ASC')
+        .getMany(),
+      this.designReviews.createQueryBuilder('d')
+        .where('d.deleted_at IS NULL')
+        .andWhere(drWaitingFor('d'))
+        .setParameter('me', username)
+        .orderBy('d.updated_at', 'ASC')
         .getMany(),
     ]);
 
@@ -142,15 +151,36 @@ export class ApprovalsService {
       submittedAt: p.updatedAt,
     }));
 
+    const drItems: PendingItem[] = drRecords.map((d) => ({
+      form: 'design-review' as const,
+      id: d.id,
+      voucherNo: d.voucherNo,
+      claimantName: d.preparedBy,
+      totalBaht: '0',
+      currency: '',
+      stage: this.drStage(d, username),
+      submittedAt: d.updatedAt,
+    }));
+
     return {
-      total: expenses.length + allowanceItems.length + charitableItems.length + giftItems.length + offeringItems.length + prItems.length,
+      total: expenses.length + allowanceItems.length + charitableItems.length + giftItems.length + offeringItems.length + prItems.length + drItems.length,
       expenses: { count: expenses.length, items: expenses.slice(0, ITEM_LIMIT) },
       allowances: { count: allowanceItems.length, items: allowanceItems.slice(0, ITEM_LIMIT) },
       charitable: { count: charitableItems.length, items: charitableItems.slice(0, ITEM_LIMIT) },
       giftReceiving: { count: giftItems.length, items: giftItems.slice(0, ITEM_LIMIT) },
       giftOffering: { count: offeringItems.length, items: offeringItems.slice(0, ITEM_LIMIT) },
       purchaseRequisition: { count: prItems.length, items: prItems.slice(0, ITEM_LIMIT) },
+      designReview: { count: drItems.length, items: drItems.slice(0, ITEM_LIMIT) },
     };
+  }
+
+  /** Reviewed / responded count as verifying, the TL sign-offs as approving, and DI acknowledges. */
+  private drStage(d: DesignReviewEntity, username: string): ApprovalStage {
+    const me = username.toLowerCase();
+    const pending = (by: string | null, status: string | null) => by?.toLowerCase() === me && status === 'pending';
+    if (pending(d.reviewBy, d.reviewByStatus) || pending(d.respondBy, d.respondByStatus)) return 'verify';
+    if (pending(d.ackBy, d.ackByStatus)) return 'acknowledge';
+    return 'approve';
   }
 
   private prStage(p: PurchaseRequisitionEntity, username: string): ApprovalStage {

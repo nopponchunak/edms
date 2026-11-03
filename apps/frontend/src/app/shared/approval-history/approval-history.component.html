@@ -10,9 +10,9 @@
           @if (event.tone === 'pending') {
             <div class="timeline-date">Pending</div>
           } @else if (event.tone === 'rejected') {
-            <div class="timeline-date timeline-date--rejected">Rejected{{ event.date ? ' · ' + (event.date | date:'dd MMM yyyy, HH:mm') : '' }}</div>
+            <div class="timeline-date timeline-date--rejected">Rejected{{ event.date ? ' · ' + (event.date | date:'dd MMM yyyy, hh:mm a') : '' }}</div>
           } @else if (event.date) {
-            <div class="timeline-date">{{ event.date | date:'dd MMM yyyy, HH:mm' }}</div>
+            <div class="timeline-date">{{ event.date | date:'dd MMM yyyy, hh:mm a' }}</div>
           }
         </div>
       </li>

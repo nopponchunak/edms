@@ -14,6 +14,9 @@ import { AllowanceModule } from './allowance-after-10pm/allowance.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { ApprovalsModule } from './approvals/approvals.module';
 import { CommitteesModule } from './committees/committees.module';
+import { DesignReviewModule } from './design-review/design-review.module';
+import { ProjectsModule } from './projects/projects.module';
+import { LifecycleModule } from './lifecycle/lifecycle.module';
 import { PurchaseRequisitionModule } from './purchase-requisition/purchase-requisition.module';
 import { GiftOfferingModule } from './gift-hospitality-offering/gift-hospitality-offering.module';
 import { GiftReceivingModule } from './gift-hospitality-receiving/gift-hospitality-receiving.module';
@@ -51,6 +54,9 @@ import { CharitableContributionModule } from './charitable-contribution/charitab
     GiftReceivingModule,
     GiftOfferingModule,
     PurchaseRequisitionModule,
+    LifecycleModule,
+    ProjectsModule,
+    DesignReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],

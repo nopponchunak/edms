@@ -14,3 +14,6 @@ system_old/**/vendor/
 # Local data that must not be published: database dumps (real employee records) and uploaded attachments.
 dump-*.sql
 apps/backend/uploads/
+
+# Vladimir Script is a Microsoft font: keep it local, do not publish it
+apps/frontend/public/fonts/VladimirScript.ttf

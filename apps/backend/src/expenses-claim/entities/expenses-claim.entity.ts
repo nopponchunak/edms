@@ -50,6 +50,14 @@ export class ExpensesClaimEntity {
   @Column({ name: 'draft_payload', type: 'jsonb', nullable: true })
   draftPayload!: unknown | null;
 
+  /** The layout / flow this document was filed under; finished documents keep opening in that version. */
+  @Column({ name: 'form_version', type: 'int', default: 1 })
+  formVersion!: number;
+
+  /** Name and employee code of the people who signed, as they were when they signed (never overwritten). */
+  @Column({ type: 'jsonb', default: () => "'{}'" })
+  signers!: Record<string, { name: string; code: string | null }>;
+
   @Column({ name: 'create_by', type: 'varchar', length: 100, nullable: true })
   createBy!: string | null;
 
